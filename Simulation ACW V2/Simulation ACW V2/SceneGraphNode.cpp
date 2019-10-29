@@ -17,10 +17,20 @@ void SceneGraphNode::addChild(SceneGraphNode* pChild)
 
 void SceneGraphNode::updateSceneGraph(float pDt, Matrix4F pWorldMatrix)
 {
-	mCurrentMatrix = pWorldMatrix * updateNode(pDt);
+	mUpdateMatrix = pWorldMatrix * updateNode(pDt);
 
 	for (auto& child : mChildren)
 	{
-		child->updateSceneGraph(pDt, mCurrentMatrix);
+		child->updateSceneGraph(pDt, mUpdateMatrix);
+	}
+}
+
+void SceneGraphNode::swap()
+{
+	mRenderMatrix = mUpdateMatrix;
+
+	for (auto& child : mChildren)
+	{
+		child->swap();
 	}
 }

@@ -14,7 +14,7 @@ void Cylinder::render(Shader* pShader) const
 
 	if (mParent)
 	{
-		modelMat = modelMat * mParent->getMatrix();
+		modelMat = modelMat * mParent->getRenderMatrix();
 	}
 
 	const auto translation = Matrix4F::createTranslation(mRenderPos);

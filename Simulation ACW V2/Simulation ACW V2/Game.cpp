@@ -15,6 +15,7 @@
 #include "PlaneHoles.h"
 #include "CollisionDetection.h"
 #include "CollisionResponse.h"
+#include <thread>
 
 float Game::mDt = 0.0f;
 float Game::mTimeScale = 1.0f;
@@ -292,8 +293,20 @@ void Game::run()
 		}
 
 		swap();
-		render();
+		
+		if (!mPause)
+		{
+			std::thread upda = std::thread(&Game::update, this);
+			render();
+			upda.join();
+		}
+		else
+		{
+			render();
+		}
+
 		update();
+		render();
 
 		double now = glfwGetTime();
 
@@ -311,11 +324,12 @@ void Game::swap()
 	octree->UpdateTree();
 	octree->GetRigidBodies(octreeBody);
 	updateObjectRender();
+	sceneGraph->swap();
 }
 
 void Game::update()
 {
-	simulationLoop();
+	//simulationLoop();
 }
 
 void Game::simulationLoop()

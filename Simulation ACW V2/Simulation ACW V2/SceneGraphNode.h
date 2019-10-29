@@ -8,7 +8,9 @@ class SceneGraphNode
 	std::vector<SceneGraphNode *> mChildren;
 
 protected:
-	Matrix4F mCurrentMatrix;
+	Matrix4F mUpdateMatrix;
+	Matrix4F mRenderMatrix;
+	
 
 public:
 	SceneGraphNode();
@@ -17,9 +19,15 @@ public:
 	void addChild(SceneGraphNode * pChild);
 	void updateSceneGraph(float pDt, Matrix4F pWorldMatrix);
 	virtual Matrix4F updateNode(float pDt) = 0;
+	void swap();
 
-	Matrix4F getMatrix()
+	Matrix4F getUpdateMatrix()
 	{
-		return mCurrentMatrix;
+		return mUpdateMatrix;
+	}
+
+	Matrix4F getRenderMatrix()
+	{
+		return mRenderMatrix;
 	}
 };

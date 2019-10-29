@@ -150,7 +150,7 @@ Matrix4F RigidBody::getMatrix() const
 
 	if (mParent)
 	{
-		modelMat = modelMat * mParent->getMatrix();
+		modelMat = modelMat * mParent->getUpdateMatrix();
 	}
 
 	const auto translation = Matrix4F::createTranslation(mPos);
