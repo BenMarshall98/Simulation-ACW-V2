@@ -1,6 +1,7 @@
 #include "ContactManifold.h"
+#include "algorithm"
 
-ContactManifold::ContactManifold() : mPoints{}, mNumOfPoints(0)
+ContactManifold::ContactManifold() : mNumOfPoints(0)
 {
 }
 
@@ -8,12 +9,13 @@ ContactManifold::~ContactManifold() = default;
 
 void ContactManifold::add(const ManifoldPoint & pPoint)
 {
-	mPoints[mNumOfPoints] = pPoint;
+	mPoints.push_back(pPoint);
 	++mNumOfPoints;
 }
 
 void ContactManifold::clear()
 {
+	mPoints.clear();
 	mNumOfPoints = 0;
 }
 
@@ -25,4 +27,13 @@ int ContactManifold::getNumPoints() const
 ManifoldPoint & ContactManifold::getPoint(const int pIndex)
 {
 	return mPoints[pIndex];
+}
+
+void ContactManifold::sort()
+{
+	std::sort(mPoints.begin(), mPoints.end(), 
+		[](ManifoldPoint pPoint1, ManifoldPoint pPoint2)
+	{
+		return pPoint1.mTime < pPoint2.mTime;
+	});
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3f.h"
+#include <vector>
 
 class RigidBody;
 
@@ -25,11 +26,12 @@ public:
 
 	void add(const ManifoldPoint& pPoint);
 	void clear();
+	void sort();
 	int getNumPoints() const;
 	ManifoldPoint& getPoint(int pIndex);
 
 private:
-	ManifoldPoint mPoints[1000];
+	std::vector<ManifoldPoint> mPoints;
 	int mNumOfPoints;
 };
 

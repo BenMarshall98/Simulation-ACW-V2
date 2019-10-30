@@ -389,8 +389,41 @@ void Game::simulationLoop()
 	mPossibleCollisions.clear();
 	octree->GetPossibleCollisions(mPossibleCollisions);
 
+	for (int i = 0; i < mPossibleCollisions.size(); i++)
+	{
+		auto it = mPossibleRigidBodyCollisions.find(mPossibleCollisions[i].rigidBody1);
+		if (it != mPossibleRigidBodyCollisions.end())
+		{
+			it->second.push_back(mPossibleCollisions[i].rigidBody2);
+		}
+		else
+		{
+			mPossibleRigidBodyCollisions.insert(
+				std::pair < RigidBody *, std::vector<RigidBody *>>(
+						mPossibleCollisions[i].rigidBody1, std::vector<RigidBody *>{mPossibleCollisions[i].rigidBody2}
+				)
+			);
+		}
+
+		it = mPossibleRigidBodyCollisions.find(mPossibleCollisions[i].rigidBody2);
+		if (it != mPossibleRigidBodyCollisions.end())
+		{
+			it->second.push_back(mPossibleCollisions[i].rigidBody1);
+		}
+		else
+		{
+			mPossibleRigidBodyCollisions.insert(
+				std::pair < RigidBody *, std::vector<RigidBody *>>(
+					mPossibleCollisions[i].rigidBody2, std::vector<RigidBody *>{mPossibleCollisions[i].rigidBody1}
+				)
+			);
+		}
+	}
+
 	// Find dynamic collisions for all objects and add to contact manifold
 	dynamicCollisionDetection();
+
+	mManifold->sort();
 
 	// Handle dynamic collision responses using the contact manifold
 	dynamicCollisionResponse();
@@ -411,6 +444,7 @@ void Game::calculateObjectPhysics() const
 
 void Game::dynamicCollisionDetection() const
 {
+	OutputDebugString((std::to_string(mPossibleCollisions.size()) + "\n").c_str());
 	for (int i = 0; i < sceneBody.size(); i++)
 	{
 		for (int j = 0; j < octreeBody.size(); j++)
@@ -427,6 +461,7 @@ void Game::dynamicCollisionDetection() const
 
 void Game::dynamicCollisionResponse() const
 {
+	OutputDebugString((std::to_string(mManifold->getNumPoints()) + "\n").c_str());
 	for (auto collision = 0; collision < mManifold->getNumPoints(); ++collision)
 	{
 		auto point = mManifold->getPoint(collision);

@@ -8,11 +8,11 @@
 class CollisionResponse
 {
 public:
-	static void dynamicCollisionResponse(ManifoldPoint & pPoint);
+	static void dynamicCollisionResponse(ManifoldPoint & pPoint, bool & moved1, bool & moved2);
 
 private:
-	static void respondCollisionSphereSphere(Sphere * pSphere1, Sphere * pSphere2, ManifoldPoint & pPoint);
-	static void respondCollisionSpherePlane(Sphere * pSphere, Plane * pPlane, ManifoldPoint & pPoint);
-	static void respondCollisionSpherePlaneHoles(Sphere * pSphere, PlaneHoles * pPlaneHoles, ManifoldPoint & pPoint);
+	static void respondCollisionSphereSphere(ManifoldPoint & pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool &moved1, bool & moved2);
+	static void respondCollisionSpherePlane(ManifoldPoint & pPoint, RigidBody * pSphere, RigidBody * pPlane, bool &moved1, bool &moved2);
+	static void respondCollisionSpherePlaneHoles(ManifoldPoint & pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool &moved1, bool &moved2);
 };
 

@@ -7,6 +7,7 @@
 #include "HoldingContainer.h"
 #include "ContactManifold.h"
 #include <condition_variable>
+#include <map>
 
 class Game
 {
@@ -15,7 +16,8 @@ class Game
 	bool ready = false;
 	bool processed = false;
 	bool end = false;
-	
+
+	std::map<RigidBody *, std::vector<RigidBody *>> mPossibleRigidBodyCollisions;
 	Shader * mPlaneShader;
 	Shader * mSphereShader;
 	IdentityNode * sceneGraph;
