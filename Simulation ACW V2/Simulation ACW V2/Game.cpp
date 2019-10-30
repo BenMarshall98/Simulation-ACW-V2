@@ -282,6 +282,7 @@ Game::~Game()
 void Game::run()
 {
 	swap();
+	std::thread update_thread(&Game::update, this);
 	
 	double lastTime = glfwGetTime();
 	while (GLFWWindow::instance()->windowEvents())
@@ -296,17 +297,35 @@ void Game::run()
 		
 		if (!mPause)
 		{
-			std::thread upda = std::thread(&Game::update, this);
+			//std::thread upda = std::thread(&Game::update, this);
+			//render();
+			//upda.join();
+
+			{
+				std::lock_guard<std::mutex> lock(m);
+				ready = true;
+				processed = false;
+			}
+
+			cv.notify_one();
+
 			render();
-			upda.join();
+
+			{
+				std::unique_lock<std::mutex> lock(m);
+				cv.wait(lock, [this] {return processed; });
+			}
+
+			//update();
+			//render();
 		}
 		else
 		{
 			render();
 		}
 
-		update();
-		render();
+		/*update();
+		render();*/
 
 		double now = glfwGetTime();
 
@@ -315,6 +334,16 @@ void Game::run()
 		OutputDebugString((std::to_string(mDt) + "\n").c_str());
 		lastTime = now;
 	}
+
+	{
+		std::lock_guard<std::mutex>lock(m);
+		ready = true;
+		end = true;
+	}
+
+	cv.notify_one();
+
+	update_thread.join();
 }
 
 void Game::swap()
@@ -329,6 +358,24 @@ void Game::swap()
 
 void Game::update()
 {
+	while(true)
+	{
+		std::unique_lock<std::mutex> lock(m);
+		cv.wait(lock, [this] {return ready; });
+
+		if (end)
+		{
+			lock.unlock();
+			return;
+		}
+
+		simulationLoop();
+
+		processed = true;
+		ready = false;
+		lock.unlock();
+		cv.notify_one();
+	}
 	//simulationLoop();
 }
 

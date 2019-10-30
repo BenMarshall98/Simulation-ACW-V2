@@ -6,9 +6,16 @@
 #include "IdentityNode.h"
 #include "HoldingContainer.h"
 #include "ContactManifold.h"
+#include <condition_variable>
 
 class Game
 {
+	std::mutex m;
+	std::condition_variable cv;
+	bool ready = false;
+	bool processed = false;
+	bool end = false;
+	
 	Shader * mPlaneShader;
 	Shader * mSphereShader;
 	IdentityNode * sceneGraph;
