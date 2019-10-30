@@ -1,8 +1,8 @@
 #include "GLFWWindow.h"
 
-GLFWWindow * GLFWWindow::mInstance = nullptr;
+#include "Game.h"
 
-std::map<char, SceneGraphAnimation *> GLFWWindow::keyListener = std::map<char, SceneGraphAnimation *>();
+GLFWWindow * GLFWWindow::mInstance = nullptr;
 
 GLFWWindow::GLFWWindow()
 {
@@ -45,6 +45,123 @@ bool GLFWWindow::windowEvents()
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		Game::camera->PanForward(true);
+	}
+	else
+	{
+		Game::camera->PanForward(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		Game::camera->PanBackward(true);
+	}
+	else
+	{
+		Game::camera->PanBackward(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		Game::camera->RotateUp(true);
+	}
+	else
+	{
+		Game::camera->RotateUp(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		Game::camera->RotateDown(true);
+	}
+	else
+	{
+		Game::camera->RotateDown(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		Game::camera->RotateLeft(true);
+	}
+	else
+	{
+		Game::camera->RotateLeft(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		Game::camera->RotateRight(true);
+	}
+	else
+	{
+		Game::camera->RotateRight(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	{
+		Game::setPause();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+	{
+		Game::setReset();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+	{
+		Game::changeTimeScale(true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	{
+		Game::changeTimeScale(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		Game::changeFriction(true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	{
+		Game::changeFriction(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		Game::changeSphereElasticty(true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+	{
+		Game::changeSphereElasticty(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+	{
+		Game::changeSphereSize(true);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+	{
+		Game::changeSphereSize(false);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+	{
+		Game::addSphere();
+	}
+
+	for (auto it = keyListener.begin(); it != keyListener.end(); --it)
+	{
+		if (glfwGetKey(window, it->first) == GLFW_PRESS)
+		{
+			it->second->keyPressed(it->first);
+		}
+	}
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	return !glfwWindowShouldClose(window);

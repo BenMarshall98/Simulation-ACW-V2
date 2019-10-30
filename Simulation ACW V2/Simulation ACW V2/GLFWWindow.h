@@ -1,4 +1,5 @@
 #pragma once
+#include "gl.h"
 #include "GLFW/glfw3.h"
 #include <map>
 #include "SceneGraphAnimation.h"
@@ -7,7 +8,7 @@ class GLFWWindow
 {
 	static GLFWWindow * mInstance;
 
-	static std::map<char, SceneGraphAnimation *> keyListener;
+	std::map<char, SceneGraphAnimation *> keyListener;
 	GLFWwindow * window;
 
 	int mWidth = 800;
@@ -20,12 +21,12 @@ public:
 
 	static GLFWWindow * instance();
 
-	static void addKeyListener(char pKey, SceneGraphAnimation * pAnimation)
+	void addKeyListener(char pKey, SceneGraphAnimation * pAnimation)
 	{
 		keyListener[pKey] = pAnimation;
 	}
 
-	static void removeKeyListener(char pKey)
+	void removeKeyListener(char pKey)
 	{
 		auto it = keyListener.find(pKey);
 
