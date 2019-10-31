@@ -388,6 +388,7 @@ void Game::simulationLoop()
 	mManifold->clear();
 	mPossibleCollisions.clear();
 	octree->GetPossibleCollisions(mPossibleCollisions);
+	mPossibleRigidBodyCollisions.clear();
 
 	for (int i = 0; i < mPossibleCollisions.size(); i++)
 	{
@@ -464,8 +465,10 @@ void Game::dynamicCollisionResponse() const
 	OutputDebugString((std::to_string(mManifold->getNumPoints()) + "\n").c_str());
 	for (auto collision = 0; collision < mManifold->getNumPoints(); ++collision)
 	{
+		bool moved1 = false;
+		bool moved2 = false;
 		auto point = mManifold->getPoint(collision);
-		CollisionResponse::dynamicCollisionResponse(point);
+		CollisionResponse::dynamicCollisionResponse(point, moved1, moved2);
 	}
 }
 

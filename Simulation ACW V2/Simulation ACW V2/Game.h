@@ -86,6 +86,10 @@ public:
 		{
 			mTimeScale -= 0.1f;
 		}
+		else
+		{
+			mTimeScale = 0.0f;
+		}
 	}
 
 	static void changeFriction(bool pDirection)
@@ -97,6 +101,10 @@ public:
 		else if (mFriction > 0.0f)
 		{
 			mFriction -= 0.1f;
+		}
+		else
+		{
+			mFriction = 0.0f;
 		}
 	}
 

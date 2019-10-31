@@ -133,6 +133,7 @@
     <ClCompile Include="HoldingCell.cpp" />
     <ClCompile Include="HoldingContainer.cpp" />
     <ClCompile Include="IdentityNode.cpp" />
+    <ClCompile Include="Matrix3F.cpp" />
     <ClCompile Include="Matrix4F.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Octree.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="HoldingCell.h" />
     <ClInclude Include="HoldingContainer.h" />
     <ClInclude Include="IdentityNode.h" />
+    <ClInclude Include="Matrix3F.h" />
     <ClInclude Include="Matrix4F.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Octree.h" />

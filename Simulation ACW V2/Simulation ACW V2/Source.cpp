@@ -1,8 +1,6 @@
 #pragma comment(lib, "opengl32.lib")
 #include "gl.h"
 #include "GLFWWindow.h"
-#include <string>
-#include <iostream>
 #include "Game.h"
 
 int main()

@@ -154,7 +154,7 @@ bool GLFWWindow::windowEvents()
 		Game::addSphere();
 	}
 
-	for (auto it = keyListener.begin(); it != keyListener.end(); --it)
+	for (auto it = keyListener.begin(); it != keyListener.end(); ++it)
 	{
 		if (glfwGetKey(window, it->first) == GLFW_PRESS)
 		{
