@@ -4,8 +4,9 @@
 
 int RigidBody::mCountId = 0;
 
-RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pRotationAxis, const float pRotationAngle, const Vector3F pVelocity, const ObjectType pType) :
-	mSize(pSize), mMass(pMass), mPos(pPos), mRotationAxis(pRotationAxis), mRotationAngle(pRotationAngle), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity)
+RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity, const ObjectType pType) :
+	mSize(pSize), mMass(pMass), mPos(pPos), mAngularVelocity(pAngularVelocity), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity),
+	mNewAngularVelocity(pAngularVelocity), mRotation(Matrix3F()), mNewRotation(Matrix3F())
 {
 }
 
@@ -27,6 +28,16 @@ void RigidBody::setVel(const Vector3F pVel)
 void RigidBody::setNewVel(const Vector3F pVel)
 {
 	mNewVelocity = pVel;
+}
+
+void RigidBody::setAngularVel(Vector3F pAngularVel)
+{
+	mAngularVelocity = pAngularVel;
+}
+
+void RigidBody::setNewAngularVel(Vector3F pAngularVel)
+{
+	mNewAngularVelocity = pAngularVel;
 }
 
 void RigidBody::setMass(const float pMass)
@@ -125,6 +136,7 @@ Vector3F RigidBody::getRenderPos() const
 void RigidBody::updateRender()
 {
 	mRenderPos = mPos;
+	mRenderRotation = mRotation;
 }
 
 
@@ -133,10 +145,34 @@ Vector3F RigidBody::getNewPos() const
 	return mNewPos;
 }
 
+Matrix3F RigidBody::getOrientation() const
+{
+	return mRotation;
+}
+
+Matrix3F RigidBody::getRenderOrientation() const
+{
+	return mRenderRotation;
+}
+
+Matrix3F RigidBody::getNewOrientation() const
+{
+	return mNewRotation;
+}
+
+Vector3F RigidBody::getAngularVelocity() const
+{
+	return mAngularVelocity;
+}
+
+Vector3F RigidBody::getNewAngularVelocity() const
+{
+	return mNewAngularVelocity;
+}
+
 Vector3F RigidBody::getVel() const
 {
 	return mVelocity;
-
 }
 
 Vector3F RigidBody::getNewVel() const
@@ -155,7 +191,7 @@ Matrix4F RigidBody::getMatrix() const
 
 	const auto translation = Matrix4F::createTranslation(mPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F::createRotation(mRotationAxis, mRotationAngle);
+	const auto rotation = Matrix4F(mRotation);
 
 	modelMat = modelMat * translation * rotation * scale;
 

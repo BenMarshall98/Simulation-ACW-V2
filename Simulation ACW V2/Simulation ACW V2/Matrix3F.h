@@ -14,7 +14,7 @@ public:
 	static Matrix3F createRotation(const Vector3F &pVec, float pN);
 	static Matrix3F createSkew(const Vector3F &pVec);
 
-	float get(int pX, int pY);
+	float get(int pX, int pY) const;
 
 	Matrix3F add(const Matrix3F &pMat) const;
 	Matrix3F subtract(const Matrix3F &pMat) const;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3F.h"
+#include "Matrix3F.h"
 
 class Matrix4F
 {
@@ -10,6 +11,7 @@ public:
 		float p21, float p22, float p23, float p24,
 		float p31, float p32, float p33, float p34,
 		float p41, float p42, float p43, float p44);
+	Matrix4F(const Matrix3F & pMatrix);
 
 	static Matrix4F createIdentity();
 	static Matrix4F createTranslation(const Vector3F &pVec);

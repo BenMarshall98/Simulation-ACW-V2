@@ -55,7 +55,7 @@ Matrix3F Matrix3F::createSkew(const Vector3F& pVec)
 }
 
 
-float Matrix3F::get(const int pX, const int pY)
+float Matrix3F::get(const int pX, const int pY) const
 {
 	return mMatrix[pX][pY];
 }

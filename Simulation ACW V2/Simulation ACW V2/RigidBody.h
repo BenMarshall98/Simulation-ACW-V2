@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "gl.h"
 #include "Matrix4f.h"
+#include "Matrix3F.h"
 
 class SceneGraphNode;
 
@@ -12,12 +13,16 @@ struct State
 {
 	Vector3F pos;
 	Vector3F vel;
+	Vector3F angVel;
+	Matrix3F orientation;
 };
 
 struct Derivative
 {
 	Vector3F dVel;
 	Vector3F dAcc;
+	Vector3F dAngVel;
+	Vector3F dAngAcc;
 };
 
 enum class ObjectType
@@ -32,7 +37,7 @@ enum class ObjectType
 class RigidBody
 {
 public:
-	RigidBody(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity, ObjectType pType);
+	RigidBody(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity, ObjectType pType);
 	virtual ~RigidBody() = default;
 
 	RigidBody(const RigidBody &) = delete;
@@ -48,8 +53,10 @@ public:
 	void updateRender();
 	void setPos(Vector3F pPos);
 	void setVel(Vector3F pVel);
+	void setAngularVel(Vector3F pAngularVel);
 	void setNewPos(Vector3F pPos);
 	void setNewVel(Vector3F pVel);
+	void setNewAngularVel(Vector3F pAngularVel);
 	void setMass(float pMass);
 	void setSceneGraphNode(SceneGraphNode * pParent);
 
@@ -58,6 +65,11 @@ public:
 	Vector3F getNewPos() const;
 	Vector3F getVel() const;
 	Vector3F getNewVel() const;
+	Matrix3F getOrientation() const;
+	Matrix3F getRenderOrientation() const;
+	Matrix3F getNewOrientation() const;
+	Vector3F getAngularVelocity() const;
+	Vector3F getNewAngularVelocity() const;
 	Vector3F getSize() const;
 	Matrix4F getMatrix() const;
 
@@ -68,25 +80,31 @@ public:
 
 	virtual void render(Shader * pShader) const = 0;
 
-private:
-	ObjectType mType;
-
 protected:
-	SceneGraphNode * mParent = nullptr;
-	float mMass;
+	Matrix3F mRotation;
+	Matrix3F mRenderRotation;
+	Matrix3F mNewRotation;
+
 	Vector3F mPos;
 	Vector3F mRenderPos;
 	Vector3F mNewPos;
 	Vector3F mVelocity;
 	Vector3F mNewVelocity;
 	Vector3F mSize;
-	Vector3F mRotationAxis;
-	float mRotationAngle;
+	Vector3F mAngularVelocity;
+	Vector3F mNewAngularVelocity;
+
+	SceneGraphNode * mParent = nullptr;
+	float mMass;
 	int mObjectId;
 	GLuint mTexture;
 	Shader * mShader;
 	Model * mModel;
+	
+private:
+	ObjectType mType;
 
+protected:
 	static int mCountId;
 };
 

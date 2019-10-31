@@ -2,8 +2,8 @@
 #include "Matrix4f.h"
 #include "SceneGraphNode.h"
 
-Bowl::Bowl(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pRotationAxis, pRotationAngle, pVelocity, ObjectType::BOWL)
+Bowl::Bowl(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngulerVelocity ,Vector3F pVelocity) :
+	RigidBody(pSize, pMass, pPos, pAngulerVelocity, pVelocity, ObjectType::BOWL)
 {
 
 }
@@ -19,7 +19,7 @@ void Bowl::render(Shader* pShader) const
 
 	const auto translation = Matrix4F::createTranslation(mRenderPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F::createRotation(mRotationAxis, mRotationAngle);
+	const auto rotation = Matrix4F(mRenderRotation);
 
 	modelMat = modelMat * translation * rotation * scale;
 

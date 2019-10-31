@@ -16,6 +16,14 @@ Matrix4F::Matrix4F(const float p11, const float p12, const float p13, const floa
 {
 }
 
+Matrix4F::Matrix4F(const Matrix3F& pMatrix) :
+	mMatrix{ {pMatrix.get(0, 0), pMatrix.get(0, 1), pMatrix.get(0, 2), 0},
+			{pMatrix.get(1, 0), pMatrix.get(1, 1), pMatrix.get(1, 2), 0},
+			{pMatrix.get(2, 0), pMatrix.get(2, 1), pMatrix.get(2, 2), 0},
+			{0, 0, 0, 1} }
+{
+}
+
 
 Matrix4F Matrix4F::createIdentity()
 {
