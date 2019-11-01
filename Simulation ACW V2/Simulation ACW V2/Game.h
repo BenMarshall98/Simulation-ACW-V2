@@ -17,7 +17,7 @@ class Game
 	bool processed = false;
 	bool end = false;
 
-	std::map<RigidBody *, std::vector<RigidBody *>> mPossibleRigidBodyCollisions;
+	std::multimap<RigidBody *, RigidBody *> mPossibleRigidBodyCollisions;
 	Shader * mPlaneShader;
 	Shader * mSphereShader;
 	IdentityNode * sceneGraph;

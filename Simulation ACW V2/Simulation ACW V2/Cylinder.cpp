@@ -3,8 +3,8 @@
 #include "gl.h"
 #include "SceneGraphNode.h"
 
-Cylinder::Cylinder(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pRotationAxis, pRotationAngle, pVelocity, ObjectType::CYLINDER)
+Cylinder::Cylinder(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity) :
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CYLINDER)
 {
 }
 
@@ -19,7 +19,7 @@ void Cylinder::render(Shader* pShader) const
 
 	const auto translation = Matrix4F::createTranslation(mRenderPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F::createRotation(mRotationAxis, mRotationAngle);
+	const auto rotation = Matrix4F(mRenderRotation);
 
 	modelMat = modelMat * translation * rotation * scale;
 

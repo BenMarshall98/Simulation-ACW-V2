@@ -169,4 +169,6 @@ bool GLFWWindow::windowEvents()
 
 GLFWWindow::~GLFWWindow()
 {
+	glfwTerminate();
+	mInstance = nullptr;
 }

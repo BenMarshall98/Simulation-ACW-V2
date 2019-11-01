@@ -8,7 +8,7 @@
 class PlaneHoles : public RigidBody
 {
 public:
-	PlaneHoles(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity);
+	PlaneHoles(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
 	~PlaneHoles();
 
 	PlaneHoles(const PlaneHoles &) = delete;

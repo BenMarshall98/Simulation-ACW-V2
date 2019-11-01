@@ -16,7 +16,7 @@ public:
 
 	void addRigidBody(RigidBody * pRigidBody);
 
-	std::vector<RigidBody *> update();
+	void update(std::vector<RigidBody *> & pToReassign);
 
 	int getNumberRigidBody()
 	{

@@ -16,6 +16,7 @@ void ContactManifold::add(const ManifoldPoint & pPoint)
 void ContactManifold::clear()
 {
 	mPoints.clear();
+	mPoints.shrink_to_fit();
 	mNumOfPoints = 0;
 }
 

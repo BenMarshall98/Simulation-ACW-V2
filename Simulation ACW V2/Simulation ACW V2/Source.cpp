@@ -5,11 +5,13 @@
 
 int main()
 {
-	GLFWWindow::instance();
+	auto window = GLFWWindow::instance();
 
 	auto * game = new Game();
 
 	game->run();
 
 	delete game;
+
+	delete window;
 }

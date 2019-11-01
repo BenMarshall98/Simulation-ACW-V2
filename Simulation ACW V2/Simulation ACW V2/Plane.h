@@ -6,7 +6,7 @@
 class Plane final : public RigidBody
 {
 public:
-	Plane(float pMass, Vector3F pSize, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity);
+	Plane(float pMass, Vector3F pSize, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
 	~Plane() = default;
 
 	Plane(const Plane &) = delete;

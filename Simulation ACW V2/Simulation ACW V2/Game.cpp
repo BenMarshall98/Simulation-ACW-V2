@@ -73,7 +73,7 @@ Game::Game()
 	TranslationNode * planeHolesTranslationWithAnimation = new TranslationNode(Vector3F(0, 0, 0), planeHolesAnimation);
 	planeHolesTranslation->addChild(planeHolesTranslationWithAnimation);
 
-	PlaneHoles * planeHoles = new PlaneHoles(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	PlaneHoles * planeHoles = new PlaneHoles(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 	RigidBodyNode * planeHolesNode = new RigidBodyNode(planeHoles);
 	planeHolesTranslationWithAnimation->addChild(planeHolesNode);
 	sceneBody.push_back(planeHoles);
@@ -93,7 +93,7 @@ Game::Game()
 
 	propellerRotationWithAnimation->addChild(propellerCentreTranslation);
 
-	Cylinder * cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	Cylinder * cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * propellerCentreNode = new RigidBodyNode(cylinder);
 
@@ -116,7 +116,7 @@ Game::Game()
 
 	propellerBlade1Rotation->addChild(propellerBlade1Translation);
 
-	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0),  Vector3F(0, 0, 0));
 
 	RigidBodyNode * propellerBlade1Node = new RigidBodyNode(cylinder);
 
@@ -131,7 +131,7 @@ Game::Game()
 
 	propellerBlade2Rotation->addChild(propellerBlade2Translation);
 
-	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * propellerBlade2Node = new RigidBodyNode(cylinder);
 
@@ -146,7 +146,7 @@ Game::Game()
 
 	propellerBlade3Rotation->addChild(propellerBlade3Translation);
 
-	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * propellerBlade3Node = new RigidBodyNode(cylinder);
 
@@ -189,7 +189,7 @@ Game::Game()
 
 	planeTranslation->addChild(planeTranslationWithAnimation);
 
-	Plane * plane = new Plane(-1, Vector3F(5, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	Plane * plane = new Plane(-1, Vector3F(5, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * planeNode = new RigidBodyNode(plane);
 
@@ -204,7 +204,7 @@ Game::Game()
 
 	leftPlaneTranslation->addChild(leftPlaneRotation);
 
-	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * leftPlaneNode = new RigidBodyNode(plane);
 
@@ -219,7 +219,7 @@ Game::Game()
 
 	rightPlaneTranslation->addChild(rightPlaneRotation);
 
-	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * rightPlaneNode = new RigidBodyNode(plane);
 
@@ -234,7 +234,7 @@ Game::Game()
 
 	frontPlaneTranslation->addChild(frontPlaneRotation);
 
-	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * frontPlaneNode = new RigidBodyNode(plane);
 
@@ -250,7 +250,7 @@ Game::Game()
 
 	backPlaneTranslation->addChild(backPlaneRotation);
 
-	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * backPlaneNode = new RigidBodyNode(plane);
 
@@ -266,7 +266,7 @@ Game::Game()
 
 	bowlTranslation->addChild(bowlRotation);
 
-	Bowl * bowl = new Bowl(Vector3F(25, 25, 25), -1, Vector3F(0, 0, 0), Vector3F(0, 1, 0), 0, Vector3F(0, 0, 0));
+	Bowl * bowl = new Bowl(Vector3F(25, 25, 25), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
 	RigidBodyNode * bowlNode = new RigidBodyNode(bowl);
 
@@ -349,6 +349,7 @@ void Game::run()
 void Game::swap()
 {
 	octreeBody.clear();
+	octreeBody.shrink_to_fit();
 	mHoldingContainer->update();
 	octree->UpdateTree();
 	octree->GetRigidBodies(octreeBody);
@@ -387,38 +388,19 @@ void Game::simulationLoop()
 	// Clear the manifold so that we can calculate all collisions for this simulation loop
 	mManifold->clear();
 	mPossibleCollisions.clear();
+	mPossibleCollisions.shrink_to_fit();
 	octree->GetPossibleCollisions(mPossibleCollisions);
 	mPossibleRigidBodyCollisions.clear();
 
 	for (int i = 0; i < mPossibleCollisions.size(); i++)
 	{
-		auto it = mPossibleRigidBodyCollisions.find(mPossibleCollisions[i].rigidBody1);
-		if (it != mPossibleRigidBodyCollisions.end())
-		{
-			it->second.push_back(mPossibleCollisions[i].rigidBody2);
-		}
-		else
-		{
-			mPossibleRigidBodyCollisions.insert(
-				std::pair < RigidBody *, std::vector<RigidBody *>>(
-						mPossibleCollisions[i].rigidBody1, std::vector<RigidBody *>{mPossibleCollisions[i].rigidBody2}
-				)
-			);
-		}
+		mPossibleRigidBodyCollisions.emplace(
+			std::pair < RigidBody *, RigidBody *>(mPossibleCollisions[i].rigidBody1, mPossibleCollisions[i].rigidBody2)
+		);
 
-		it = mPossibleRigidBodyCollisions.find(mPossibleCollisions[i].rigidBody2);
-		if (it != mPossibleRigidBodyCollisions.end())
-		{
-			it->second.push_back(mPossibleCollisions[i].rigidBody1);
-		}
-		else
-		{
-			mPossibleRigidBodyCollisions.insert(
-				std::pair < RigidBody *, std::vector<RigidBody *>>(
-					mPossibleCollisions[i].rigidBody2, std::vector<RigidBody *>{mPossibleCollisions[i].rigidBody1}
-				)
-			);
-		}
+		mPossibleRigidBodyCollisions.emplace(
+			std::pair < RigidBody *, RigidBody *>(mPossibleCollisions[i].rigidBody2, mPossibleCollisions[i].rigidBody1)
+		);
 	}
 
 	// Find dynamic collisions for all objects and add to contact manifold

@@ -6,8 +6,8 @@
 class Sphere final : public RigidBody
 {
 public:
-	Sphere(float pRadius, float pMass, Vector3F pPos, Vector3F pRotationAxis, float pRotationAngle, Vector3F pVelocity);
-	~Sphere() = default;
+	Sphere(float pRadius, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
+	~Sphere();
 
 	Sphere(const Sphere &) = delete;
 	Sphere(Sphere &&) = delete;

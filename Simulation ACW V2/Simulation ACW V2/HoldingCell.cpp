@@ -16,10 +16,8 @@ void HoldingCell::addRigidBody(RigidBody* pRigidBody)
 	mRigidBodies.push_back(pRigidBody);
 }
 
-std::vector<RigidBody *> HoldingCell::update()
+void HoldingCell::update(std::vector<RigidBody *> & pToReassign)
 {
-	std::vector<RigidBody *> toReassign;
-
 	for (int i = 0; i < mRigidBodies.size(); i++)
 	{
 		Vector3F pos = mRigidBodies[i]->getPos();
@@ -31,11 +29,11 @@ std::vector<RigidBody *> HoldingCell::update()
 			pos.getZ() > mLocation.getZ() + mSize.getZ() ||
 			pos.getZ() < mLocation.getZ() - mSize.getZ())
 		{
-			toReassign.push_back(mRigidBodies[i]);
+			pToReassign.push_back(mRigidBodies[i]);
 			mRigidBodies.erase(mRigidBodies.begin() + i);
+			mRigidBodies.shrink_to_fit();
 			i--;
 		}
 	}
 
-	return toReassign;
 }

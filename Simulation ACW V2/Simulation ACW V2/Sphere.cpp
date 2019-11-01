@@ -6,17 +6,22 @@
 #include "Model.h"
 #include "Matrix4f.h"
 
-Sphere::Sphere(const float pRadius, const float pMass, const Vector3F pPos, const Vector3F pRotationAxis, float pRotationAngle, const Vector3F pVelocity) :
-	RigidBody(Vector3F(pRadius, pRadius, pRadius), pMass, pPos, pRotationAxis, pRotationAngle, pVelocity, ObjectType::SPHERE)
+Sphere::Sphere(const float pRadius, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
+	RigidBody(Vector3F(pRadius, pRadius, pRadius), pMass, pPos, pAngularVelocity, pVelocity, ObjectType::SPHERE)
 {
 	mTexture = TextureLoader::loadBmp("checker.bmp");
+}
+
+Sphere::~Sphere()
+{
+	glDeleteTextures(1, &mTexture);
 }
 
 void Sphere::render(Shader * pShader) const
 {
 	const auto translation = Matrix4F::createTranslation(mRenderPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F::createRotation(mRotationAxis, mRotationAngle);
+	const auto rotation = Matrix4F(mRenderRotation);
 
 	auto modelMat = translation * scale * rotation;
 

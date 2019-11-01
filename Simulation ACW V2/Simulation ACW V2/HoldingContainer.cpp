@@ -42,7 +42,7 @@ void HoldingContainer::addRigidBody()
 			//TODO: Look at random velocity
 			Vector3F velocity = Vector3F(0, 0, 0);
 			Sphere * sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[i]->getLocation(),
-				Vector3F(0, 1, 0), 0, velocity);
+				Vector3F(0, 0, 0), velocity);
 
 			mHoldingCells[i]->addRigidBody(sphere);
 			mOctree->AddRigidBody(sphere);
@@ -55,9 +55,10 @@ void HoldingContainer::addRigidBody()
 
 void HoldingContainer::update()
 {
+	std::vector<RigidBody *> toReassign;
 	for (int i = 0; i < mHoldingCells.size(); i++)
 	{
-		std::vector<RigidBody *> toReassign = mHoldingCells[i]->update();
+		mHoldingCells[i]->update(toReassign);
 
 		for (int j = 0; j < toReassign.size(); j++)
 		{
@@ -78,6 +79,9 @@ void HoldingContainer::update()
 				}
 			}
 		}
+
+		toReassign.clear();
+		toReassign.shrink_to_fit();
 	}
 
 	for (int i = 0; i < mOverflow; i++)
@@ -89,7 +93,7 @@ void HoldingContainer::update()
 				//TODO: Look at random velocity
 				Vector3F velocity = Vector3F(0, 0, 0);
 				Sphere * sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[k]->getLocation(),
-					Vector3F(0, 1, 0), 0, velocity);
+					Vector3F(0, 0, 0), velocity);
 
 				mHoldingCells[k]->addRigidBody(sphere);
 				mOctree->AddRigidBody(sphere);
