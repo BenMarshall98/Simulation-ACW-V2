@@ -24,6 +24,7 @@ public:
 	Matrix3F divide(float pN) const;
 	Matrix3F transpose() const;
 	Matrix3F inverse() const;
+	Matrix3F normaliseColumns() const;
 
 	float* operator[] (int pI);
 

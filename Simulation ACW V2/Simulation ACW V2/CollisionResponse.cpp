@@ -81,6 +81,9 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 
 	pSphere->setNewPos(newPos);
 	pSphere->setNewVel(newVel);
+
+	moved1 = true;
+	moved2 = false;
 }
 
 void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool & moved1, bool & moved2)
@@ -102,5 +105,8 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 
 	pSphere->setNewPos(state.pos);
 	pSphere->setNewVel(state.vel);
+
+	moved1 = true;
+	moved2 = false;
 }
 

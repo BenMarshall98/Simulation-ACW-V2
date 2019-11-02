@@ -150,6 +150,19 @@ Matrix3F Matrix3F::inverse() const
 	return adjugate * (1.0f / determ);
 }
 
+Matrix3F Matrix3F::normaliseColumns() const
+{
+	const auto c1 = sqrt(mMatrix[0][0] * mMatrix[0][0] + mMatrix[1][0] * mMatrix[1][0] + mMatrix[2][0] * mMatrix[2][0]);
+	const auto c2 = sqrt(mMatrix[0][1] * mMatrix[0][1] + mMatrix[1][1] * mMatrix[1][1] + mMatrix[2][1] * mMatrix[2][1]);
+	const auto c3 = sqrt(mMatrix[0][2] * mMatrix[0][2] + mMatrix[1][2] * mMatrix[1][2] + mMatrix[2][2] * mMatrix[2][2]);
+
+	return {
+		mMatrix[0][0] / c1, mMatrix[0][1] / c2, mMatrix[0][2] / c3,
+		mMatrix[1][0] / c1, mMatrix[1][1] / c2, mMatrix[1][2] / c3,
+		mMatrix[2][0] / c1, mMatrix[2][1] / c2, mMatrix[2][2] / c3
+	};
+}
+
 float* Matrix3F::operator[](const int pI)
 {
 	return mMatrix[pI];

@@ -13,6 +13,13 @@ void ContactManifold::add(const ManifoldPoint & pPoint)
 	++mNumOfPoints;
 }
 
+void ContactManifold::remove(int pIndex)
+{
+	mPoints.erase(mPoints.begin() + pIndex);
+	mNumOfPoints--;
+}
+
+
 void ContactManifold::clear()
 {
 	mPoints.clear();

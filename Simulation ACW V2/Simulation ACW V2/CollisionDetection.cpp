@@ -1,51 +1,76 @@
 #include "CollisionDetection.h"
 #include "Game.h"
 
-void CollisionDetection::dynamicCollisionDetection(RigidBody* pRigidBody1, RigidBody* pRigidBody2, ContactManifold* pManifold)
+void CollisionDetection::dynamicCollisionDetection(RigidBody* pRigidBody1, RigidBody* pRigidBody2, ContactManifold* pManifold, float pLastCollisionTime)
 {
 	if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
 		auto * sphere1 = dynamic_cast<Sphere *>(pRigidBody1);
 		auto * sphere2 = dynamic_cast<Sphere *>(pRigidBody2);
 
-		detectCollisionSphereSphere(sphere1, sphere2, pManifold);
+		detectCollisionSphereSphere(sphere1, sphere2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::PLANE)
 	{
 		auto * sphere = dynamic_cast<Sphere*>(pRigidBody1);
 		auto * plane = dynamic_cast<Plane *>(pRigidBody2);
 
-		detectCollisionSpherePlane(sphere, plane, pManifold);
+		detectCollisionSpherePlane(sphere, plane, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::PLANE && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
 		auto * sphere = dynamic_cast<Sphere*>(pRigidBody2);
 		auto * plane = dynamic_cast<Plane*>(pRigidBody1);
 
-		detectCollisionSpherePlane(sphere, plane, pManifold);
+		detectCollisionSpherePlane(sphere, plane, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::PLANEHOLES)
 	{
 		auto * sphere = dynamic_cast<Sphere *>(pRigidBody1);
 		auto * planeHoles = dynamic_cast<PlaneHoles *>(pRigidBody2);
 
-		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold);
+		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::PLANEHOLES && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
 		auto * sphere = dynamic_cast<Sphere *>(pRigidBody2);
 		auto * planeHoles = dynamic_cast<PlaneHoles *>(pRigidBody1);
 
-		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold);
+		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold, pLastCollisionTime);
 	}
 }
 
-void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* pSphere2, ContactManifold* pManifold)
+void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* pSphere2, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	Vector3F relCenter = pSphere2->getPos() - pSphere1->getPos();
+	Vector3F sphere1pos;
+	Vector3F sphere2pos;
+	
+	if (pSphere1->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere1->getCurrentUpdateTime()) / (1.0f - pSphere1->getCurrentUpdateTime());
+		
+		sphere1pos = pSphere1->getPos() + interValue * (pSphere1->getNewPos() - pSphere1->getPos());
+	}
+	else
+	{
+		sphere1pos = pSphere1->getPos();
+	}
 
-	Vector3F velSphere1 = pSphere1->getNewPos() - pSphere1->getPos();
-	Vector3F velSphere2 = pSphere2->getNewPos() - pSphere2->getPos();
+	if (pSphere2->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere2->getCurrentUpdateTime()) / (1.0f - pSphere2->getCurrentUpdateTime());
+
+		sphere2pos = pSphere2->getPos() + interValue * (pSphere2->getNewPos() - pSphere2->getPos());
+	}
+	else
+	{
+		sphere2pos = pSphere2->getPos();
+	}
+	
+	Vector3F relCenter = sphere2pos - sphere1pos;
+
+	Vector3F velSphere1 = pSphere1->getNewPos() - sphere1pos;
+	Vector3F velSphere2 = pSphere2->getNewPos() - sphere2pos;
 
 	Vector3F relVelocity = velSphere2 - velSphere1;
 
@@ -73,21 +98,34 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 
 	if (time >= 0 && time <= 1)
 	{
-		Vector3F sphere1Point = pSphere1->getPos() + (time * velSphere1);
-		Vector3F sphere2Point = pSphere2->getPos() + (time * velSphere2);
+		Vector3F sphere1Point = sphere1pos + (time * velSphere1);
+		Vector3F sphere2Point = sphere2pos + (time * velSphere2);
 
 		ManifoldPoint manPoint;
 		manPoint.mContactId1 = pSphere1;
 		manPoint.mContactId2 = pSphere2;
 		manPoint.mContactNormal = (sphere1Point - sphere2Point).normalise();
-		manPoint.mTime = time;
+		manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 		pManifold->add(manPoint);
 	}
 }
 
-void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPlane, ContactManifold* pManifold)
+void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPlane, ContactManifold* pManifold, float pLastCollisionTime)
 {
+	Vector3F spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = pSphere->getPos() + interValue * (pSphere->getNewPos() - pSphere->getPos());
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+	
 	Matrix4F planeMat = pPlane->getMatrix();
 
 	Vector3F center = Vector3F(0, 0, 0) * planeMat;
@@ -101,11 +139,11 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 	center = pPlane->getPos() * planeMat;
 
-	Vector3F velocity = (pSphere->getNewPos() - pSphere->getPos());
+	Vector3F velocity = (pSphere->getNewPos() - spherePos);
 
 	float planeDot = normal.dot(center + tangent);
 
-	float dist = normal.dot(pSphere->getPos()) - planeDot;
+	float dist = normal.dot(spherePos) - planeDot;
 
 	float velDot = normal.dot(velocity);
 
@@ -119,7 +157,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 	if (time >= 0 && time <= 1)
 	{
-		Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+		Vector3F spherePoint = spherePos + (time * velocity);
 		Vector3F collisionPoint = spherePoint - (radius * normal);
 
 		float sizeX = pPlane->getSize().getX();
@@ -137,7 +175,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlane;
 			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
-			manPoint.mTime = time;
+			manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 			pManifold->add(manPoint);
 		}
@@ -162,9 +200,9 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 			for (int i = 0; i < pStartPoints.size(); i++)
 			{
-				if (detectCollisionSphereLine(pSphere, pStartPoints[i], pEndPoints[i], time))
+				if (detectCollisionSphereLine(pSphere, pStartPoints[i], pEndPoints[i], time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+					Vector3F spherePoint = spherePos + (time * velocity);
 
 					Vector3F lineVector = pEndPoints[i] - pStartPoints[i];
 
@@ -176,7 +214,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
 					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
-					manPoint.mTime = time;
+					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 					pManifold->add(manPoint);
 				}
@@ -184,9 +222,9 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 			for (int i = 0; i < pStartPoints.size(); i++)
 			{
-				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], time))
+				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+					Vector3F spherePoint = spherePos + (time * velocity);
 
 					Vector3F closestPoint = pStartPoints[i];
 
@@ -194,7 +232,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
 					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
-					manPoint.mTime = time;
+					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 					pManifold->add(manPoint);
 				}
@@ -203,8 +241,21 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 	}
 }
 
-void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneHoles* pPlaneHoles, ContactManifold* pManifold)
+void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneHoles* pPlaneHoles, ContactManifold* pManifold, float pLastCollisionTime)
 {
+	Vector3F spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = pSphere->getPos() + interValue * (pSphere->getNewPos() - pSphere->getPos());
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+	
 	Matrix4F planeMat = pPlaneHoles->getMatrix();
 
 	Vector3F center = Vector3F(0, 0, 0) * planeMat;
@@ -218,11 +269,27 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 	center = pPlaneHoles->getPos() * planeMat;
 
-	Vector3F velocity = (pSphere->getNewPos() - pSphere->getPos());
+	Vector3F velocity = (pSphere->getNewPos() - spherePos);
 
 	float planeDot = normal.dot(center + tangent);
 
-	float dist = normal.dot(pSphere->getPos()) - planeDot;
+	float dist = normal.dot(spherePos) - planeDot;
+
+	float radius = dist > 0.0f ? pSphere->getSize().getX() : -pSphere->getSize().getX();
+
+	if (abs(dist) <= pSphere->getSize().getX())
+	{
+		Vector3F spherePoint = spherePos;
+		Vector3F collisionPoint = spherePoint - (radius * normal);
+		
+		ManifoldPoint manPoint;
+		manPoint.mContactId1 = pSphere;
+		manPoint.mContactId2 = pPlaneHoles;
+		manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
+		manPoint.mTime = pLastCollisionTime;
+
+		pManifold->add(manPoint);
+	}
 
 	float velDot = normal.dot(velocity);
 
@@ -230,13 +297,12 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 	{
 		return; //Moving parallel no collision;
 	}
-
-	float radius = dist > 0.0f ? pSphere->getSize().getX() : -pSphere->getSize().getX();
+	
 	float time = (radius - dist) / velDot;
 
 	if (time >= 0 && time <= 1)
 	{
-		Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+		Vector3F spherePoint = spherePos + (time * velocity);
 		Vector3F collisionPoint = spherePoint - (radius * normal);
 
 		float sizeX = pPlaneHoles->getSize().getX() * 5;
@@ -254,7 +320,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlaneHoles;
 			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
-			manPoint.mTime = time;
+			manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 			pManifold->add(manPoint);
 		}
@@ -279,9 +345,9 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 			for (int i = 0; i < pStartPoints.size(); i++)
 			{
-				if (detectCollisionSphereLine(pSphere, pStartPoints[i], pEndPoints[i], time))
+				if (detectCollisionSphereLine(pSphere, pStartPoints[i], pEndPoints[i], time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+					Vector3F spherePoint = spherePos + (time * velocity);
 
 					Vector3F lineVector = pEndPoints[i] - pStartPoints[i];
 
@@ -293,7 +359,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
 					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
-					manPoint.mTime = time;
+					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 					pManifold->add(manPoint);
 				}
@@ -301,9 +367,9 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 			for (int i = 0; i < pStartPoints.size(); i++)
 			{
-				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], time))
+				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = pSphere->getPos() + (time * velocity);
+					Vector3F spherePoint = spherePos + (time * velocity);
 
 					Vector3F closestPoint = pStartPoints[i];
 
@@ -311,7 +377,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
 					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
-					manPoint.mTime = time;
+					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 
 					pManifold->add(manPoint);
 				}
@@ -322,12 +388,25 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 //http://www.peroxide.dk/papers/collision/collision.pdf
 
-bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere1, Vector3F pLineEnd1, Vector3F pLineEnd2, float& pTime)
+bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, Vector3F pLineEnd1, Vector3F pLineEnd2, float& pTime, float pLastCollisionTime)
 {
+	Vector3F spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = pSphere->getPos() + interValue * (pSphere->getNewPos() - pSphere->getPos());
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+	
 	Vector3F d = pLineEnd2 - pLineEnd1;
-	Vector3F n = pSphere1->getNewPos() - pSphere1->getPos();
-	Vector3F m = pSphere1->getPos() - pLineEnd1;
-	float radius = pSphere1->getSize().getX();
+	Vector3F n = pSphere->getNewPos() - spherePos;
+	Vector3F m = spherePos - pLineEnd1;
+	float radius = pSphere->getSize().getX();
 
 	float md = m.dot(d);
 	float nd = n.dot(d);
@@ -373,9 +452,22 @@ bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere1, Vector3F pL
 	return true;
 }
 
-bool CollisionDetection::detectCollisionSphereVertex(Sphere* pSphere, Vector3F pVertex, float& pTime)
+bool CollisionDetection::detectCollisionSphereVertex(Sphere* pSphere, Vector3F pVertex, float& pTime, float pLastCollisionTime)
 {
-	Vector3F sphereStart = pSphere->getPos();
+	Vector3F spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = pSphere->getPos() + interValue * (pSphere->getNewPos() - pSphere->getPos());
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+	
+	Vector3F sphereStart = spherePos;
 	Vector3F sphereEnd = pSphere->getNewPos();
 	float radius = pSphere->getSize().getX();
 

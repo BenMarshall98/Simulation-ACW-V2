@@ -48,7 +48,7 @@ public:
 	static Derivative evaluate(const State & initial, float time, float dt, const Derivative & derivative);
 	static Vector3F acceleration(const State& state, float time);
 	static void integrate(State & state, float time, float dt);
-	void calculatePhysics(float pDt);
+	void calculatePhysics(float pDt, float pCurrentUpdateTime);
 	void update();
 	void updateRender();
 	void setPos(Vector3F pPos);
@@ -72,6 +72,7 @@ public:
 	Vector3F getNewAngularVelocity() const;
 	Vector3F getSize() const;
 	Matrix4F getMatrix() const;
+	float getCurrentUpdateTime() const;
 
 	ObjectType getObjectType() const;
 
@@ -96,6 +97,7 @@ protected:
 
 	SceneGraphNode * mParent = nullptr;
 	float mMass;
+	float mLastUpdateTime;
 	int mObjectId;
 	GLuint mTexture;
 	Shader * mShader;

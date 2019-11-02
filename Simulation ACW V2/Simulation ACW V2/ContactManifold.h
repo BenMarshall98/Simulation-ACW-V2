@@ -25,6 +25,7 @@ public:
 	ContactManifold & operator= (ContactManifold &&) = delete;
 
 	void add(const ManifoldPoint& pPoint);
+	void remove(int pIndex);
 	void clear();
 	void sort();
 	int getNumPoints() const;

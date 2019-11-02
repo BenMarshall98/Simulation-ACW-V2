@@ -61,10 +61,14 @@ Derivative RigidBody::evaluate(const State& initial, float time, float dt, const
 	State state;
 	state.pos = initial.pos + derivative.dVel * dt;
 	state.vel = initial.vel + derivative.dAcc * dt;
+	state.orientation = (initial.orientation + Matrix3F::createSkew(derivative.dAngVel) * initial.orientation * dt).normaliseColumns();
+	state.angVel = initial.angVel + derivative.dAngAcc * dt;
 
 	Derivative output;
 	output.dVel = state.vel;
 	output.dAcc = acceleration(state, time + dt);
+	output.dAngVel = state.angVel;
+	output.dAngAcc = Vector3F(0, 0, 0);
 	return output;
 }
 
@@ -79,13 +83,17 @@ void RigidBody::integrate(State& state, float time, float dt)
 
 	Vector3F dPos = 1.0f / 6.0f * (k1.dVel + 2.0f * (k2.dVel + k3.dVel) + k4.dVel);
 	Vector3F dVel = 1.0f / 6.0f * (k1.dAcc + 2.0f * (k2.dAcc + k3.dAcc) + k4.dAcc);
+	Vector3F dRot = 1.0f / 6.0f * (k1.dAngVel + 2.0f * (k2.dAngVel + k3.dAngVel) + k4.dAngVel);
+	Vector3F dAngVel = 1.0f / 6.0f * (k1.dAngAcc + 2.0f * (k2.dAngAcc + k3.dAngAcc) + k4.dAngAcc);
 
 	state.pos = state.pos + dPos * dt;
 	state.vel = state.vel + dVel * dt;
+	state.orientation = (state.orientation + Matrix3F::createSkew(dRot) * state.orientation * dt).normaliseColumns();
+	state.angVel = state.angVel + dAngVel * dt;
 }
 
 
-void RigidBody::calculatePhysics(const float pDt)
+void RigidBody::calculatePhysics(const float pDt, const float pLastUpdateTime)
 {
 	if (mMass == -1.0f)
 	{
@@ -93,12 +101,16 @@ void RigidBody::calculatePhysics(const float pDt)
 		return;
 	}
 
-	State state = { mPos, mVelocity };
+	mLastUpdateTime = pLastUpdateTime;
+
+	State state = { mPos, mVelocity, mAngularVelocity, mRotation};
 
 	integrate(state, 0.0f, pDt);
 
 	mNewPos = state.pos;
 	mNewVelocity = state.vel;
+	mNewAngularVelocity = state.angVel;
+	mRotation = state.orientation;
 }
 
 void RigidBody::resetPos()
@@ -137,6 +149,7 @@ void RigidBody::updateRender()
 {
 	mRenderPos = mPos;
 	mRenderRotation = mRotation;
+	mLastUpdateTime = 0.0f;
 }
 
 
@@ -178,6 +191,11 @@ Vector3F RigidBody::getVel() const
 Vector3F RigidBody::getNewVel() const
 {
 	return mNewVelocity;
+}
+
+float RigidBody::getCurrentUpdateTime() const
+{
+	return mLastUpdateTime;
 }
 
 Matrix4F RigidBody::getMatrix() const
