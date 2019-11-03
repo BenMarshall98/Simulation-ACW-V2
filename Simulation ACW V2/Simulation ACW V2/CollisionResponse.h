@@ -12,6 +12,7 @@ public:
 
 private:
 	static void respondCollisionSphereSphere(ManifoldPoint & pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool &moved1, bool & moved2);
+	static void respondCollisionSphereBowl(ManifoldPoint & pPoint, RigidBody * pSphere, RigidBody * pBowl, bool &moved1, bool & moved2);
 	static void respondCollisionSpherePlane(ManifoldPoint & pPoint, RigidBody * pSphere, RigidBody * pPlane, bool &moved1, bool &moved2);
 	static void respondCollisionSpherePlaneHoles(ManifoldPoint & pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool &moved1, bool &moved2);
 };

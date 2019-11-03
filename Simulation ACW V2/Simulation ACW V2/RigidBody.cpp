@@ -8,6 +8,7 @@ RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPo
 	mSize(pSize), mMass(pMass), mPos(pPos), mAngularVelocity(pAngularVelocity), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity),
 	mNewAngularVelocity(pAngularVelocity), mRotation(Matrix3F()), mNewRotation(Matrix3F())
 {
+	mCountId++;
 }
 
 void RigidBody::setPos(const Vector3F pPos)
@@ -110,7 +111,7 @@ void RigidBody::calculatePhysics(const float pDt, const float pLastUpdateTime)
 	mNewPos = state.pos;
 	mNewVelocity = state.vel;
 	mNewAngularVelocity = state.angVel;
-	mRotation = state.orientation;
+	mNewRotation = state.orientation;
 }
 
 void RigidBody::resetPos()
@@ -122,6 +123,8 @@ void RigidBody::update()
 {
 	mVelocity = mNewVelocity;
 	mPos = mNewPos;
+	mRotation = mNewRotation;
+	mAngularVelocity = mNewAngularVelocity;
 }
 
 Vector3F RigidBody::getSize() const
@@ -204,7 +207,7 @@ Matrix4F RigidBody::getMatrix() const
 
 	if (mParent)
 	{
-		modelMat = modelMat * mParent->getUpdateMatrix();
+		modelMat = modelMat * mParent->getRenderMatrix();
 	}
 
 	const auto translation = Matrix4F::createTranslation(mPos);
@@ -216,6 +219,23 @@ Matrix4F RigidBody::getMatrix() const
 	return modelMat;
 }
 
+Matrix4F RigidBody::getNewMatrix() const
+{
+	auto modelMat = Matrix4F();
+
+	if (mParent)
+	{
+		modelMat = modelMat * mParent->getUpdateMatrix();
+	}
+
+	const auto translation = Matrix4F::createTranslation(mNewPos);
+	const auto scale = Matrix4F::createScale(mSize);
+	const auto rotation = Matrix4F(mRotation);
+
+	modelMat = modelMat * translation * rotation * scale;
+
+	return modelMat;
+}
 
 ObjectType RigidBody::getObjectType() const
 {

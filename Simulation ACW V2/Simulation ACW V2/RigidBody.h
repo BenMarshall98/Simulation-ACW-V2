@@ -72,11 +72,18 @@ public:
 	Vector3F getNewAngularVelocity() const;
 	Vector3F getSize() const;
 	Matrix4F getMatrix() const;
+	Matrix4F getNewMatrix() const;
 	float getCurrentUpdateTime() const;
 
 	ObjectType getObjectType() const;
 
 	float getMass() const;
+
+	int getID() const
+	{
+		return mObjectId;
+	}
+	
 	void resetPos();
 
 	virtual void render(Shader * pShader) const = 0;

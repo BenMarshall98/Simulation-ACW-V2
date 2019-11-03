@@ -287,10 +287,12 @@ void Game::run()
 	double lastTime = glfwGetTime();
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		if (mAddSphere)
+		static bool once = true;
+		if (mAddSphere && once)
 		{
 			mHoldingContainer->addRigidBody();
 			mAddSphere = false;
+			once = false;
 		}
 
 		swap();
@@ -461,9 +463,31 @@ void Game::dynamicCollisionResponse() const
 		
 		CollisionResponse::dynamicCollisionResponse(point, moved1, moved2);
 
+		mManifold->remove(0);
+
 		float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
 
 		RigidBody * rigidBody1 = point.mContactId1;
+
+		if (moved1)
+		{
+			rigidBody1->update();
+			rigidBody1->calculatePhysics(timeLeft, lastCollisionTime);
+
+		}
+
+		RigidBody * rigidBody2 = point.mContactId2;
+
+		if (moved2)
+		{
+			rigidBody2->update();
+			rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
+		}
+		continue;
+
+		//float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
+
+		//RigidBody * rigidBody1 = point.mContactId1;
 		
 		if (moved1)
 		{
@@ -480,11 +504,9 @@ void Game::dynamicCollisionResponse() const
 					i--;
 				}
 			}
-
-			OutputDebugString((std::to_string(timeLeft) + "\n").c_str());
 		}
 
-		RigidBody * rigidBody2 = point.mContactId2;
+		//RigidBody * rigidBody2 = point.mContactId2;
 
 		if (moved2)
 		{
@@ -535,6 +557,36 @@ void Game::dynamicCollisionResponse() const
 				}
 				
 				CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
+			}
+		}
+
+		mManifold->sort();
+
+		if (moved1)
+		{
+			for (int i = 0; i < mManifold->getNumPoints(); i++)
+			{
+				auto checkPoint = mManifold->getPoint(i);
+
+				if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1 && checkPoint.mTime == lastCollisionTime)
+				{
+					mManifold->remove(i);
+					i--;
+				}
+			}
+		}
+
+		if (moved2)
+		{
+			for (int i = 0; i < mManifold->getNumPoints(); i++)
+			{
+				auto checkPoint = mManifold->getPoint(i);
+
+				if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2 && checkPoint.mTime == lastCollisionTime)
+				{
+					mManifold->remove(i);
+					i--;
+				}
 			}
 		}
 	}

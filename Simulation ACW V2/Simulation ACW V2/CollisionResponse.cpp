@@ -26,6 +26,14 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 	{
 		respondCollisionSpherePlaneHoles(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
+	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::BOWL)
+	{
+		respondCollisionSphereBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody2->getObjectType() == ObjectType::BOWL && rigidBody1->getObjectType() == ObjectType::SPHERE)
+	{
+		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
 }
 
 void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool & moved1, bool & moved2)
@@ -54,8 +62,18 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	Vector3F newVel1 = initialVel1 - (initialVel1.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + velocityLine1;
 	Vector3F newVel2 = initialVel2 - (initialVel2.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + velocityLine2;
 
-	Vector3F newPos1 = pSphere1->getPos() + (changePos1 * pPoint.mTime);
-	Vector3F newPos2 = pSphere2->getPos() + (changePos2 * pPoint.mTime);
+	Vector3F newPos1 = pSphere1->getPos() + (changePos1 * (pPoint.mTime - pSphere1->getCurrentUpdateTime()));
+	Vector3F newPos2 = pSphere2->getPos() + (changePos2 * (pPoint.mTime - pSphere2->getCurrentUpdateTime()));
+
+	if (pPoint.mCollisionType == CollisionType::PENETRATION)
+	{
+		if (pPoint.mCollisionDepth > 0.1f)
+		{
+			int i = 0;
+		}
+		newPos1 = newPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		newPos2 = newPos2 - pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+	}
 
 	pSphere1->setNewPos(newPos1);
 	pSphere1->setNewVel(newVel1);
@@ -67,44 +85,69 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	moved2 = true;
 }
 
-void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlane, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody* pBowl, bool& moved1, bool& moved2)
 {
-
 	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
 	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
 
-	Vector3F newPos = pSphere->getPos() + (changePos * pPoint.mTime);
+	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
 
-	Vector3F newVel = pSphere->getVel() + (changeVel * pPoint.mTime);
+	if (pPoint.mCollisionType == CollisionType::PENETRATION)
+	{
+		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+	}
 
-	newVel = newVel - (1 + 0.8) * (newVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
 
-	pSphere->setNewPos(newPos);
-	pSphere->setNewVel(newVel);
+	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+
+	pSphere->setNewPos(tempPos);
+	pSphere->setNewVel(tempVel);
 
 	moved1 = true;
 	moved2 = false;
 }
 
-void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody *, bool & moved1, bool & moved2)
 {
 	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
 	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
 
-	Vector3F tempPos = pSphere->getPos() + (changePos * pPoint.mTime);
+	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
 
-	Vector3F tempVel = pSphere->getVel() + (changeVel * pPoint.mTime);
+	if (pPoint.mCollisionType == CollisionType::PENETRATION)
+	{
+		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+	}
+
+	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
 
 	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
 
-	State state = { tempPos, tempVel };
+	pSphere->setNewPos(tempPos);
+	pSphere->setNewVel(tempVel);
 
-	float timeLeft = Game::getUpdateDt() - (Game::getUpdateDt() * pPoint.mTime);
+	moved1 = true;
+	moved2 = false;
+}
 
-	RigidBody::integrate(state, 0.0, timeLeft);
+void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody *, bool & moved1, bool & moved2)
+{
+	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
+	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
 
-	pSphere->setNewPos(state.pos);
-	pSphere->setNewVel(state.vel);
+	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+
+	if (pPoint.mCollisionType == CollisionType::PENETRATION)
+	{
+		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+	}
+
+	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+
+	pSphere->setNewPos(tempPos);
+	pSphere->setNewVel(tempVel);
 
 	moved1 = true;
 	moved2 = false;

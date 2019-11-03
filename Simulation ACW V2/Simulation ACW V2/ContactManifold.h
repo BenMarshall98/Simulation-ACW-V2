@@ -5,12 +5,20 @@
 
 class RigidBody;
 
+enum class CollisionType
+{
+	PENETRATION,
+	COLLISION
+};
+
 struct ManifoldPoint
 {
 	RigidBody * mContactId1;
 	RigidBody * mContactId2;
 	Vector3F mContactNormal;
 	float mTime;
+	float mCollisionDepth;
+	CollisionType mCollisionType;
 };
 
 class ContactManifold

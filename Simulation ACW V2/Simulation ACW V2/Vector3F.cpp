@@ -8,6 +8,10 @@ Vector3F::Vector3F() : mX(0), mY(0), mZ(0)
 
 Vector3F::Vector3F(const float pX, const float pY, const float pZ) : mX(pX), mY(pY), mZ(pZ)
 {
+	if (isinf(pX))
+	{
+		int i = 0;
+	}
 }
 
 void Vector3F::set(const float pX, const float pY, const float pZ)
@@ -19,6 +23,7 @@ void Vector3F::set(const float pX, const float pY, const float pZ)
 
 float Vector3F::getX() const
 {
+	
 	return mX;
 }
 
@@ -79,8 +84,7 @@ float Vector3F::distance(const Vector3F &pVec) const
 Vector3F Vector3F::normalise()
 {
 	const auto len = length();
-	set(mX / len, mY / len, mZ / len);
-	return *this;
+	return Vector3F(mX / len, mY / len, mZ / len);
 }
 
 Vector3F operator+ (const Vector3F &pLhs, const Vector3F &pRhs)

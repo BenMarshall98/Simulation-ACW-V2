@@ -42,7 +42,7 @@ void HoldingContainer::addRigidBody()
 			//TODO: Look at random velocity
 			Vector3F velocity = Vector3F(0, 0, 0);
 			Sphere * sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[i]->getLocation(),
-				Vector3F(0, 1, 0), velocity);
+				Vector3F(0, 1, 1), velocity);
 
 			mHoldingCells[i]->addRigidBody(sphere);
 			mOctree->AddRigidBody(sphere);
@@ -93,7 +93,7 @@ void HoldingContainer::update()
 				//TODO: Look at random velocity
 				Vector3F velocity = Vector3F(0, 0, 0);
 				Sphere * sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[k]->getLocation(),
-					Vector3F(0, 1, 0), velocity);
+					Vector3F(0, 1, 1), velocity);
 
 				mHoldingCells[k]->addRigidBody(sphere);
 				mOctree->AddRigidBody(sphere);
