@@ -98,7 +98,7 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 		ManifoldPoint manPoint;
 		manPoint.mContactId1 = pSphere1;
 		manPoint.mContactId2 = pSphere2;
-		manPoint.mContactNormal = (sphere1pos - sphere2pos).normalise();
+		manPoint.mContactNormal = (sphere1pos - sphere2pos).normalize();
 		manPoint.mTime = pLastCollisionTime;
 		manPoint.mCollisionDepth = radius - (sphere1pos - sphere2pos).length();
 		manPoint.mCollisionType = CollisionType::PENETRATION;
@@ -133,7 +133,7 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 		ManifoldPoint manPoint;
 		manPoint.mContactId1 = pSphere1;
 		manPoint.mContactId2 = pSphere2;
-		manPoint.mContactNormal = (sphere1Point - sphere2Point).normalise();
+		manPoint.mContactNormal = (sphere1Point - sphere2Point).normalize();
 		manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 		manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -175,7 +175,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 		ManifoldPoint manPoint;
 		manPoint.mContactId1 = pSphere;
 		manPoint.mContactId2 = pBowl;
-		manPoint.mContactNormal = (spherePos - center).normalise();
+		manPoint.mContactNormal = (spherePos - center).normalize();
 		manPoint.mTime = pLastCollisionTime;
 		manPoint.mCollisionDepth = (spherePos - center).length() - radius;
 		manPoint.mCollisionType = CollisionType::PENETRATION;
@@ -214,7 +214,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 	ManifoldPoint manPoint;
 	manPoint.mContactId1 = pSphere;
 	manPoint.mContactId2 = pBowl;
-	manPoint.mContactNormal = (spherePoint - intersection).normalise();
+	manPoint.mContactNormal = (spherePoint - intersection).normalize();
 	manPoint.mTime = pLastCollisionTime + abs(time) * (1.0f - pLastCollisionTime);
 	manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -243,9 +243,9 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 	Vector3F tangent = Vector3F(1, 0, 0) * planeMat;
 	Vector3F bitangent = Vector3F(0, 0, 1) * planeMat;
 
-	normal = (normal - center).normalise();
-	tangent = (tangent - center).normalise();
-	bitangent = (bitangent - center).normalise();
+	normal = (normal - center).normalize();
+	tangent = (tangent - center).normalize();
+	bitangent = (bitangent - center).normalize();
 
 	center = pPlane->getPos() * planeMat;
 
@@ -282,7 +282,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			ManifoldPoint manPoint;
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlane;
-			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
+			manPoint.mContactNormal = (collisionPoint - spherePoint).normalize();
 			manPoint.mTime = pLastCollisionTime;
 			manPoint.mCollisionType = CollisionType::PENETRATION;
 			manPoint.mCollisionDepth = abs(radius) - abs(dist);
@@ -326,7 +326,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -346,7 +346,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::PENETRATION;
 
@@ -385,7 +385,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			ManifoldPoint manPoint;
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlane;
-			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
+			manPoint.mContactNormal = (collisionPoint - spherePoint).normalize();
 			manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 			manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -425,7 +425,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -445,7 +445,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::PENETRATION;
 
@@ -479,9 +479,9 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 	Vector3F tangent = Vector3F(1, 0, 0) * planeMat;
 	Vector3F bitangent = Vector3F(0, 0, 1) * planeMat;
 
-	normal = (normal - center).normalise();
-	tangent = (tangent - center).normalise();
-	bitangent = (bitangent - center).normalise();
+	normal = (normal - center).normalize();
+	tangent = (tangent - center).normalize();
+	bitangent = (bitangent - center).normalize();
 
 	center = pPlaneHoles->getPos() * planeMat;
 
@@ -559,7 +559,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 								ManifoldPoint manPoint;
 								manPoint.mContactId1 = pSphere;
 								manPoint.mContactId2 = pPlaneHoles;
-								manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+								manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 								manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 								manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -581,7 +581,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			ManifoldPoint manPoint;
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlaneHoles;
-			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
+			manPoint.mContactNormal = (collisionPoint - spherePoint).normalize();
 			manPoint.mTime = pLastCollisionTime;
 			manPoint.mCollisionType = CollisionType::PENETRATION;
 			manPoint.mCollisionDepth = abs(radius) - abs(dist);
@@ -623,7 +623,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -643,7 +643,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::PENETRATION;
 
@@ -723,7 +723,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 								ManifoldPoint manPoint;
 								manPoint.mContactId1 = pSphere;
 								manPoint.mContactId2 = pPlaneHoles;
-								manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+								manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 								manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 								manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -745,7 +745,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			ManifoldPoint manPoint;
 			manPoint.mContactId1 = pSphere;
 			manPoint.mContactId2 = pPlaneHoles;
-			manPoint.mContactNormal = (collisionPoint - spherePoint).normalise();
+			manPoint.mContactNormal = (collisionPoint - spherePoint).normalize();
 			manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 			manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -785,7 +785,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::COLLISION;
 
@@ -805,7 +805,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 					ManifoldPoint manPoint;
 					manPoint.mContactId1 = pSphere;
 					manPoint.mContactId2 = pPlaneHoles;
-					manPoint.mContactNormal = (closestPoint - spherePoint).normalise();
+					manPoint.mContactNormal = (closestPoint - spherePoint).normalize();
 					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
 					manPoint.mCollisionType = CollisionType::PENETRATION;
 
@@ -953,7 +953,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 	Vector3F velocity = (pSphere->getNewPos() - spherePos) - pTriangleVelocity;
 	float radius = pSphere->getSize().getX();
 
-	Vector3F planeNormal = (pVertex2 - pVertex1).cross(pVertex3 - pVertex1).normalise();
+	Vector3F planeNormal = (pVertex2 - pVertex1).cross(pVertex3 - pVertex1).normalize();
 	float planeDot = planeNormal.dot(pVertex2);
 
 	float dist = planeNormal.dot(spherePos) - planeDot;

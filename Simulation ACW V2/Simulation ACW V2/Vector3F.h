@@ -18,7 +18,8 @@ public:
 	float dot(const Vector3F &pVec) const;
 	float length() const;
 	float distance(const Vector3F &pVec) const;
-	Vector3F normalise();
+	Vector3F normalize() const;
+	Vector3F interpolate(const Vector3F &pVec, float pN) const;
 
 private:
 	float mX, mY, mZ;

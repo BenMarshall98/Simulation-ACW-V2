@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3F.h"
+#include "Quaternion.h"
 
 class Matrix3F
 {
@@ -9,6 +10,7 @@ public:
 	Matrix3F(float p11, float p12, float p13,
 		float p21, float p22, float p23,
 		float p31, float p32, float p33);
+	Matrix3F(const Quaternion & pQuaternion);
 
 	static Matrix3F createIdentity();
 	static Matrix3F createRotation(const Vector3F &pVec, float pN);
@@ -25,6 +27,8 @@ public:
 	Matrix3F transpose() const;
 	Matrix3F inverse() const;
 	Matrix3F normaliseColumns() const;
+	Matrix3F interpolate(const Matrix3F & pMat, const float pN) const;
+	Quaternion toQuaternion() const;
 
 	float* operator[] (int pI);
 

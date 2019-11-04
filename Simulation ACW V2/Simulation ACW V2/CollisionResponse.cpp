@@ -1,6 +1,9 @@
 #include "CollisionResponse.h"
 #include "Game.h"
 
+//https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
+//http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.6905&rep=rep1&type=pdf
+
 void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & moved1, bool & moved2)
 {
 	auto * rigidBody1 = pPoint.mContactId1;
@@ -67,10 +70,6 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		if (pPoint.mCollisionDepth > 0.1f)
-		{
-			int i = 0;
-		}
 		newPos1 = newPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
 		newPos2 = newPos2 - pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
 	}
@@ -110,17 +109,17 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 
 void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody *, bool & moved1, bool & moved2)
 {
-	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
-	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
+	float changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
+	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
-	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	
 
 	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
 

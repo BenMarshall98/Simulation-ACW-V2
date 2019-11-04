@@ -5,7 +5,6 @@ layout (location = 1) in vec2 texCoord;
 
 uniform mat4 perspective;
 uniform mat4 view;
-
 uniform mat4 model;
 
 out vec2 fTexCoord;

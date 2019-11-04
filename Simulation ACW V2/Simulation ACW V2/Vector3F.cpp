@@ -81,11 +81,17 @@ float Vector3F::distance(const Vector3F &pVec) const
 	return subtract(pVec).length();
 }
 
-Vector3F Vector3F::normalise()
+Vector3F Vector3F::normalize() const
 {
 	const auto len = length();
 	return Vector3F(mX / len, mY / len, mZ / len);
 }
+
+Vector3F Vector3F::interpolate(const Vector3F& pVec, float pN) const
+{
+	return *this + pN * (pVec - *this);
+}
+
 
 Vector3F operator+ (const Vector3F &pLhs, const Vector3F &pRhs)
 {

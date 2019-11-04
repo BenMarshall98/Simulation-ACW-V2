@@ -15,6 +15,27 @@ Matrix3F::Matrix3F(const float p11, const float p12, const float p13,
 {
 }
 
+Matrix3F::Matrix3F(const Quaternion& pQuaternion)
+{
+	const auto x = pQuaternion.getX();
+	const auto y = pQuaternion.getY();
+	const auto z = pQuaternion.getZ();
+	const auto w = pQuaternion.getW();
+	const auto x2 = x * x;
+	const auto y2 = y * y;
+	const auto z2 = z * z;
+	const auto w2 = w * w;
+
+	mMatrix[0][0] = w2 + x2 - y2 - z2;
+	mMatrix[0][1] = 2 * x * y - 2 * w * z;
+	mMatrix[0][2] = 2 * x * z + 2 * w * y;
+	mMatrix[1][0] = 2 * x * y + 2 * w * z;
+	mMatrix[1][1] = w2 - x2 + y2 + z2;
+	mMatrix[1][2] = 2 * y * z + 2 * w * x;
+	mMatrix[2][0] = 2 * x * z - 2 * w * y;
+	mMatrix[2][1] = 2 * y * z - 2 * w * x;
+	mMatrix[2][2] = w2 - x2 - y2 + z2;
+}
 
 Matrix3F Matrix3F::createIdentity()
 {
@@ -160,6 +181,60 @@ Matrix3F Matrix3F::normaliseColumns() const
 		mMatrix[0][0] / c1, mMatrix[0][1] / c2, mMatrix[0][2] / c3,
 		mMatrix[1][0] / c1, mMatrix[1][1] / c2, mMatrix[1][2] / c3,
 		mMatrix[2][0] / c1, mMatrix[2][1] / c2, mMatrix[2][2] / c3
+	};
+}
+
+Matrix3F Matrix3F::interpolate(const Matrix3F& pMat, const float pN) const
+{
+	const auto quat1 = toQuaternion();
+	const auto quat2 = pMat.toQuaternion();
+	const auto result = quat1.slerp(quat2, pN);
+
+	return Matrix3F(result);
+}
+
+//https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+
+Quaternion Matrix3F::toQuaternion() const
+{
+	const auto trace = mMatrix[0][0] + mMatrix[1][1] + mMatrix[2][2];
+
+	if (trace > 0.0f)
+	{
+		const auto s = sqrt(trace + 1.0f) * 2;
+		return {
+			(mMatrix[2][1] - mMatrix[1][2]) / s,
+			(mMatrix[0][2] - mMatrix[2][0]) / s,
+			(mMatrix[1][0] - mMatrix[0][1]) / s,
+			0.25f * s
+		};
+	}
+	if (mMatrix[0][0] > mMatrix[1][1] && mMatrix[0][0] > mMatrix[2][2])
+	{
+		const auto s = sqrt(1.0f + mMatrix[0][0] - mMatrix[1][1] - mMatrix[2][2]) * 2;
+		return {
+			0.25f * s,
+			(mMatrix[0][1] + mMatrix[1][0]) / s,
+			(mMatrix[0][2] + mMatrix[2][0]) / s,
+			(mMatrix[2][1] - mMatrix[1][2]) / s
+		};
+	}
+	if (mMatrix[1][1] > mMatrix[2][2])
+	{
+		const auto s = sqrt(1.0f + mMatrix[1][1] - mMatrix[0][0] - mMatrix[2][2]) * 2;
+		return {
+			(mMatrix[0][1] + mMatrix[1][0]) / s,
+			0.25f * s,
+			(mMatrix[1][2] + mMatrix[2][1]) / s,
+			(mMatrix[1][0] - mMatrix[0][1]) / s
+		};
+	}
+	const auto s = sqrt(1.0f + mMatrix[2][2] - mMatrix[0][0] - mMatrix[1][1]) * 2;
+	return {
+		(mMatrix[0][2] + mMatrix[2][0]) / s,
+		(mMatrix[1][2] + mMatrix[2][1]) / s,
+		0.25f * s,
+		(mMatrix[1][0] + mMatrix[0][1]) / s
 	};
 }
 

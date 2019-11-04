@@ -76,12 +76,12 @@ Matrix4F Matrix4F::createRotation(const Vector3F& pVec, const float pN)
 Matrix4F Matrix4F::createLookAt(const Vector3F& pEye, const Vector3F& pFocus, const Vector3F& pUp)
 {
 	auto zaxis = pEye - pFocus;
-	zaxis = zaxis.normalise();
+	zaxis = zaxis.normalize();
 	auto yaxis = pUp;
 	auto xaxis = yaxis.cross(zaxis);
 	yaxis = zaxis.cross(xaxis);
-	xaxis = xaxis.normalise();
-	yaxis = yaxis.normalise();
+	xaxis = xaxis.normalize();
+	yaxis = yaxis.normalize();
 
 	/*return {
 		xaxis.getX(), yaxis.getX(), zaxis.getX(), 0,

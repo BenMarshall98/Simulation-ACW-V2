@@ -20,8 +20,8 @@ void Camera::RotateLeftRight(bool left)
 		angleChange = -angleChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalise();
-	Vector3F xAxis = zAxis.cross(mUpDirection).normalise();
+	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
+	Vector3F xAxis = zAxis.cross(mUpDirection).normalize();
 	Vector3F yAxis = zAxis.cross(xAxis);
 
 	Matrix4F leftRightMat = Matrix4F::createRotation(yAxis, angleChange);
@@ -38,8 +38,8 @@ void Camera::RotateUpDown(bool up)
 		angleChange = -angleChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalise();
-	Vector3F xAxis = zAxis.cross(mUpDirection).normalise();
+	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
+	Vector3F xAxis = zAxis.cross(mUpDirection).normalize();
 
 	Matrix4F leftRightMat = Matrix4F::createRotation(xAxis, angleChange);
 
@@ -56,7 +56,7 @@ void Camera::PanForwardBackward(bool forward)
 		movementChange = -movementChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalise();
+	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
 	Vector3F movement = zAxis * movementChange;
 
 	mEyePosition = mEyePosition + movement;
