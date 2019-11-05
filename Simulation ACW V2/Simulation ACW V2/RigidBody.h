@@ -37,7 +37,7 @@ enum class ObjectType
 class RigidBody
 {
 public:
-	RigidBody(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity, ObjectType pType);
+	RigidBody(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity, ObjectType pType, Matrix3F pImpulseTensor);
 	virtual ~RigidBody() = default;
 
 	RigidBody(const RigidBody &) = delete;
@@ -73,6 +73,8 @@ public:
 	Vector3F getSize() const;
 	Matrix4F getMatrix() const;
 	Matrix4F getNewMatrix() const;
+	Matrix3F getInverseImpulseTenser() const;
+	Matrix3F getImpulseTenser() const;
 	float getCurrentUpdateTime() const;
 
 	ObjectType getObjectType() const;
@@ -92,6 +94,8 @@ protected:
 	Matrix3F mRotation;
 	Matrix3F mRenderRotation;
 	Matrix3F mNewRotation;
+	Matrix3F mImpulseTensor;
+	Matrix3F mInverseImpulseTensor;
 
 	Vector3F mPos;
 	Vector3F mRenderPos;

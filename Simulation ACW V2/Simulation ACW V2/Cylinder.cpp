@@ -4,7 +4,7 @@
 #include "SceneGraphNode.h"
 
 Cylinder::Cylinder(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CYLINDER)
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CYLINDER, Matrix3F())
 {
 }
 

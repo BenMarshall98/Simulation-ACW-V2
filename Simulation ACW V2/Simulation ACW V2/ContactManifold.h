@@ -15,6 +15,8 @@ struct ManifoldPoint
 {
 	RigidBody * mContactId1;
 	RigidBody * mContactId2;
+	Vector3F mContactPoint1;
+	Vector3F mContactPoint2;
 	Vector3F mContactNormal;
 	float mTime;
 	float mCollisionDepth;

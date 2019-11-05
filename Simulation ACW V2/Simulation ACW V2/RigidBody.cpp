@@ -4,9 +4,9 @@
 
 int RigidBody::mCountId = 0;
 
-RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity, const ObjectType pType) :
+RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity, const ObjectType pType, const Matrix3F pImpulseTensor) :
 	mSize(pSize), mMass(pMass), mPos(pPos), mAngularVelocity(pAngularVelocity), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity),
-	mNewAngularVelocity(pAngularVelocity), mRotation(Matrix3F()), mNewRotation(Matrix3F())
+	mNewAngularVelocity(pAngularVelocity), mRotation(Matrix3F()), mNewRotation(Matrix3F()), mImpulseTensor(pImpulseTensor), mInverseImpulseTensor(pImpulseTensor.inverse())
 {
 	mCountId++;
 }
@@ -218,6 +218,17 @@ Matrix4F RigidBody::getMatrix() const
 
 	return modelMat;
 }
+
+Matrix3F RigidBody::getImpulseTenser() const
+{
+	return mImpulseTensor;
+}
+
+Matrix3F RigidBody::getInverseImpulseTenser() const
+{
+	return mInverseImpulseTensor;
+}
+
 
 Matrix4F RigidBody::getNewMatrix() const
 {

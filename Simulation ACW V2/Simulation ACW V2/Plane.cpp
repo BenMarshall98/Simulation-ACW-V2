@@ -5,7 +5,7 @@
 #include "SceneGraphNode.h"
 
 Plane::Plane(const float pMass, const Vector3F pSize, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::PLANE)
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::PLANE, Matrix3F())
 {
 }
 

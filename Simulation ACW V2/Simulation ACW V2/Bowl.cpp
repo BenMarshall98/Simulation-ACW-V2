@@ -3,7 +3,7 @@
 #include "SceneGraphNode.h"
 
 Bowl::Bowl(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngulerVelocity ,Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngulerVelocity, pVelocity, ObjectType::BOWL)
+	RigidBody(pSize, pMass, pPos, pAngulerVelocity, pVelocity, ObjectType::BOWL, Matrix3F())
 {
 
 }

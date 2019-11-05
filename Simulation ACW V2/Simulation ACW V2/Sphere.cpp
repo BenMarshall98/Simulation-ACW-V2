@@ -7,7 +7,11 @@
 #include "Matrix4f.h"
 
 Sphere::Sphere(const float pRadius, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
-	RigidBody(Vector3F(pRadius, pRadius, pRadius), pMass, pPos, pAngularVelocity, pVelocity, ObjectType::SPHERE)
+	RigidBody(Vector3F(pRadius, pRadius, pRadius), pMass, pPos,
+		pAngularVelocity, pVelocity, ObjectType::SPHERE,
+		Matrix3F(2.0f/5.0f * pMass * pRadius * pRadius, 0.0f, 0.0f,
+		0.0f, 2.0f/5.0f * pMass * pRadius * pRadius, 0.0f,
+		0.0f, 0.0f, 2.0f / 5.0f * pMass * pRadius * pRadius))
 {
 	mTexture = TextureLoader::loadBmp("checker.bmp");
 }

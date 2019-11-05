@@ -4,7 +4,7 @@
 #include "SceneGraphNode.h"
 
 PlaneHoles::PlaneHoles(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::PLANEHOLES)
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::PLANEHOLES, Matrix3F())
 {
 
 }
