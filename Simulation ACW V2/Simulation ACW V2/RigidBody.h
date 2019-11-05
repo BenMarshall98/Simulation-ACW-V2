@@ -54,9 +54,11 @@ public:
 	void setPos(Vector3F pPos);
 	void setVel(Vector3F pVel);
 	void setAngularVel(Vector3F pAngularVel);
+	void setOrientation(Matrix3F pOrientation);
 	void setNewPos(Vector3F pPos);
 	void setNewVel(Vector3F pVel);
 	void setNewAngularVel(Vector3F pAngularVel);
+	void setNewOrientation(Matrix3F pOrientation);
 	void setMass(float pMass);
 	void setSceneGraphNode(SceneGraphNode * pParent);
 

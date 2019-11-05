@@ -41,6 +41,16 @@ void RigidBody::setNewAngularVel(Vector3F pAngularVel)
 	mNewAngularVelocity = pAngularVel;
 }
 
+void RigidBody::setOrientation(Matrix3F pOrientation)
+{
+	mRotation = pOrientation;
+}
+
+void RigidBody::setNewOrientation(Matrix3F pOrientation)
+{
+	mNewRotation = pOrientation;
+}
+
 void RigidBody::setMass(const float pMass)
 {
 	mMass = pMass;

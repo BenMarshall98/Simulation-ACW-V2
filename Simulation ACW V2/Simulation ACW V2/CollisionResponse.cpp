@@ -19,6 +19,14 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		
 		respondCollisionSpherePlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
@@ -27,58 +35,88 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		
 		respondCollisionSpherePlaneHoles(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::BOWL)
 	{
 		respondCollisionSphereBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
 	}
-	else if (rigidBody2->getObjectType() == ObjectType::BOWL && rigidBody1->getObjectType() == ObjectType::SPHERE)
+	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
 		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
 }
 
 void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool & moved1, bool & moved2)
 {
-	Vector3F changePos1 = pSphere1->getNewPos() - pSphere1->getPos();
-	Vector3F changePos2 = pSphere2->getNewPos() - pSphere2->getPos();
+	float changeTime1 = pPoint.mTime - pSphere1->getCurrentUpdateTime();
+	
+	Vector3F tempPos1 = pSphere1->getPos().interpolate(pSphere1->getNewPos(), changeTime1);
+	Vector3F tempVel1 = pSphere1->getVel().interpolate(pSphere1->getNewVel(), changeTime1);
+	Vector3F tempAngVel1 = pSphere1->getAngularVelocity().interpolate(pSphere1->getNewAngularVelocity(), changeTime1);
+	Matrix3F tempOrr1 = pSphere1->getOrientation().interpolate(pSphere1->getNewOrientation(), changeTime1);
 
-	Vector3F changeVel1 = pSphere1->getNewVel() - pSphere1->getVel();
-	Vector3F changeVel2 = pSphere2->getNewVel() - pSphere2->getVel();
+	float changeTime2 = pPoint.mTime - pSphere2->getCurrentUpdateTime();
 
-	if (changeVel1.dot(pPoint.mContactNormal) == 0 &&
-		changeVel2.dot(pPoint.mContactNormal) == 0)
-	{
-		return; //Movement is perpendicular to the line of impact;
-	}
-
-	Vector3F initialVel1 = pSphere1->getVel() + (changeVel1 * pPoint.mTime);
-	Vector3F initialVel2 = pSphere2->getVel() + (changeVel2 * pPoint.mTime);
-
-	float sphereMass1 = pSphere1->getMass();
-	float sphereMass2 = pSphere2->getMass();
-
-	Vector3F velocityLine1 = (((sphereMass1 - 0.8 * sphereMass2) * initialVel1.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + ((sphereMass2 + 0.8 * sphereMass2) * initialVel2.dot(pPoint.mContactNormal) * pPoint.mContactNormal)) / (sphereMass1 + sphereMass2);
-	Vector3F velocityLine2 = (((sphereMass1 + 0.8 * sphereMass1) * initialVel1.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + ((sphereMass2 - 0.8 * sphereMass1) * initialVel2.dot(pPoint.mContactNormal) * pPoint.mContactNormal)) / (sphereMass1 + sphereMass2);
-
-	Vector3F newVel1 = initialVel1 - (initialVel1.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + velocityLine1;
-	Vector3F newVel2 = initialVel2 - (initialVel2.dot(pPoint.mContactNormal) * pPoint.mContactNormal) + velocityLine2;
-
-	Vector3F newPos1 = pSphere1->getPos() + (changePos1 * (pPoint.mTime - pSphere1->getCurrentUpdateTime()));
-	Vector3F newPos2 = pSphere2->getPos() + (changePos2 * (pPoint.mTime - pSphere2->getCurrentUpdateTime()));
+	Vector3F tempPos2 = pSphere2->getPos().interpolate(pSphere2->getNewPos(), changeTime2);
+	Vector3F tempVel2 = pSphere2->getVel().interpolate(pSphere2->getNewVel(), changeTime2);
+	Vector3F tempAngVel2 = pSphere2->getAngularVelocity().interpolate(pSphere2->getNewAngularVelocity(), changeTime2);
+	Matrix3F tempOrr2 = pSphere2->getOrientation().interpolate(pSphere2->getNewOrientation(), changeTime2);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		newPos1 = newPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
-		newPos2 = newPos2 - pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		tempPos1 = tempPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		tempPos2 = tempPos2 - pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
 	}
 
-	pSphere1->setNewPos(newPos1);
-	pSphere1->setNewVel(newVel1);
+	Vector3F sphereCenterToCollision1 = pPoint.mContactPoint1 - tempPos1;
+	Vector3F sphereCenterToCollision2 = pPoint.mContactPoint2 - tempPos2;
 
-	pSphere2->setNewPos(newPos2);
-	pSphere2->setNewVel(newVel2);
+	Vector3F tempSphereVel1 = tempVel1 + tempAngVel1.cross(sphereCenterToCollision1);
+	Vector3F tempSphereVel2 = tempVel2 + tempAngVel2.cross(sphereCenterToCollision2);
+
+	float relVel = pPoint.mContactNormal.dot(tempSphereVel1 - tempSphereVel2);
+
+	Matrix3F sphereWorldTensor1 = tempOrr1 * pSphere1->getInverseImpulseTenser() * tempOrr1.transpose();
+	Matrix3F sphereWorldTensor2 = tempOrr2 * pSphere2->getInverseImpulseTenser() * tempOrr2.transpose();
+
+	float sphereInverseMass1 = 1.0f / pSphere1->getMass();
+	float sphereInverseMass2 = 1.0f / pSphere2->getMass();
+
+	float sphereImpulseMag1 = pPoint.mContactNormal.dot((sphereWorldTensor1 * sphereCenterToCollision1.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	float sphereImpulseMag2 = pPoint.mContactNormal.dot((sphereWorldTensor2 * sphereCenterToCollision2.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+
+	float j = -(1.0f + 0.8f) * relVel / (sphereInverseMass1 + sphereInverseMass2 + sphereImpulseMag1 + sphereImpulseMag2);
+
+	tempVel1 = tempVel1 + (j * sphereInverseMass1 * pPoint.mContactNormal);
+	tempVel2 = tempVel2 - (j * sphereInverseMass2 * pPoint.mContactNormal);
+	tempAngVel1 = tempAngVel1 + sphereCenterToCollision1.cross(j * pPoint.mContactNormal) * sphereWorldTensor1;
+	tempAngVel2 = tempAngVel2 - sphereCenterToCollision2.cross(j * pPoint.mContactNormal) * sphereWorldTensor2;
+
+	pSphere1->setNewPos(tempPos1);
+	pSphere1->setNewVel(tempVel1);
+	pSphere1->setNewAngularVel(tempAngVel1);
+	pSphere1->setNewOrientation(tempOrr1);
+						
+	pSphere2->setNewPos(tempPos2);
+	pSphere2->setNewVel(tempVel2);
+	pSphere2->setNewAngularVel(tempAngVel2);
+	pSphere2->setNewOrientation(tempOrr2);
 
 	moved1 = true;
 	moved2 = true;
@@ -86,67 +124,134 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 
 void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody* pBowl, bool& moved1, bool& moved2)
 {
-	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
-	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
+	float changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
+	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
+	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
-	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	Matrix4F bowlMat = pBowl->getMatrix();
+	const auto center = pBowl->getPos() * bowlMat;
 
-	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+	Vector3F tempBowlVel = Vector3F(0.0f, 0.0f, 0.0f);
+
+	Vector3F sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
+	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
+	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempBowlVel);
+
+	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+
+	float sphereInverseMass = 1.0f / pSphere->getMass();
+
+	float sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+
+	float j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
+
+	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
+	pSphere->setNewOrientation(tempOrr);
+	pSphere->setNewAngularVel(tempAngVel);
 
 	moved1 = true;
 	moved2 = false;
 }
 
-void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody *, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlane, bool & moved1, bool & moved2)
 {
 	float changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
 	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
 	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
+	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
-	
+	Matrix4F planeMat = pPlane->getMatrix();
+	const auto center = pPlane->getPos() * planeMat;
 
-	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+	Matrix4F newPlaneMat = pPlane->getNewMatrix();
+	auto newCenter = pPlane->getPos() * newPlaneMat;
+
+	Vector3F tempPlaneVel = (newCenter - center) / changeTime;
+
+	Vector3F sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
+	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
+	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
+
+	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+
+	float sphereInverseMass = 1.0f / pSphere->getMass();
+
+	float sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	
+	float j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
+	
+	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
+	pSphere->setNewOrientation(tempOrr);
+	pSphere->setNewAngularVel(tempAngVel);
 
 	moved1 = true;
 	moved2 = false;
 }
 
-void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody *, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool & moved1, bool & moved2)
 {
-	Vector3F changePos = pSphere->getNewPos() - pSphere->getPos();
-	Vector3F changeVel = pSphere->getNewVel() - pSphere->getVel();
-
-	Vector3F tempPos = pSphere->getPos() + (changePos * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
-	Vector3F tempVel = pSphere->getVel() + (changeVel * (pPoint.mTime - pSphere->getCurrentUpdateTime()));
+	float changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
+	
+	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
+	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
+	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
-	tempVel = tempVel - (1 + 0.8) * (tempVel.dot(pPoint.mContactNormal)) * pPoint.mContactNormal;
+	Matrix4F planeMat = pPlaneHoles->getMatrix();
+	const auto center = pPlaneHoles->getPos() * planeMat;
+	
+	Matrix4F newPlaneMat = pPlaneHoles->getNewMatrix();
+	auto newCenter = pPlaneHoles->getPos() * newPlaneMat;
+
+	Vector3F tempPlaneVel = (newCenter - center) / changeTime;
+
+	Vector3F sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
+	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
+	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
+
+	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+
+	float sphereInverseMass = 1.0f / pSphere->getMass();
+
+	float sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	
+	float j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
+	
+	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
+	pSphere->setNewOrientation(tempOrr);
+	pSphere->setNewAngularVel(tempAngVel);
 
 	moved1 = true;
 	moved2 = false;
