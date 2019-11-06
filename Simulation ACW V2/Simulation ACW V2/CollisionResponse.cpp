@@ -60,6 +60,70 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		pPoint.mContactPoint1 = tempVal;
 		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
+	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	{
+		respondCollisionSphereCubiod(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::SPHERE)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint,.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionSphereCubiod(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	{
+		respondCollisionCubiodCubiod(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::BOWL)
+	{
+		respondCollisionCubiodBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionCubiodBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::PLANE)
+	{
+		respondCollisionCubiodPlane(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionCubiodPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
+	{
+		respondCollisionCubiodPlaneHoles(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionCubiodPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
 }
 
 void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool & moved1, bool & moved2)
@@ -257,3 +321,18 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	moved2 = false;
 }
 
+void CollisionResponse::respondCollisionSphereCubiod(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pCubiod, bool & moved1, bool & moved2)
+{
+	float changeTime1 = pPoint.mTime - pSphere->getCurrentUpdateTime();
+	
+	Vector3F tempPos1 = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime1);
+	Vector3F tempVel1 = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime1);
+	Vector3F tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
+	Matrix3F tempOrr1 = pSphere()->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime1);
+	
+	float changeTime2 = pPoint.mTime - pCubiod->getCurrentUpdateTime();
+	
+	Vector3F tempPos2 = pCubiod->getPos().interpolate(pCubiod->getNewPos(), changeTime2);
+	Vector3F tempVel2 = pCubiod->getVel().interpolate(pCubiod->getNewVel(), changeTime2);
+	Vector3F tempAngVel2 = pCubiod->getAngularVelocity().interpolate(pCubiod->getNewAngularVelocity(), changeTime2);
+	
