@@ -64,7 +64,7 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 	{
 		float interValue = (pLastCollisionTime - pSphere1->getCurrentUpdateTime()) / (1.0f - pSphere1->getCurrentUpdateTime());
 		
-		sphere1pos = pSphere1->getPos() + interValue * (pSphere1->getNewPos() - pSphere1->getPos());
+		sphere1pos = pSphere1->getPos().interpolate(pSphere1->getNewPos(), interValue);
 	}
 	else
 	{
@@ -75,7 +75,7 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 	{
 		float interValue = (pLastCollisionTime - pSphere2->getCurrentUpdateTime()) / (1.0f - pSphere2->getCurrentUpdateTime());
 
-		sphere2pos = pSphere2->getPos() + interValue * (pSphere2->getNewPos() - pSphere2->getPos());
+		sphere2pos = pSphere2->getPos().interpolate(pSphere2->getNewPos(), interValue);
 	}
 	else
 	{
@@ -927,12 +927,12 @@ bool CollisionDetection::detectCollisionSphereVertex(Sphere* pSphere, Vector3F p
 
 	pTime = -b - sqrt(discr);
 
-	if (pTime < 0.0f || pTime > 1.0f)
-	{
-		return false;
-	}
+if (pTime < 0.0f || pTime > 1.0f)
+{
+	return false;
+}
 
-	return true;
+return true;
 }
 
 bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F pVertex1, Vector3F pVertex2, Vector3F pVertex3, Vector3F pTriangleVelocity, float pLastCollisionTime)
@@ -961,7 +961,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 	if (abs(dist) <= radius)
 	{
 		Vector3F collisionPoint = spherePos - ((-radius + radius - abs(dist)) * planeNormal);
-		
+
 		Vector3F tempVertex1 = pVertex1 - collisionPoint;
 		Vector3F tempVertex2 = pVertex2 - collisionPoint;
 		Vector3F tempVertex3 = pVertex3 - collisionPoint;
@@ -997,7 +997,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 
 	Vector3F spherePoint = spherePos + (time * velocity);
 	Vector3F collisionPoint = spherePoint - (radius * planeNormal);
-	
+
 	Vector3F tempVertex1 = pVertex1 - collisionPoint;
 	Vector3F tempVertex2 = pVertex2 - collisionPoint;
 	Vector3F tempVertex3 = pVertex3 - collisionPoint;
@@ -1018,4 +1018,262 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 	}
 
 	return true;
+}
+
+void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * pCuboid, ContactManifold * pManifold, float pLastCollisionTime)
+{
+	Vector3F spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = pSphere->getPos().interpolate(pSphere->getNewPos(), interValue);
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+
+	Vector3F cuboidPos;
+	Matrix3F cuboidOrientation;
+
+	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		float interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+
+		cuboidPos = pCuboid->getPos().interpolate(pCuboid->getNewPos(), interValue);
+		cuboidOrientation = pCuboid->getOrientation().interpolate(pCuboid->getNewOrientation(), interValue);
+	}
+	else
+	{
+		cuboidPos = pCuboid->getPos();
+		cuboidOrientation = pCuboid->getOrientation();
+	}
+
+	float sphereRadius = pSphere->getSize().getX();
+	Vector3F cuboidSize = pCuboid->getSize();
+
+	Vector3F cuboidXAxis = Vector3F(1, 0, 0) * cuboidOrientation;
+	Vector3F cuboidYAxis = Vector3F(0, 1, 0) * cuboidOrientation;
+	Vector3F cuboidZAxis = Vector3F(0, 0, 1) * cuboidOrientation;
+
+	Vector3F closestPoint;
+	if (detectCollisionSphereCuboidStep(spherePos, sphereRadius, cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint))
+	{
+		ManifoldPoint manPoint;
+		manPoint.mContactId1 = pSphere;
+		manPoint.mContactId2 = pCuboid;
+		manPoint.mContactNormal = calculateCuboidCollisionNormal(cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint).normalize();
+		manPoint.mCollisionDepth = sphereRadius - (spherePos - closestPoint).length();
+		manPoint.mContactPoint1 = spherePos + sphereRadius * (closestPoint - spherePos);
+		manPoint.mContactPoint2 = closestPoint;
+	}
+
+
+}
+
+bool CollisionDetection::detectCollisionSphereCuboidStep(Vector3F pSphereCenter, float pSphereRadius, Vector3F pCuboidCenter,
+	Vector3F pCuboidXAxis, Vector3F pCuboidYAxis, Vector3F pCuboidZAxis, Vector3F pCuboidSize, Vector3F & pPoint)
+{
+	//Get closest point on cuboid from sphere center
+	Vector3F d = pSphereCenter - pCuboidCenter;
+
+	pPoint = pCuboidCenter;
+
+	{
+		float dist = d.dot(pCuboidXAxis);
+
+		if (dist > pCuboidSize.getX())
+		{
+			dist = pCuboidSize.getX();
+		}
+		else if (dist < -pCuboidSize.getX())
+		{
+			dist = -pCuboidSize.getX();
+		}
+
+		pPoint = pPoint + dist * pCuboidXAxis;
+	}
+
+	{
+		float dist = d.dot(pCuboidYAxis);
+
+		if (dist > pCuboidSize.getY())
+		{
+			dist = pCuboidSize.getY();
+		}
+		else if (dist < -pCuboidSize.getY())
+		{
+			dist = -pCuboidSize.getY();
+		}
+
+		pPoint = pPoint + dist * pCuboidYAxis;
+	}
+
+	{
+		float dist = d.dot(pCuboidZAxis);
+
+		if (dist > pCuboidSize.getZ())
+		{
+			dist = pCuboidSize.getZ();
+		}
+		else if (dist < -pCuboidSize.getZ())
+		{
+			dist = -pCuboidSize.getZ();
+		}
+
+		pPoint = pPoint + dist * pCuboidZAxis;
+	}
+
+	//Check if point on cuboid is touching sphere, therefore colliding
+
+	Vector3F dist = pPoint - pSphereCenter;
+
+	return dist.dot(dist) <= pSphereRadius * pSphereRadius;
+}
+
+Vector3F CollisionDetection::calculateCuboidCollisionNormal(Vector3F pCuboidCenter, Vector3F pCuboidXAxis, Vector3F pCuboidYAxis, Vector3F pCuboidZAxis, Vector3F pCuboidSize, Vector3F pPoint)
+{
+	Vector3F d = pPoint - pCuboidCenter;
+
+	float Xdist = d.dot(pCuboidXAxis);
+	float Ydist = d.dot(pCuboidYAxis);
+	float Zdist = d.dot(pCuboidZAxis);
+
+	if (Xdist == pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return pCuboidXAxis + pCuboidYAxis + pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return pCuboidXAxis + pCuboidYAxis - pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return pCuboidXAxis - pCuboidYAxis + pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return pCuboidXAxis - pCuboidYAxis - pCuboidZAxis;
+	}
+	if (Xdist == -pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return (-1 * pCuboidXAxis) + pCuboidYAxis + pCuboidZAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return (-1 * pCuboidXAxis) + pCuboidYAxis - pCuboidZAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return (-1 * pCuboidXAxis) - pCuboidYAxis + pCuboidZAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return (-1 * pCuboidXAxis) - pCuboidYAxis - pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY())
+	{
+		return pCuboidXAxis + pCuboidYAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY())
+	{
+		return pCuboidXAxis - pCuboidYAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return pCuboidXAxis + pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return pCuboidXAxis - pCuboidZAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Ydist == pCuboidSize.getY())
+	{
+		return (-1.0f * pCuboidXAxis) + pCuboidYAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Ydist == -pCuboidSize.getY())
+	{
+		return (-1.0f * pCuboidXAxis) - pCuboidYAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return (-1.0f * pCuboidXAxis) + pCuboidZAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return (-1.0f * pCuboidXAxis) - pCuboidZAxis;
+	}
+	else if (Ydist == pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return pCuboidYAxis + pCuboidZAxis;
+	}
+	else if (Ydist == pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return pCuboidYAxis - pCuboidZAxis;
+	}
+	else if (Ydist == -pCuboidSize.getY() &&
+		Zdist == pCuboidSize.getZ())
+	{
+		return (-1.0f * pCuboidYAxis) + pCuboidZAxis;
+	}
+	else if (Ydist == -pCuboidSize.getY() &&
+		Zdist == -pCuboidSize.getZ())
+	{
+		return (-1.0f * pCuboidYAxis) - pCuboidZAxis;
+	}
+	else if (Xdist == pCuboidSize.getX())
+	{
+		return pCuboidXAxis;
+	}
+	else if (Xdist == -pCuboidSize.getX())
+	{
+		return -1.0f * pCuboidXAxis;
+	}
+	else if (Ydist == pCuboidSize.getY())
+	{
+		return pCuboidYAxis;
+	}
+	else if (Ydist == -pCuboidSize.getY())
+	{
+		return -1.0f * pCuboidYAxis;
+	}
+	else if (Zdist == pCuboidSize.getZ())
+	{
+		return pCuboidZAxis;
+	}
+	else if (Zdist == -pCuboidSize.getZ())
+	{
+		return -1.0f * pCuboidZAxis;
+	}
+
+	//TODO: Check that this is almost never reached
+	return Vector3F(0, 1, 0);
 }
