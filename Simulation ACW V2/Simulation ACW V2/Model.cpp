@@ -293,7 +293,7 @@ Model* Model::createCylinder()
 	return model;
 }
 
-Model* Model::CreatePlaneWithHoles()
+Model* Model::createPlaneWithHoles()
 {
 	static Model * model = nullptr;
 
@@ -632,7 +632,7 @@ Model* Model::CreatePlaneWithHoles()
 	return model;
 }
 
-Model* Model::CreateBowl()
+Model* Model::createBowl()
 {
 	static Model * model = nullptr;
 
@@ -728,3 +728,84 @@ Model* Model::CreateBowl()
 	return model;
 }
 
+Model * Model::createCube()
+{
+	static Model * model = nullptr;
+
+	if (model)
+	{
+		return model;
+	}
+
+	const std::vector<Vector3F> positions = {
+		Vector3F(1, 1, 1),
+		Vector3F(1, 1, -1),
+		Vector3F(-1, 1, -1),
+		Vector3F(-1, 1, 1),
+		Vector3F(1, -1, 1),
+		Vector3F(1, -1, -1),
+		Vector3F(-1, -1, -1),
+		Vector3F(-1, -1, 1),
+		Vector3F(1, 1, 1),
+		Vector3F(1, 1, -1),
+		Vector3F(1, -1, -1),
+		Vector3F(1, -1, 1),
+		Vector3F(-1, 1, 1),
+		Vector3F(-1, 1, -1),
+		Vector3F(-1, -1, -1),
+		Vector3F(-1, -1, 1),
+		Vector3F(1, 1, 1),
+		Vector3F(1, -1, 1),
+		Vector3F(-1, -1, 1),
+		Vector3F(-1, 1, 1),
+		Vector3F(1, 1, -1),
+		Vector3F(1, -1, -1),
+		Vector3F(-1, -1, -1),
+		Vector3F(-1, 1, -1)
+	};
+
+	const std::vector<Vector2F> texCoords = {
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1),
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1),
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1),
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1),
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1),
+		Vector2F(1, 1),
+		Vector2F(1, 0),
+		Vector2F(0, 0),
+		Vector2F(0, 1)
+	};
+
+	const std::vector<unsigned int> indices = {
+		0, 1, 3,
+		1, 2, 3,
+		4, 5, 7,
+		5, 6, 7,
+		8, 9, 11,
+		9, 10, 11,
+		12, 13, 15,
+		13, 14, 15,
+		16, 17, 19,
+		17, 18, 19,
+		20, 21, 23,
+		21, 22, 23
+	};
+
+	model = new Model(positions, texCoords, indices);
+	return model;
+}

@@ -22,8 +22,9 @@ public:
 	static Model * createSphere();
 	static Model * createPlane();
 	static Model * createCylinder();
-	static Model * CreateBowl();
-	static Model * CreatePlaneWithHoles();
+	static Model * createBowl();
+	static Model * createPlaneWithHoles();
+	static Model * createCube();
 
 private:
 	unsigned int mVao, mEbo;
