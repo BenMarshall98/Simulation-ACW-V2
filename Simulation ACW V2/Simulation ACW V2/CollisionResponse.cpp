@@ -60,30 +60,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		pPoint.mContactPoint1 = tempVal;
 		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
-	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		respondCollisionSphereCubiod(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionSphereCuboid(pPoint, rigidBody1, rigidBody2, moved1, moved2);
 	}
-	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::SPHERE)
-	{
-		auto tempRig = pPoint.mContactId1;
-		pPoint.mContactId2 = pPoint.mContactId1;
-		pPoint.mContactId1 = tempRig;
-		
-		auto tempVal = pPoint.mContactPoint1;
-		pPoint.mContactPoint2 = pPoint,.mContactPoint1;
-		pPoint.mContactPoint1 = tempVal;
-		respondCollisionSphereCubiod(pPoint, rigidBody2, rigidBody1, moved2, moved1);
-	}
-	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::CUBIOD)
-	{
-		respondCollisionCubiodCubiod(pPoint, rigidBody1, rigidBody2, moved1, moved2);
-	}
-	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::BOWL)
-	{
-		respondCollisionCubiodBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
-	}
-	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
 		auto tempRig = pPoint.mContactId1;
 		pPoint.mContactId2 = pPoint.mContactId1;
@@ -92,28 +73,17 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCubiodBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionSphereCuboid(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
-	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::PLANE)
+	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		respondCollisionCubiodPlane(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionCuboidCuboid(pPoint, rigidBody1, rigidBody2, moved1, moved2);
 	}
-	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::BOWL)
 	{
-		auto tempRig = pPoint.mContactId1;
-		pPoint.mContactId2 = pPoint.mContactId1;
-		pPoint.mContactId1 = tempRig;
-		
-		auto tempVal = pPoint.mContactPoint1;
-		pPoint.mContactPoint2 = pPoint.mContactPoint1;
-		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCubiodPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionCuboidBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
 	}
-	else if (rigidBody1->getObjectType() == ObjectType::CUBIOD && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
-	{
-		respondCollisionCubiodPlaneHoles(pPoint, rigidBody1, rigidBody2, moved1, moved2);
-	}
-	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::CUBIOD)
+	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
 		auto tempRig = pPoint.mContactId1;
 		pPoint.mContactId2 = pPoint.mContactId1;
@@ -122,7 +92,37 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCubiodPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionCuboidBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::PLANE)
+	{
+		respondCollisionCuboidPlane(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
+	{
+		respondCollisionCuboidPlaneHoles(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+	}
+	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		auto tempRig = pPoint.mContactId1;
+		pPoint.mContactId2 = pPoint.mContactId1;
+		pPoint.mContactId1 = tempRig;
+		
+		auto tempVal = pPoint.mContactPoint1;
+		pPoint.mContactPoint2 = pPoint.mContactPoint1;
+		pPoint.mContactPoint1 = tempVal;
+		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
 	}
 }
 
@@ -321,18 +321,19 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	moved2 = false;
 }
 
-void CollisionResponse::respondCollisionSphereCubiod(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pCubiod, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pCuboid, bool & moved1, bool & moved2)
 {
 	float changeTime1 = pPoint.mTime - pSphere->getCurrentUpdateTime();
-	
+
 	Vector3F tempPos1 = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime1);
 	Vector3F tempVel1 = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime1);
 	Vector3F tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
-	Matrix3F tempOrr1 = pSphere()->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime1);
-	
-	float changeTime2 = pPoint.mTime - pCubiod->getCurrentUpdateTime();
-	
-	Vector3F tempPos2 = pCubiod->getPos().interpolate(pCubiod->getNewPos(), changeTime2);
-	Vector3F tempVel2 = pCubiod->getVel().interpolate(pCubiod->getNewVel(), changeTime2);
-	Vector3F tempAngVel2 = pCubiod->getAngularVelocity().interpolate(pCubiod->getNewAngularVelocity(), changeTime2);
+	Matrix3F tempOrr1 = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime1);
+
+	float changeTime2 = pPoint.mTime - pCuboid->getCurrentUpdateTime();
+
+	Vector3F tempPos2 = pCuboid->getPos().interpolate(pCuboid->getNewPos(), changeTime2);
+	Vector3F tempVel2 = pCuboid->getVel().interpolate(pCuboid->getNewVel(), changeTime2);
+	Vector3F tempAngVel2 = pCuboid->getAngularVelocity().interpolate(pCuboid->getNewAngularVelocity(), changeTime2);
+}
 	

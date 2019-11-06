@@ -1,13 +1,13 @@
-#include "Cubiod.h"
+#include "Cuboid.h"
 #include <Windows.h>
 #include "gl.h"
 #define _USE_MATH_DEFINES
 #include "TextureLoader.h"
 #include "Model.h"
-#inlcude "Matrix4f.h"
+#include "Matrix4f.h"
 
 Cuboid::Cuboid(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CUBIOD,
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CUBOID,
 	Matrix3F(0, 0, 0,
 	0, 0, 0,
 	0, 0, 0))
@@ -15,12 +15,12 @@ Cuboid::Cuboid(const Vector3F pSize, const float pMass, const Vector3F pPos, con
 	mTexture = TextureLoader::loadBmp("checker.bmp");
 }
 
-Cubiod::~Cubiod()
+Cuboid::~Cuboid()
 {
 	glDeleteTextures(1, &mTexture);
 }
 
-void Cubiod::render(Shader * pShader) const
+void Cuboid::render(Shader * pShader) const
 {
 	const auto translation = Matrix4F::createTranslation(mRenderPos);
 	const auto scale = Matrix4F::createScale(mSize);

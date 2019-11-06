@@ -26,7 +26,7 @@ void Bowl::render(Shader* pShader) const
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
 	modelMat.useMatrix(modelLocation);
 
-	auto * model = Model::CreateBowl();
+	auto * model = Model::createBowl();
 	model->render();
 }
 

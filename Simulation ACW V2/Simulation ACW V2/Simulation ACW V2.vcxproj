@@ -130,7 +130,7 @@
     <ClCompile Include="CollisionDetection.cpp" />
     <ClCompile Include="CollisionResponse.cpp" />
     <ClCompile Include="ContactManifold.cpp" />
-    <ClCompile Include="Cubiod.cpp" />
+    <ClCompile Include="Cuboid.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="gl.cpp" />
@@ -167,7 +167,7 @@
     <ClInclude Include="CollisionDetection.h" />
     <ClInclude Include="CollisionResponse.h" />
     <ClInclude Include="ContactManifold.h" />
-    <ClInclude Include="Cubiod.h" />
+    <ClInclude Include="Cuboid.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="gl.h" />

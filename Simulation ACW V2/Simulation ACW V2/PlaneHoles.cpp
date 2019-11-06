@@ -32,6 +32,6 @@ void PlaneHoles::render(Shader* pShader) const
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
 	modelMat.useMatrix(modelLocation);
 
-	auto * model = Model::CreatePlaneWithHoles();
+	auto * model = Model::createPlaneWithHoles();
 	model->render();
 }

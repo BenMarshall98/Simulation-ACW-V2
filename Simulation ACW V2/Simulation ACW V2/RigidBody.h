@@ -31,7 +31,8 @@ enum class ObjectType
 	SPHERE,
 	PLANEHOLES,
 	CYLINDER,
-	BOWL
+	BOWL,
+	CUBOID
 };
 
 class RigidBody

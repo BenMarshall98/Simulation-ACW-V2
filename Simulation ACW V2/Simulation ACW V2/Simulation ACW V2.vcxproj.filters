@@ -117,7 +117,7 @@
     <ClCompile Include="Quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cubiod.cpp">
+    <ClCompile Include="Cuboid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -221,7 +221,7 @@
     <ClInclude Include="Quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cubiod.h">
+    <ClInclude Include="Cuboid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
