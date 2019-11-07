@@ -6,6 +6,8 @@
 #include "gl.h"
 #include "Matrix4f.h"
 #include "Matrix3F.h"
+#include "glm/glm.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 class SceneGraphNode;
 
@@ -14,7 +16,7 @@ struct State
 	Vector3F pos;
 	Vector3F vel;
 	Vector3F angVel;
-	Matrix3F orientation;
+	glm::quat orientation;
 };
 
 struct Derivative
@@ -55,11 +57,11 @@ public:
 	void setPos(Vector3F pPos);
 	void setVel(Vector3F pVel);
 	void setAngularVel(Vector3F pAngularVel);
-	void setOrientation(Matrix3F pOrientation);
+	void setOrientation(glm::quat pOrientation);
 	void setNewPos(Vector3F pPos);
 	void setNewVel(Vector3F pVel);
 	void setNewAngularVel(Vector3F pAngularVel);
-	void setNewOrientation(Matrix3F pOrientation);
+	void setNewOrientation(glm::quat pOrientation);
 	void setMass(float pMass);
 	void setSceneGraphNode(SceneGraphNode * pParent);
 
@@ -68,9 +70,9 @@ public:
 	Vector3F getNewPos() const;
 	Vector3F getVel() const;
 	Vector3F getNewVel() const;
-	Matrix3F getOrientation() const;
-	Matrix3F getRenderOrientation() const;
-	Matrix3F getNewOrientation() const;
+	glm::quat getOrientation() const;
+	glm::quat getRenderOrientation() const;
+	glm::quat getNewOrientation() const;
 	Vector3F getAngularVelocity() const;
 	Vector3F getNewAngularVelocity() const;
 	Vector3F getSize() const;
@@ -94,9 +96,9 @@ public:
 	virtual void render(Shader * pShader) const = 0;
 
 protected:
-	Matrix3F mRotation;
-	Matrix3F mRenderRotation;
-	Matrix3F mNewRotation;
+	glm::quat mRotation;
+	glm::quat mRenderRotation;
+	glm::quat mNewRotation;
 	Matrix3F mImpulseTensor;
 	Matrix3F mInverseImpulseTensor;
 
