@@ -240,7 +240,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	Matrix4F planeMat = pPlane->getMatrix();
@@ -249,7 +249,16 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	Matrix4F newPlaneMat = pPlane->getNewMatrix();
 	auto newCenter = pPlane->getPos() * newPlaneMat;
 
-	Vector3F tempPlaneVel = (newCenter - center) / changeTime;
+	Vector3F tempPlaneVel;
+	
+	if (changeTime > 0.0f)
+	{
+		tempPlaneVel = (newCenter - center) / changeTime;
+	}
+	else
+	{
+		tempPlaneVel = Vector3F(0.0f, 0.0f, 0.0f);
+	}
 
 	Vector3F sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
 	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);

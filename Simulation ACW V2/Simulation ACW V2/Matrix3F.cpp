@@ -2,7 +2,8 @@
 #include "gl.h"
 #define _USE_MATH_DEFINES
 #include <cmath>
-
+#include "glm/glm.hpp"
+#include "glm/gtx/matrix_interpolation.hpp"
 
 Matrix3F::Matrix3F() : mMatrix{ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} }
 {
@@ -13,6 +14,10 @@ Matrix3F::Matrix3F(const float p11, const float p12, const float p13,
 	const float p31, const float p32, const float p33) :
 	mMatrix{ {p11, p12, p13}, {p21, p22, p23}, {p31, p32, p33} }
 {
+	if (isnan(p11))
+	{
+		int i = 0;
+	}
 }
 
 Matrix3F::Matrix3F(const Quaternion& pQuaternion)
@@ -186,11 +191,27 @@ Matrix3F Matrix3F::normaliseColumns() const
 
 Matrix3F Matrix3F::interpolate(const Matrix3F& pMat, const float pN) const
 {
-	const auto quat1 = toQuaternion();
+	glm::mat3 mat1 = glm::mat3(
+		mMatrix[0][0], mMatrix[0][1], mMatrix[0][2],
+		mMatrix[1][0], mMatrix[1][1], mMatrix[1][2],
+		mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]
+	);
+
+	glm::mat3 mat2 = glm::mat3(
+		pMat.mMatrix[0][0], pMat.mMatrix[0][1], pMat.mMatrix[0][2],
+		pMat.mMatrix[1][0], pMat.mMatrix[1][1], pMat.mMatrix[1][2],
+		pMat.mMatrix[2][0], pMat.mMatrix[2][1], pMat.mMatrix[2][2]
+	);
+
+	glm::mat3 mat3 = glm::interpolate(glm::mat4(mat1), glm::mat4(mat2), pN);
+
+	return Matrix3F(mat3[0][0], mat3[0][1], mat3[0][2],
+		mat3[1][0], mat3[1][2], mat3[1][2],
+		mat3[2][0], mat3[2][2], mat3[2][2]);
+	/*const auto quat1 = toQuaternion();
 	const auto quat2 = pMat.toQuaternion();
 	const auto result = quat1.slerp(quat2, pN);
-
-	return Matrix3F(result);
+	return Matrix3F(result);*/
 }
 
 //https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/

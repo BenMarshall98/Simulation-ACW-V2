@@ -8,7 +8,7 @@ Vector3F::Vector3F() : mX(0), mY(0), mZ(0)
 
 Vector3F::Vector3F(const float pX, const float pY, const float pZ) : mX(pX), mY(pY), mZ(pZ)
 {
-	if (isinf(pX))
+	if (isnan(pX))
 	{
 		int i = 0;
 	}
@@ -91,7 +91,6 @@ Vector3F Vector3F::interpolate(const Vector3F& pVec, float pN) const
 {
 	return *this + pN * (pVec - *this);
 }
-
 
 Vector3F operator+ (const Vector3F &pLhs, const Vector3F &pRhs)
 {

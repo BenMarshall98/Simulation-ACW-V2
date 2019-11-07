@@ -18,6 +18,10 @@ void RigidBody::setPos(const Vector3F pPos)
 
 void RigidBody::setNewPos(const Vector3F pPos)
 {
+	if (isnan(pPos.getX()))
+	{
+		int i = 0; 
+	}
 	mNewPos = pPos;
 }
 
