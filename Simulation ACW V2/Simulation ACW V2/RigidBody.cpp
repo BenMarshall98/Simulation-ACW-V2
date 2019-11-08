@@ -6,7 +6,7 @@ int RigidBody::mCountId = 0;
 
 RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity, const ObjectType pType, const Matrix3F pImpulseTensor) :
 	mSize(pSize), mMass(pMass), mPos(pPos), mAngularVelocity(pAngularVelocity), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity),
-	mNewAngularVelocity(pAngularVelocity), mRotation(Matrix3F()), mNewRotation(Matrix3F()), mImpulseTensor(pImpulseTensor), mInverseImpulseTensor(pImpulseTensor.inverse())
+	mNewAngularVelocity(pAngularVelocity), mRotation(glm::mat3(1.0f)), mNewRotation(glm::mat3(1.0f)), mImpulseTensor(pImpulseTensor), mInverseImpulseTensor(pImpulseTensor.inverse())
 {
 	mCountId++;
 }
@@ -45,12 +45,12 @@ void RigidBody::setNewAngularVel(Vector3F pAngularVel)
 	mNewAngularVelocity = pAngularVel;
 }
 
-void RigidBody::setOrientation(Matrix3F pOrientation)
+void RigidBody::setOrientation(glm::quat pOrientation)
 {
 	mRotation = pOrientation;
 }
 
-void RigidBody::setNewOrientation(Matrix3F pOrientation)
+void RigidBody::setNewOrientation(glm::quat pOrientation)
 {
 	mNewRotation = pOrientation;
 }
@@ -76,7 +76,10 @@ Derivative RigidBody::evaluate(const State& initial, float time, float dt, const
 	State state;
 	state.pos = initial.pos + derivative.dVel * dt;
 	state.vel = initial.vel + derivative.dAcc * dt;
-	state.orientation = (initial.orientation + Matrix3F::createSkew(derivative.dAngVel) * initial.orientation * dt).normaliseColumns();
+
+	glm::vec3 changeAngle = glm::vec3(derivative.dAngVel.getX(), derivative.dAngVel.getY(), derivative.dAngVel.getZ()) * dt;
+	glm::quat changeQuat = glm::quat(0.0f, changeAngle);
+	state.orientation = glm::normalize(initial.orientation + 0.5f * changeQuat * initial.orientation);
 	state.angVel = initial.angVel + derivative.dAngAcc * dt;
 
 	Derivative output;
@@ -103,7 +106,10 @@ void RigidBody::integrate(State& state, float time, float dt)
 
 	state.pos = state.pos + dPos * dt;
 	state.vel = state.vel + dVel * dt;
-	state.orientation = (state.orientation + Matrix3F::createSkew(dRot) * state.orientation * dt).normaliseColumns();
+
+	glm::vec3 changeAngle = glm::vec3(dRot.getX(), dRot.getY(), dRot.getZ()) * dt;
+	glm::quat changeQuat = glm::quat(0.0f, changeAngle);
+	state.orientation = glm::normalize(state.orientation + 0.5f * changeQuat * state.orientation);
 	state.angVel = state.angVel + dAngVel * dt;
 }
 
@@ -175,17 +181,17 @@ Vector3F RigidBody::getNewPos() const
 	return mNewPos;
 }
 
-Matrix3F RigidBody::getOrientation() const
+glm::quat RigidBody::getOrientation() const
 {
 	return mRotation;
 }
 
-Matrix3F RigidBody::getRenderOrientation() const
+glm::quat RigidBody::getRenderOrientation() const
 {
 	return mRenderRotation;
 }
 
-Matrix3F RigidBody::getNewOrientation() const
+glm::quat RigidBody::getNewOrientation() const
 {
 	return mNewRotation;
 }
@@ -226,7 +232,11 @@ Matrix4F RigidBody::getMatrix() const
 
 	const auto translation = Matrix4F::createTranslation(mPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F(mRotation);
+	const auto rot = glm::toMat4(mRotation);
+	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
+		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
+		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
+		rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
 
 	modelMat = modelMat * translation * rotation * scale;
 
@@ -255,7 +265,11 @@ Matrix4F RigidBody::getNewMatrix() const
 
 	const auto translation = Matrix4F::createTranslation(mNewPos);
 	const auto scale = Matrix4F::createScale(mSize);
-	const auto rotation = Matrix4F(mRotation);
+	const auto rot = glm::toMat4(mNewRotation);
+	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
+		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
+		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
+		rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
 
 	modelMat = modelMat * translation * rotation * scale;
 

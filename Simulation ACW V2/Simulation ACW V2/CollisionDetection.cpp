@@ -1048,14 +1048,14 @@ void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * 
 	}
 
 	Vector3F cuboidPos;
-	Matrix3F cuboidOrientation;
+	glm::quat cuboidOrientation;
 
 	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
 	{
 		float interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
 
 		cuboidPos = pCuboid->getPos().interpolate(pCuboid->getNewPos(), interValue);
-		cuboidOrientation = pCuboid->getOrientation().interpolate(pCuboid->getNewOrientation(), interValue);
+		cuboidOrientation = glm::slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
 	}
 	else
 	{
@@ -1066,9 +1066,15 @@ void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * 
 	float sphereRadius = pSphere->getSize().getX();
 	Vector3F cuboidSize = pCuboid->getSize();
 
-	Vector3F cuboidXAxis = Vector3F(1, 0, 0) * cuboidOrientation;
-	Vector3F cuboidYAxis = Vector3F(0, 1, 0) * cuboidOrientation;
-	Vector3F cuboidZAxis = Vector3F(0, 0, 1) * cuboidOrientation;
+	const auto rot = glm::toMat4(cuboidOrientation);
+	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
+		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
+		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
+		rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
+
+	Vector3F cuboidXAxis = Vector3F(1, 0, 0) * rotation;
+	Vector3F cuboidYAxis = Vector3F(0, 1, 0) * rotation;
+	Vector3F cuboidZAxis = Vector3F(0, 0, 1) * rotation;
 
 	Vector3F closestPoint;
 	if (detectCollisionSphereCuboidStep(spherePos, sphereRadius, cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint))

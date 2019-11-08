@@ -4,6 +4,7 @@
 #include <cmath>
 #include "glm/glm.hpp"
 #include "glm/gtx/matrix_interpolation.hpp"
+#include "glm/gtx/orthonormalize.hpp"
 
 Matrix3F::Matrix3F() : mMatrix{ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} }
 {
@@ -178,7 +179,19 @@ Matrix3F Matrix3F::inverse() const
 
 Matrix3F Matrix3F::normaliseColumns() const
 {
-	const auto c1 = sqrt(mMatrix[0][0] * mMatrix[0][0] + mMatrix[1][0] * mMatrix[1][0] + mMatrix[2][0] * mMatrix[2][0]);
+	glm::mat3 mat = glm::mat3(
+		mMatrix[0][0], mMatrix[0][1], mMatrix[0][2],
+		mMatrix[1][0], mMatrix[1][1], mMatrix[1][2],
+		mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]
+	);
+	mat = glm::orthonormalize(mat);
+
+	return {
+		mat[0][0], mat[0][1], mat[0][2],
+		mat[1][0], mat[1][2], mat[1][2],
+		mat[2][0], mat[2][2], mat[2][2]
+	};
+	/*const auto c1 = sqrt(mMatrix[0][0] * mMatrix[0][0] + mMatrix[1][0] * mMatrix[1][0] + mMatrix[2][0] * mMatrix[2][0]);
 	const auto c2 = sqrt(mMatrix[0][1] * mMatrix[0][1] + mMatrix[1][1] * mMatrix[1][1] + mMatrix[2][1] * mMatrix[2][1]);
 	const auto c3 = sqrt(mMatrix[0][2] * mMatrix[0][2] + mMatrix[1][2] * mMatrix[1][2] + mMatrix[2][2] * mMatrix[2][2]);
 
@@ -186,7 +199,7 @@ Matrix3F Matrix3F::normaliseColumns() const
 		mMatrix[0][0] / c1, mMatrix[0][1] / c2, mMatrix[0][2] / c3,
 		mMatrix[1][0] / c1, mMatrix[1][1] / c2, mMatrix[1][2] / c3,
 		mMatrix[2][0] / c1, mMatrix[2][1] / c2, mMatrix[2][2] / c3
-	};
+	};*/
 }
 
 Matrix3F Matrix3F::interpolate(const Matrix3F& pMat, const float pN) const

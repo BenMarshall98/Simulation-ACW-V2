@@ -133,14 +133,22 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	Vector3F tempPos1 = pSphere1->getPos().interpolate(pSphere1->getNewPos(), changeTime1);
 	Vector3F tempVel1 = pSphere1->getVel().interpolate(pSphere1->getNewVel(), changeTime1);
 	Vector3F tempAngVel1 = pSphere1->getAngularVelocity().interpolate(pSphere1->getNewAngularVelocity(), changeTime1);
-	Matrix3F tempOrr1 = pSphere1->getOrientation().interpolate(pSphere1->getNewOrientation(), changeTime1);
+	glm::quat tempOrr1 = glm::slerp(pSphere1->getOrientation(), pSphere1->getNewOrientation(), changeTime1);
+	auto rot = glm::toMat3(tempOrr1);
+	const auto tempOrrMat1 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
 
 	float changeTime2 = pPoint.mTime - pSphere2->getCurrentUpdateTime();
 
 	Vector3F tempPos2 = pSphere2->getPos().interpolate(pSphere2->getNewPos(), changeTime2);
 	Vector3F tempVel2 = pSphere2->getVel().interpolate(pSphere2->getNewVel(), changeTime2);
 	Vector3F tempAngVel2 = pSphere2->getAngularVelocity().interpolate(pSphere2->getNewAngularVelocity(), changeTime2);
-	Matrix3F tempOrr2 = pSphere2->getOrientation().interpolate(pSphere2->getNewOrientation(), changeTime2);
+	glm::quat tempOrr2 = glm::slerp(pSphere2->getOrientation(), pSphere2->getNewOrientation(), changeTime2);
+	rot = glm::toMat3(tempOrr1);
+	const auto tempOrrMat2 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -156,8 +164,8 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 
 	float relVel = pPoint.mContactNormal.dot(tempSphereVel1 - tempSphereVel2);
 
-	Matrix3F sphereWorldTensor1 = tempOrr1 * pSphere1->getInverseImpulseTenser() * tempOrr1.transpose();
-	Matrix3F sphereWorldTensor2 = tempOrr2 * pSphere2->getInverseImpulseTenser() * tempOrr2.transpose();
+	Matrix3F sphereWorldTensor1 = tempOrrMat1 * pSphere1->getInverseImpulseTenser() * tempOrrMat1.transpose();
+	Matrix3F sphereWorldTensor2 = tempOrrMat2 * pSphere2->getInverseImpulseTenser() * tempOrrMat2.transpose();
 
 	float sphereInverseMass1 = 1.0f / pSphere1->getMass();
 	float sphereInverseMass2 = 1.0f / pSphere2->getMass();
@@ -193,8 +201,12 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
 	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
-	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
-
+	glm::quat tempOrr = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
+	auto rot = glm::toMat3(tempOrr);
+	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
+	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
@@ -209,7 +221,7 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
 	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempBowlVel);
 
-	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+	Matrix3F sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
 
 	float sphereInverseMass = 1.0f / pSphere->getMass();
 
@@ -236,8 +248,12 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
 	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
-	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
-
+	glm::quat tempOrr = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
+	auto rot = glm::toMat3(tempOrr);
+	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
+	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
@@ -264,7 +280,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
 	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
 
-	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+	Matrix3F sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
 
 	float sphereInverseMass = 1.0f / pSphere->getMass();
 
@@ -291,8 +307,12 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	Vector3F tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
 	Vector3F tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 	Vector3F tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
-	Matrix3F tempOrr = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime);
-
+	glm::quat tempOrr = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
+	auto rot = glm::toMat3(tempOrr);
+	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
+	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
@@ -310,7 +330,7 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	Vector3F tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
 	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
 
-	Matrix3F sphereWorldTensor = tempOrr * pSphere->getInverseImpulseTenser() * tempOrr.transpose();
+	Matrix3F sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
 
 	float sphereInverseMass = 1.0f / pSphere->getMass();
 
@@ -337,15 +357,23 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	Vector3F tempPos1 = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime1);
 	Vector3F tempVel1 = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime1);
 	Vector3F tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
-	Matrix3F tempOrr1 = pSphere->getOrientation().interpolate(pSphere->getNewOrientation(), changeTime1);
-
+	glm::quat tempOrr1 = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime1);
+	auto rot = glm::toMat3(tempOrr1);
+	const auto tempOrrMat1 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
+	
 	float changeTime2 = pPoint.mTime - pCuboid->getCurrentUpdateTime();
 
 	Vector3F tempPos2 = pCuboid->getPos().interpolate(pCuboid->getNewPos(), changeTime2);
 	Vector3F tempVel2 = pCuboid->getVel().interpolate(pCuboid->getNewVel(), changeTime2);
 	Vector3F tempAngVel2 = pCuboid->getAngularVelocity().interpolate(pCuboid->getNewAngularVelocity(), changeTime2);
-	Matrix3F tempOrr2 = pCuboid->getOrientation().interpolate(pCuboid->getNewOrientation(), changeTime2);
-
+	glm::quat tempOrr2 = glm::slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), changeTime2);
+	rot = glm::toMat3(tempOrr1);
+	const auto tempOrrMat2 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+		rot[1][0], rot[1][1], rot[1][2],
+		rot[2][0], rot[2][1], rot[2][2]);
+	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
 		tempPos1 = tempPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
@@ -360,8 +388,8 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 
 	float relVel = pPoint.mContactNormal.dot(tempSphereVel - tempCuboidVel);
 
-	Matrix3F sphereWorldTensor = tempOrr1 * pSphere->getInverseImpulseTenser() * tempOrr1.transpose();
-	Matrix3F cuboidWorldTensor = tempOrr2 * pSphere->getInverseImpulseTenser() * tempOrr2.transpose();
+	Matrix3F sphereWorldTensor = tempOrrMat1 * pSphere->getInverseImpulseTenser() * tempOrrMat1.transpose();
+	Matrix3F cuboidWorldTensor = tempOrrMat2 * pSphere->getInverseImpulseTenser() * tempOrrMat2.transpose();
 
 	float sphereInverseMass = 1.0f / pSphere->getMass();
 	float cuboidInverseMass = 1.0f / pCuboid->getMass();
