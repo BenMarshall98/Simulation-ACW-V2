@@ -39,15 +39,15 @@ Game::Game()
 	
 	sceneGraph = new IdentityNode();
 
-	TranslationNode * planeHolesTranslation = new TranslationNode(Vector3F(0, -2, 0));
+	auto planeHolesTranslation = new TranslationNode(Vector3F(0, -2, 0));
 	sceneGraph->addChild(planeHolesTranslation);
 
-	TranslationAnimation * planeHolesAnimation = new TranslationAnimation(
-		[](Vector3F& pVector, float pDt, bool pDirection)
+	const auto planeHolesAnimation = new TranslationAnimation(
+		[](Vector3F& pVector, const float pDt, const bool pDirection)
 	{
 		if (!pDirection)
 		{
-			float newX = pVector.getX() + pDt;
+			auto newX = pVector.getX() + pDt;
 
 			if (newX > 15.0f)
 			{
@@ -58,7 +58,7 @@ Game::Game()
 		}
 		else
 		{
-			float newX = pVector.getX() - pDt;
+			auto newX = pVector.getX() - pDt;
 
 			if (newX < 0.0f)
 			{
@@ -70,94 +70,94 @@ Game::Game()
 	}
 	, '4', '3');
 
-	TranslationNode * planeHolesTranslationWithAnimation = new TranslationNode(Vector3F(0, 0, 0), planeHolesAnimation);
+	auto planeHolesTranslationWithAnimation = new TranslationNode(Vector3F(0, 0, 0), planeHolesAnimation);
 	planeHolesTranslation->addChild(planeHolesTranslationWithAnimation);
 
-	PlaneHoles * planeHoles = new PlaneHoles(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
-	RigidBodyNode * planeHolesNode = new RigidBodyNode(planeHoles);
+	const auto planeHoles = new PlaneHoles(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
+	const auto planeHolesNode = new RigidBodyNode(planeHoles);
 	planeHolesTranslationWithAnimation->addChild(planeHolesNode);
 	sceneBody.push_back(planeHoles);
 
-	RotationAnimation * propellerAnimation = new RotationAnimation(
+	const auto propellerAnimation = new RotationAnimation(
 		[](Vector3F& pRotationAxis, float & pRotationAngle, float pDt, float pAngleChange)
 	{
 		pRotationAngle += pDt * pAngleChange;
 	}
 	, 'R', 'F');
 
-	RotationNode * propellerRotationWithAnimation = new RotationNode(Vector3F(0, 1, 0), 0, propellerAnimation);
+	auto propellerRotationWithAnimation = new RotationNode(Vector3F(0, 1, 0), 0, propellerAnimation);
 
 	planeHolesTranslationWithAnimation->addChild(propellerRotationWithAnimation);
 
-	TranslationNode * propellerCentreTranslation = new TranslationNode(Vector3F(0, 3, 0));
+	auto propellerCentreTranslation = new TranslationNode(Vector3F(0, 3, 0));
 
 	propellerRotationWithAnimation->addChild(propellerCentreTranslation);
 
-	Cylinder * cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
+	auto cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * propellerCentreNode = new RigidBodyNode(cylinder);
+	const auto propellerCentreNode = new RigidBodyNode(cylinder);
 
 	propellerCentreTranslation->addChild(propellerCentreNode);
 	sceneBody.push_back(cylinder);
 
-	TranslationNode * propellerBladeTranslation = new TranslationNode(Vector3F(0, 6, 0));
+	auto propellerBladeTranslation = new TranslationNode(Vector3F(0, 6, 0));
 
 	propellerRotationWithAnimation->addChild(propellerBladeTranslation);
 
-	RotationNode * propellerBladeRotation = new RotationNode(Vector3F(1, 0, 0), 90);
+	auto propellerBladeRotation = new RotationNode(Vector3F(1, 0, 0), 90);
 
 	propellerBladeTranslation->addChild(propellerBladeRotation);
 
-	RotationNode * propellerBlade1Rotation = new RotationNode(Vector3F(0, 0, 1), 0);
+	auto propellerBlade1Rotation = new RotationNode(Vector3F(0, 0, 1), 0);
 
 	propellerBladeRotation->addChild(propellerBlade1Rotation);
 
-	TranslationNode * propellerBlade1Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
+	auto propellerBlade1Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
 
 	propellerBlade1Rotation->addChild(propellerBlade1Translation);
 
 	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0),  Vector3F(0, 0, 0));
 
-	RigidBodyNode * propellerBlade1Node = new RigidBodyNode(cylinder);
+	const auto propellerBlade1Node = new RigidBodyNode(cylinder);
 
 	propellerBlade1Translation->addChild(propellerBlade1Node);
 	sceneBody.push_back(cylinder);
 
-	RotationNode * propellerBlade2Rotation = new RotationNode(Vector3F(0, 0, 1), 120);
+	auto propellerBlade2Rotation = new RotationNode(Vector3F(0, 0, 1), 120);
 
 	propellerBladeRotation->addChild(propellerBlade2Rotation);
 
-	TranslationNode * propellerBlade2Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
+	auto propellerBlade2Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
 
 	propellerBlade2Rotation->addChild(propellerBlade2Translation);
 
 	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * propellerBlade2Node = new RigidBodyNode(cylinder);
+	const auto propellerBlade2Node = new RigidBodyNode(cylinder);
 
 	propellerBlade2Translation->addChild(propellerBlade2Node);
 	sceneBody.push_back(cylinder);
 
-	RotationNode * propellerBlade3Rotation = new RotationNode(Vector3F(0, 0, 1), 240);
+	auto propellerBlade3Rotation = new RotationNode(Vector3F(0, 0, 1), 240);
 
 	propellerBladeRotation->addChild(propellerBlade3Rotation);
 
-	TranslationNode * propellerBlade3Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
+	auto propellerBlade3Translation = new TranslationNode(Vector3F(0, 1.5f, 0));
 
 	propellerBlade3Rotation->addChild(propellerBlade3Translation);
 
 	cylinder = new Cylinder(Vector3F(1, 1, 1), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * propellerBlade3Node = new RigidBodyNode(cylinder);
+	const auto propellerBlade3Node = new RigidBodyNode(cylinder);
 
 	propellerBlade3Translation->addChild(propellerBlade3Node);
 	sceneBody.push_back(cylinder);
 
-	TranslationNode * planeTranslation = new TranslationNode(Vector3F(0, -8, 0));
+	auto planeTranslation = new TranslationNode(Vector3F(0, -8, 0));
 
 	sceneGraph->addChild(planeTranslation);
 
-	TranslationAnimation * planeAnimation = new TranslationAnimation(
+	const auto planeAnimation = new TranslationAnimation(
 		[](Vector3F&pVector, float pDt, bool pDirection)
 	{
 		if (!pDirection)
@@ -185,90 +185,90 @@ Game::Game()
 	}
 	, '6', '5');
 
-	TranslationNode * planeTranslationWithAnimation = new TranslationNode(Vector3F(0, 0, 0), planeAnimation);
+	auto planeTranslationWithAnimation = new TranslationNode(Vector3F(0, 0, 0), planeAnimation);
 
 	planeTranslation->addChild(planeTranslationWithAnimation);
 
-	Plane * plane = new Plane(-1, Vector3F(5, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
+	auto plane = new Plane(-1, Vector3F(5, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * planeNode = new RigidBodyNode(plane);
+	const auto planeNode = new RigidBodyNode(plane);
 
 	planeTranslationWithAnimation->addChild(planeNode);
 	sceneBody.push_back(plane);
 
-	TranslationNode * leftPlaneTranslation = new TranslationNode(Vector3F(-5, 0, 0));
+	auto leftPlaneTranslation = new TranslationNode(Vector3F(-5, 0, 0));
 
 	sceneGraph->addChild(leftPlaneTranslation);
 
-	RotationNode * leftPlaneRotation = new RotationNode(Vector3F(0, 0, 1), 90);
+	auto leftPlaneRotation = new RotationNode(Vector3F(0, 0, 1), 90);
 
 	leftPlaneTranslation->addChild(leftPlaneRotation);
 
 	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * leftPlaneNode = new RigidBodyNode(plane);
+	const auto leftPlaneNode = new RigidBodyNode(plane);
 
 	leftPlaneRotation->addChild(leftPlaneNode);
 	sceneBody.push_back(plane);
 
-	TranslationNode * rightPlaneTranslation = new TranslationNode(Vector3F(5, 0, 0));
+	auto rightPlaneTranslation = new TranslationNode(Vector3F(5, 0, 0));
 
 	sceneGraph->addChild(rightPlaneTranslation);
 
-	RotationNode * rightPlaneRotation = new RotationNode(Vector3F(0, 0, 1), -90);
+	auto rightPlaneRotation = new RotationNode(Vector3F(0, 0, 1), -90);
 
 	rightPlaneTranslation->addChild(rightPlaneRotation);
 
 	plane = new Plane(-1, Vector3F(10, 1, 5), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * rightPlaneNode = new RigidBodyNode(plane);
+	const auto rightPlaneNode = new RigidBodyNode(plane);
 
 	rightPlaneRotation->addChild(rightPlaneNode);
 	sceneBody.push_back(plane);
 
-	TranslationNode * frontPlaneTranslation = new TranslationNode(Vector3F(0, 0, 5));
+	auto frontPlaneTranslation = new TranslationNode(Vector3F(0, 0, 5));
 
 	sceneGraph->addChild(frontPlaneTranslation);
 
-	RotationNode * frontPlaneRotation = new RotationNode(Vector3F(1, 0, 0), 90);
+	auto frontPlaneRotation = new RotationNode(Vector3F(1, 0, 0), 90);
 
 	frontPlaneTranslation->addChild(frontPlaneRotation);
 
 	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * frontPlaneNode = new RigidBodyNode(plane);
+	const auto frontPlaneNode = new RigidBodyNode(plane);
 
 	frontPlaneRotation->addChild(frontPlaneNode);
 
 	sceneBody.push_back(plane);
 
-	TranslationNode * backPlaneTranslation = new TranslationNode(Vector3F(0, 0, -5));
+	auto backPlaneTranslation = new TranslationNode(Vector3F(0, 0, -5));
 
 	sceneGraph->addChild(backPlaneTranslation);
 
-	RotationNode * backPlaneRotation = new RotationNode(Vector3F(1, 0, 0), -90);
+	auto backPlaneRotation = new RotationNode(Vector3F(1, 0, 0), -90);
 
 	backPlaneTranslation->addChild(backPlaneRotation);
 
 	plane = new Plane(-1, Vector3F(5, 1, 10), Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * backPlaneNode = new RigidBodyNode(plane);
+	const auto backPlaneNode = new RigidBodyNode(plane);
 
 	backPlaneRotation->addChild(backPlaneNode);
 
 	sceneBody.push_back(plane);
 
-	TranslationNode * bowlTranslation = new TranslationNode(Vector3F(0, 10, 0));
+	auto bowlTranslation = new TranslationNode(Vector3F(0, 10, 0));
 
 	sceneGraph->addChild(bowlTranslation);
 
-	RotationNode * bowlRotation = new RotationNode(Vector3F(1, 0, 0), 90);
+	auto bowlRotation = new RotationNode(Vector3F(1, 0, 0), 90);
 
 	bowlTranslation->addChild(bowlRotation);
 
-	Bowl * bowl = new Bowl(Vector3F(25, 25, 25), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
+	const auto bowl = new Bowl(Vector3F(25, 25, 25), -1, Vector3F(0, 0, 0), Vector3F(0, 0, 0), Vector3F(0, 0, 0));
 
-	RigidBodyNode * bowlNode = new RigidBodyNode(bowl);
+	const auto bowlNode = new RigidBodyNode(bowl);
 
 	bowlRotation->addChild(bowlNode);
 
@@ -282,12 +282,12 @@ Game::~Game()
 void Game::run()
 {
 	swap();
-	std::thread update_thread(&Game::update, this);
-	
-	double lastTime = glfwGetTime();
+	std::thread updateThread(&Game::update, this);
+
+	auto lastTime = static_cast<float>(glfwGetTime());
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		static bool once = true;
+		static auto once = true;
 		if (mAddSphere && once)
 		{
 			mHoldingContainer->addRigidBody();
@@ -299,10 +299,6 @@ void Game::run()
 		
 		if (!mPause)
 		{
-			//std::thread upda = std::thread(&Game::update, this);
-			//render();
-			//upda.join();
-
 			{
 				std::lock_guard<std::mutex> lock(m);
 				ready = true;
@@ -317,19 +313,13 @@ void Game::run()
 				std::unique_lock<std::mutex> lock(m);
 				cv.wait(lock, [this] {return processed; });
 			}
-
-			//update();
-			//render();
 		}
 		else
 		{
 			render();
 		}
 
-		/*update();
-		render();*/
-
-		double now = glfwGetTime();
+		const auto now = static_cast<float>(glfwGetTime());
 
 		mDt = now - lastTime;
 
@@ -345,7 +335,7 @@ void Game::run()
 
 	cv.notify_one();
 
-	update_thread.join();
+	updateThread.join();
 }
 
 void Game::swap()
@@ -379,7 +369,6 @@ void Game::update()
 		lock.unlock();
 		cv.notify_one();
 	}
-	//simulationLoop();
 }
 
 void Game::simulationLoop()
@@ -394,14 +383,14 @@ void Game::simulationLoop()
 	octree->GetPossibleCollisions(mPossibleCollisions);
 	mPossibleRigidBodyCollisions.clear();
 
-	for (int i = 0; i < mPossibleCollisions.size(); i++)
+	for (auto& possibleCollision : mPossibleCollisions)
 	{
 		mPossibleRigidBodyCollisions.emplace(
-			std::pair < RigidBody *, RigidBody *>(mPossibleCollisions[i].rigidBody1, mPossibleCollisions[i].rigidBody2)
+			std::pair < RigidBody *, RigidBody *>(possibleCollision.rigidBody1, possibleCollision.rigidBody2)
 		);
 
 		mPossibleRigidBodyCollisions.emplace(
-			std::pair < RigidBody *, RigidBody *>(mPossibleCollisions[i].rigidBody2, mPossibleCollisions[i].rigidBody1)
+			std::pair < RigidBody *, RigidBody *>(possibleCollision.rigidBody2, possibleCollision.rigidBody1)
 		);
 	}
 
@@ -421,26 +410,26 @@ void Game::calculateObjectPhysics() const
 {
 	sceneGraph->updateSceneGraph(getUpdateDt(), Matrix4F::createIdentity());
 
-	for (int i = 0; i < octreeBody.size(); i++)
+	for (auto octreeRigidBody : octreeBody)
 	{
-		octreeBody[i]->calculatePhysics(getUpdateDt(), 0.0f);
+		octreeRigidBody->calculatePhysics(getUpdateDt(), 0.0f);
 	}
 }
 
 void Game::dynamicCollisionDetection() const
 {
 	OutputDebugString((std::to_string(mPossibleCollisions.size()) + "\n").c_str());
-	for (int i = 0; i < sceneBody.size(); i++)
+	for (auto sceneRigidBody : sceneBody)
 	{
-		for (int j = 0; j < octreeBody.size(); j++)
+		for (auto octreeRigidBody : octreeBody)
 		{
-			CollisionDetection::dynamicCollisionDetection(sceneBody[i], octreeBody[j], mManifold, 0.0f);
+			CollisionDetection::dynamicCollisionDetection(sceneRigidBody, octreeRigidBody, mManifold, 0.0f);
 		}
 	}
 
-	for (int i = 0; i < mPossibleCollisions.size(); i++)
+	for (auto possibleCollision : mPossibleCollisions)
 	{
-		CollisionDetection::dynamicCollisionDetection(mPossibleCollisions[i].rigidBody1, mPossibleCollisions[i].rigidBody2, mManifold, 0.0f);
+		CollisionDetection::dynamicCollisionDetection(possibleCollision.rigidBody1, possibleCollision.rigidBody2, mManifold, 0.0f);
 	}
 }
 
@@ -448,26 +437,26 @@ void Game::dynamicCollisionResponse() const
 {
 	OutputDebugString((std::to_string(mManifold->getNumPoints()) + "\n").c_str());
 
-	float lastCollisionTime = 0.0f;
+	auto lastCollisionTime = 0.0f;
 	while(lastCollisionTime < 1.0f && mManifold->getNumPoints())
 	{
-		bool moved1 = false;
-		bool moved2 = false;
+		auto moved1 = false;
+		auto moved2 = false;
 		auto point = mManifold->getPoint(0);
 		lastCollisionTime = point.mTime;
 
 		if (lastCollisionTime == 0.0f)
 		{
-			int i = 0;
+			auto i = 0;
 		}
 		
 		CollisionResponse::dynamicCollisionResponse(point, moved1, moved2);
 
 		mManifold->remove(0);
 
-		float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
+		auto timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
 
-		RigidBody * rigidBody1 = point.mContactId1;
+		auto rigidBody1 = point.mContactId1;
 
 		if (moved1)
 		{
@@ -476,7 +465,7 @@ void Game::dynamicCollisionResponse() const
 
 		}
 
-		RigidBody * rigidBody2 = point.mContactId2;
+		auto rigidBody2 = point.mContactId2;
 
 		if (moved2)
 		{
@@ -594,14 +583,14 @@ void Game::dynamicCollisionResponse() const
 
 void Game::updateObjectPhysics() const
 {
-	for (int i = 0; i < sceneBody.size(); i++)
+	for (auto sceneRigidBody : sceneBody)
 	{
-		sceneBody[i]->update();
+		sceneRigidBody->update();
 	}
 
-	for (int i = 0; i < octreeBody.size(); i++)
+	for (auto octreeRigidBody : octreeBody)
 	{
-		octreeBody[i]->update();
+		octreeRigidBody->update();
 	}
 }
 

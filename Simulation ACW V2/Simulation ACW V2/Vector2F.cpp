@@ -36,7 +36,7 @@ Vector2F Vector2F::subtract(const Vector2F &pVec) const
 	return Vector2F(mX - pVec.getX(), mY - pVec.getY());
 }
 
-Vector2F Vector2F::mult(const float pN) const
+Vector2F Vector2F::multiply(const float pN) const
 {
 	return Vector2F(mX * pN, mY * pN);
 }
@@ -61,7 +61,7 @@ float Vector2F::distance(const Vector2F &pVec) const
 	return subtract(pVec).length();
 }
 
-Vector2F Vector2F::normalise()
+Vector2F Vector2F::normalize()
 {
 	const auto len = length();
 	set(mX / len, mY / len);
@@ -80,12 +80,12 @@ Vector2F operator- (const Vector2F &pLhs, const Vector2F &pRhs)
 
 Vector2F operator* (const Vector2F &pLhs, const float pN)
 {
-	return pLhs.mult(pN);
+	return pLhs.multiply(pN);
 }
 
 Vector2F operator* (const float pN, const Vector2F &pLhs)
 {
-	return pLhs.mult(pN);
+	return pLhs.multiply(pN);
 }
 
 Vector2F operator/ (const Vector2F &pLhs, const float pN)

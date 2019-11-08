@@ -11,12 +11,12 @@ public:
 
 	Vector2F add(const Vector2F &pVec) const;
 	Vector2F subtract(const Vector2F &pVec) const;
-	Vector2F mult(float pN) const;
+	Vector2F multiply(float pN) const;
 	Vector2F divide(float pN) const;
 	float dot(const Vector2F &pVec) const;
 	float length() const;
 	float distance(const Vector2F &pVec) const;
-	Vector2F normalise();
+	Vector2F normalize();
 
 private:
 	float mX, mY;

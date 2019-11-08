@@ -8,10 +8,6 @@ Vector3F::Vector3F() : mX(0), mY(0), mZ(0)
 
 Vector3F::Vector3F(const float pX, const float pY, const float pZ) : mX(pX), mY(pY), mZ(pZ)
 {
-	if (isnan(pX))
-	{
-		int i = 0;
-	}
 }
 
 void Vector3F::set(const float pX, const float pY, const float pZ)
@@ -47,7 +43,7 @@ Vector3F Vector3F::subtract(const Vector3F &pVec) const
 	return Vector3F(mX - pVec.mX, mY - pVec.mY, mZ - pVec.mZ);
 }
 
-Vector3F Vector3F::mult(const float pN) const
+Vector3F Vector3F::multiply(const float pN) const
 {
 	return Vector3F(mX * pN, mY * pN, mZ * pN);
 }
@@ -87,7 +83,7 @@ Vector3F Vector3F::normalize() const
 	return Vector3F(mX / len, mY / len, mZ / len);
 }
 
-Vector3F Vector3F::interpolate(const Vector3F& pVec, float pN) const
+Vector3F Vector3F::interpolate(const Vector3F& pVec, const float pN) const
 {
 	return *this + pN * (pVec - *this);
 }
@@ -104,12 +100,12 @@ Vector3F operator- (const Vector3F &pLhs, const Vector3F &pRhs)
 
 Vector3F operator* (const Vector3F & pLhs, const float pN)
 {
-	return pLhs.mult(pN);
+	return pLhs.multiply(pN);
 }
 
 Vector3F operator* (const float pN, const Vector3F & pLhs)
 {
-	return pLhs.mult(pN);
+	return pLhs.multiply(pN);
 }
 
 Vector3F operator/ (const Vector3F & pLhs, const float pN)

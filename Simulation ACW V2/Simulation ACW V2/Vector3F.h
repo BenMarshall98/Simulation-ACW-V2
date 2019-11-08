@@ -12,7 +12,7 @@ public:
 
 	Vector3F add(const Vector3F &pVec) const;
 	Vector3F subtract(const Vector3F &pVec) const;
-	Vector3F mult(float pN) const;
+	Vector3F multiply(float pN) const;
 	Vector3F divide(float pN) const;
 	Vector3F cross(const Vector3F &pVec) const;
 	float dot(const Vector3F &pVec) const;
