@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Matrix4f.h"
-#include "Vector3f.h"
+#include "Matrix4F.h"
+#include "Vector3F.h"
 
 class Camera
 {
@@ -9,7 +9,7 @@ class Camera
 	Vector3F mUpDirection;
 	Vector3F mEyePosition;
 	Vector3F mTargetPosition;
-	double mAngleSpeed = 15.0f;
+	float mAngleSpeed = 15.0f;
 	float mMovementSpeed = 5.0f;
 	bool mRotateLeft = false;
 	bool mRotateRight = false;
@@ -18,47 +18,52 @@ class Camera
 	bool mPanForward = false;
 	bool mPanBackward = false;
 
-	void RotateLeftRight(bool left = true);
-	void RotateUpDown(bool up = true);
-	void PanForwardBackward(bool forward = true);
+	void rotateLeftRight(bool pLeft = true);
+	void rotateUpDown(bool pUp = true);
+	void panForwardBackward(bool pForward = true);
 
 public:
 	Camera(Vector3F pEyePosition, Vector3F pUpDirection, Vector3F pTargetPosition);
-	~Camera();
+	~Camera() = default;
 
-	void RotateLeft(bool pKeyPressed)
+	Camera(const Camera &) = delete;
+	Camera(Camera &&) = delete;
+	Camera & operator= (const Camera &) = delete;
+	Camera & operator= (Camera &&) = delete;
+
+	void rotateLeft(const bool pKeyPressed)
 	{
 		mRotateLeft = pKeyPressed;
 	}
 
-	void RotateRight(bool pKeyPressed)
+	void rotateRight(const bool pKeyPressed)
 	{
 		mRotateRight = pKeyPressed;
 	}
 
-	void RotateUp(bool pKeyPressed)
+	void rotateUp(const bool pKeyPressed)
 	{
 		mRotateUp = pKeyPressed;
 	}
 
-	void RotateDown(bool pKeyPressed)
+	void rotateDown(const bool pKeyPressed)
 	{
 		mRotateDown = pKeyPressed;
 	}
 
-	void PanForward(bool pKeyPressed)
+	void panForward(const bool pKeyPressed)
 	{
 		mPanForward = pKeyPressed;
 	}
 
-	void PanBackward(bool pKeyPressed)
+	void panBackward(const bool pKeyPressed)
 	{
 		mPanBackward = pKeyPressed;
 	}
 
-	void Update();
+	void update();
 
-	Matrix4F GetViewMatrix() const
+	[[nodiscard]] Matrix4F getViewMatrix() const
 	{
 		return mViewMatrix;
 	}

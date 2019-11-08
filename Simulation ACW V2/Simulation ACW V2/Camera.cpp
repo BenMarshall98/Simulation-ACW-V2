@@ -1,95 +1,91 @@
 #include "Camera.h"
 #include "Game.h"
 
-Camera::Camera(Vector3F pEyePosition, Vector3F pUpDirection, Vector3F pTargetPosition) :
-	mEyePosition(pEyePosition), mUpDirection(pUpDirection), mTargetPosition(pTargetPosition)
+Camera::Camera(const Vector3F pEyePosition, const Vector3F pUpDirection, const Vector3F pTargetPosition) :
+	 mUpDirection(pUpDirection), mEyePosition(pEyePosition), mTargetPosition(pTargetPosition)
 {
-	Update();
+	update();
 }
 
-Camera::~Camera()
+void Camera::rotateLeftRight(const bool pLeft)
 {
-}
+	auto angleChange = mAngleSpeed * Game::getRenderDt();
 
-void Camera::RotateLeftRight(bool left)
-{
-	double angleChange = mAngleSpeed * Game::getRenderDt();
-
-	if (left)
+	if (pLeft)
 	{
 		angleChange = -angleChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
-	Vector3F xAxis = zAxis.cross(mUpDirection).normalize();
-	Vector3F yAxis = zAxis.cross(xAxis);
+	const auto zAxis = (mTargetPosition - mEyePosition).normalize();
+	const auto xAxis = zAxis.cross(mUpDirection).normalize();
+	const auto yAxis = zAxis.cross(xAxis);
 
-	Matrix4F leftRightMat = Matrix4F::createRotation(yAxis, angleChange);
+	const auto leftRightMat = Matrix4F::createRotation(yAxis, angleChange);
 
 	mTargetPosition = mEyePosition + leftRightMat * zAxis;
 }
 
-void Camera::RotateUpDown(bool up)
+void Camera::rotateUpDown(const bool pUp)
 {
-	float angleChange = mAngleSpeed * Game::getRenderDt();
+	auto angleChange = mAngleSpeed * Game::getRenderDt();
 
-	if (!up)
+	if (!pUp)
 	{
 		angleChange = -angleChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
-	Vector3F xAxis = zAxis.cross(mUpDirection).normalize();
+	const auto zAxis = (mTargetPosition - mEyePosition).normalize();
+	const auto xAxis = zAxis.cross(mUpDirection).normalize();
 
-	Matrix4F leftRightMat = Matrix4F::createRotation(xAxis, angleChange);
+	const auto leftRightMat = Matrix4F::createRotation(xAxis, angleChange);
 
 	mTargetPosition = mEyePosition + leftRightMat * zAxis;
 	mUpDirection = mUpDirection * leftRightMat;
 }
 
-void Camera::PanForwardBackward(bool forward)
+void Camera::panForwardBackward(const bool pForward)
 {
-	float movementChange = mMovementSpeed * Game::getRenderDt();
+	auto movementChange = mMovementSpeed * Game::getRenderDt();
 
-	if (!forward)
+	if (!pForward)
 	{
 		movementChange = -movementChange;
 	}
 
-	Vector3F zAxis = (mTargetPosition - mEyePosition).normalize();
-	Vector3F movement = zAxis * movementChange;
+	const auto zAxis = (mTargetPosition - mEyePosition).normalize();
+	const auto movement = zAxis * movementChange;
 
 	mEyePosition = mEyePosition + movement;
 	mTargetPosition = mTargetPosition + movement;
 }
 
-void Camera::Update()
+void Camera::update()
 {
 	if (mRotateLeft && !mRotateRight)
 	{
-		RotateLeftRight(true);
+		rotateLeftRight(true);
 	}
 	else if (!mRotateLeft && mRotateRight)
 	{
-		RotateLeftRight(false);
+		rotateLeftRight(false);
 	}
 
 	if (mRotateUp && !mRotateDown)
 	{
-		RotateUpDown(true);
+		rotateUpDown(true);
 	}
 	else if (!mRotateUp && mRotateDown)
 	{
-		RotateUpDown(false);
+		rotateUpDown(false);
 	}
 
 	if (mPanForward && !mPanBackward)
 	{
-		PanForwardBackward(true);
+		panForwardBackward(true);
 	}
 	else if (!mPanForward && mPanBackward)
 	{
-		PanForwardBackward(false);
+		panForwardBackward(false);
 	}
 
 	mViewMatrix = Matrix4F::createLookAt(mEyePosition, mTargetPosition, mUpDirection);

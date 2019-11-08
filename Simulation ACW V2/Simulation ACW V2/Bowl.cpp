@@ -1,9 +1,9 @@
 #include "Bowl.h"
-#include "Matrix4f.h"
+#include "Matrix4F.h"
 #include "SceneGraphNode.h"
 
-Bowl::Bowl(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngulerVelocity ,Vector3F pVelocity) :
-	RigidBody(pSize, pMass, pPos, pAngulerVelocity, pVelocity, ObjectType::BOWL, Matrix3F())
+Bowl::Bowl(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
+	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::BOWL, Matrix3F())
 {
 
 }

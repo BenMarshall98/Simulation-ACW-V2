@@ -47,56 +47,56 @@ bool GLFWWindow::windowEvents()
 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		Game::camera->PanForward(true);
+		Game::camera->panForward(true);
 	}
 	else
 	{
-		Game::camera->PanForward(false);
+		Game::camera->panForward(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		Game::camera->PanBackward(true);
+		Game::camera->panBackward(true);
 	}
 	else
 	{
-		Game::camera->PanBackward(false);
+		Game::camera->panBackward(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		Game::camera->RotateUp(true);
+		Game::camera->rotateUp(true);
 	}
 	else
 	{
-		Game::camera->RotateUp(false);
+		Game::camera->rotateUp(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		Game::camera->RotateDown(true);
+		Game::camera->rotateDown(true);
 	}
 	else
 	{
-		Game::camera->RotateDown(false);
+		Game::camera->rotateDown(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		Game::camera->RotateLeft(true);
+		Game::camera->rotateLeft(true);
 	}
 	else
 	{
-		Game::camera->RotateLeft(false);
+		Game::camera->rotateLeft(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		Game::camera->RotateRight(true);
+		Game::camera->rotateRight(true);
 	}
 	else
 	{
-		Game::camera->RotateRight(false);
+		Game::camera->rotateRight(false);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)

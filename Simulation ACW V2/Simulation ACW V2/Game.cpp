@@ -620,10 +620,10 @@ void Game::updateObjectRender() const
 
 void Game::render() const
 {
-	camera->Update();
+	camera->update();
 
 	auto perspective = Matrix4F::createPerspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
-	auto view = camera->GetViewMatrix();
+	auto view = camera->getViewMatrix();
 
 	mSphereShader->useShader();
 

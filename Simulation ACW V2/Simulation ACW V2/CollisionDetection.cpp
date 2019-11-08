@@ -313,11 +313,11 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 			float time = 0.0f;
 			
-			for (int i = 0; i < pStartPoints.size(); i++)
+			for (auto i = 0u; i < pStartPoints.size(); i++)
 			{
 				if (detectCollisionSphereLine(pSphere, pStartPoints[i], pEndPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + (time * velocity);
 
 					Vector3F lineVector = pEndPoints[i] - pStartPoints[i];
 
@@ -339,11 +339,11 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 				}
 			}
 
-			for (int i = 0; i < pStartPoints.size(); i++)
+			for (auto i = 0u; i < pStartPoints.size(); i++)
 			{
 				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					Vector3F spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + (time * velocity);
 
 					Vector3F closestPoint = pStartPoints[i];
 
@@ -444,7 +444,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 				}
 			}
 
-			for (int i = 0; i < pStartPoints.size(); i++)
+			for (auto i = 0u; i < pStartPoints.size(); i++)
 			{
 				if (detectCollisionSphereVertex(pSphere, pStartPoints[i], planeVelocity, time, pLastCollisionTime))
 				{

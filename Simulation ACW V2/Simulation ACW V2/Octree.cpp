@@ -115,7 +115,7 @@ bool Octree::Render()
 		shader->useShader();
 
 		auto perspective = Matrix4F::createPerspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
-		auto view = Game::camera->GetViewMatrix();
+		auto view = Game::camera->getViewMatrix();
 
 		auto perspectiveLocation = glGetUniformLocation(shader->getShaderId(), "perspective");
 		perspective.useMatrix(perspectiveLocation);
