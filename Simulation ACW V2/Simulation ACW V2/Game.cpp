@@ -4,7 +4,7 @@
 #include "GLFWWindow.h"
 #include <string>
 #include "Shader.h"
-#include "Matrix4f.h"
+#include "Matrix4F.h"
 #include "TranslationNode.h"
 #include "RigidBodyNode.h"
 #include "RotationAnimation.h"
@@ -447,14 +447,14 @@ void Game::dynamicCollisionResponse() const
 
 		if (lastCollisionTime == 0.0f)
 		{
-			auto i = 0;
+			//auto i = 0;
 		}
 		
 		CollisionResponse::dynamicCollisionResponse(point, moved1, moved2);
 
 		mManifold->remove(0);
 
-		auto timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
+		const auto timeLeft = getUpdateDt() - getUpdateDt() * lastCollisionTime;
 
 		auto rigidBody1 = point.mContactId1;
 
@@ -478,106 +478,106 @@ void Game::dynamicCollisionResponse() const
 
 		//RigidBody * rigidBody1 = point.mContactId1;
 		
-		if (moved1)
-		{
-			rigidBody1->update();
-			rigidBody1->calculatePhysics(timeLeft, lastCollisionTime);
+		//if (moved1)
+		//{
+		//	rigidBody1->update();
+		//	rigidBody1->calculatePhysics(timeLeft, lastCollisionTime);
 
-			for (int i = 0; i < mManifold->getNumPoints(); i++)
-			{
-				auto checkPoint = mManifold->getPoint(i);
+		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
+		//	{
+		//		auto checkPoint = mManifold->getPoint(i);
 
-				if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1)
-				{
-					mManifold->remove(i);
-					i--;
-				}
-			}
-		}
+		//		if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1)
+		//		{
+		//			mManifold->remove(i);
+		//			i--;
+		//		}
+		//	}
+		//}
 
-		//RigidBody * rigidBody2 = point.mContactId2;
+		////RigidBody * rigidBody2 = point.mContactId2;
 
-		if (moved2)
-		{
-			rigidBody2->update();
-			rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
+		//if (moved2)
+		//{
+		//	rigidBody2->update();
+		//	rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
 
-			for (int i = 0; i < mManifold->getNumPoints(); i++)
-			{
-				auto checkPoint = mManifold->getPoint(i);
+		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
+		//	{
+		//		auto checkPoint = mManifold->getPoint(i);
 
-				if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2)
-				{
-					mManifold->remove(i);
-					i--;
-				}
-			}
-		}
+		//		if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2)
+		//		{
+		//			mManifold->remove(i);
+		//			i--;
+		//		}
+		//	}
+		//}
 
-		if (moved1)
-		{
-			for (int i = 0; i < sceneBody.size(); i++)
-			{
-				CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody1, mManifold, lastCollisionTime);
-			}
+		//if (moved1)
+		//{
+		//	for (int i = 0; i < sceneBody.size(); i++)
+		//	{
+		//		CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody1, mManifold, lastCollisionTime);
+		//	}
 
-			auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody1);
+		//	auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody1);
 
-			for (auto it = result.first; it != result.second; ++it)
-			{
-				CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
-			}
-		}
+		//	for (auto it = result.first; it != result.second; ++it)
+		//	{
+		//		CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
+		//	}
+		//}
 
-		if (moved2)
-		{
-			for (int i = 0; i < sceneBody.size(); i++)
-			{
-				CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody2, mManifold, lastCollisionTime);
-			}
+		//if (moved2)
+		//{
+		//	for (int i = 0; i < sceneBody.size(); i++)
+		//	{
+		//		CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody2, mManifold, lastCollisionTime);
+		//	}
 
-			auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody2);
+		//	auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody2);
 
-			for (auto it = result.first; it != result.second; ++it)
-			{
-				if (moved1 && it->second == rigidBody1)
-				{
-					continue;
-				}
-				
-				CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
-			}
-		}
+		//	for (auto it = result.first; it != result.second; ++it)
+		//	{
+		//		if (moved1 && it->second == rigidBody1)
+		//		{
+		//			continue;
+		//		}
+		//		
+		//		CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
+		//	}
+		//}
 
-		mManifold->sort();
+		//mManifold->sort();
 
-		if (moved1)
-		{
-			for (int i = 0; i < mManifold->getNumPoints(); i++)
-			{
-				auto checkPoint = mManifold->getPoint(i);
+		//if (moved1)
+		//{
+		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
+		//	{
+		//		auto checkPoint = mManifold->getPoint(i);
 
-				if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1 && checkPoint.mTime == lastCollisionTime)
-				{
-					mManifold->remove(i);
-					i--;
-				}
-			}
-		}
+		//		if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1 && checkPoint.mTime == lastCollisionTime)
+		//		{
+		//			mManifold->remove(i);
+		//			i--;
+		//		}
+		//	}
+		//}
 
-		if (moved2)
-		{
-			for (int i = 0; i < mManifold->getNumPoints(); i++)
-			{
-				auto checkPoint = mManifold->getPoint(i);
+		//if (moved2)
+		//{
+		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
+		//	{
+		//		auto checkPoint = mManifold->getPoint(i);
 
-				if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2 && checkPoint.mTime == lastCollisionTime)
-				{
-					mManifold->remove(i);
-					i--;
-				}
-			}
-		}
+		//		if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2 && checkPoint.mTime == lastCollisionTime)
+		//		{
+		//			mManifold->remove(i);
+		//			i--;
+		//		}
+		//	}
+		//}
 	}
 }
 
@@ -596,14 +596,14 @@ void Game::updateObjectPhysics() const
 
 void Game::updateObjectRender() const
 {
-	for (int i = 0; i < sceneBody.size(); i++)
+	for (auto i : sceneBody)
 	{
-		sceneBody[i]->updateRender();
+		i->updateRender();
 	}
 
-	for (int i = 0; i < octreeBody.size(); i++)
+	for (auto i : octreeBody)
 	{
-		octreeBody[i]->updateRender();
+		i->updateRender();
 	}
 }
 
@@ -611,7 +611,7 @@ void Game::render() const
 {
 	camera->update();
 
-	auto perspective = Matrix4F::createPerspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
+	auto perspective = Matrix4F::createPerspective(45.0f, static_cast<float>(GLFWWindow::instance()->getWidth()) / static_cast<float>(GLFWWindow::instance()->getHeight()), 0.1f, 1000.0f);
 	auto view = camera->getViewMatrix();
 
 	mSphereShader->useShader();
@@ -622,9 +622,9 @@ void Game::render() const
 	auto viewLocation = glGetUniformLocation(mSphereShader->getShaderId(), "view");
 	view.useMatrix(viewLocation);
 
-	for (int i = 0; i < octreeBody.size(); i++)
+	for (auto i : octreeBody)
 	{
-		octreeBody[i]->render(mSphereShader);
+		i->render(mSphereShader);
 	}
 
 	mPlaneShader->useShader();
@@ -635,9 +635,9 @@ void Game::render() const
 	viewLocation = glGetUniformLocation(mPlaneShader->getShaderId(), "view");
 	view.useMatrix(viewLocation);
 
-	for (int i = 0; i < sceneBody.size(); i++)
+	for (auto i : sceneBody)
 	{
-		sceneBody[i]->render(mPlaneShader);
+		i->render(mPlaneShader);
 	}
 
 	octree->Render();

@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 #include "TextureLoader.h"
 #include "Model.h"
-#include "Matrix4f.h"
+#include "Matrix4F.h"
 
 Cuboid::Cuboid(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity) :
 	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CUBOID,

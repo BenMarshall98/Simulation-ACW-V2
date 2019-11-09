@@ -4,18 +4,18 @@
 //https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
 //http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.6905&rep=rep1&type=pdf
 
-void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & moved1, bool & moved2)
+void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & pMoved1, bool & pMoved2)
 {
 	auto * rigidBody1 = pPoint.mContactId1;
 	auto * rigidBody2 = pPoint.mContactId2;
 
 	if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
-		respondCollisionSphereSphere(pPoint, rigidBody1, rigidBody2, moved1, moved1);
+		respondCollisionSphereSphere(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::PLANE)
 	{
-		respondCollisionSpherePlane(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionSpherePlane(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
@@ -27,11 +27,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
 		
-		respondCollisionSpherePlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionSpherePlane(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
 	{
-		respondCollisionSpherePlaneHoles(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionSpherePlaneHoles(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
@@ -43,11 +43,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
 		
-		respondCollisionSpherePlaneHoles(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionSpherePlaneHoles(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::BOWL)
 	{
-		respondCollisionSphereBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionSphereBowl(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
@@ -58,11 +58,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		const auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionSphereBowl(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::SPHERE && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		respondCollisionSphereCuboid(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionSphereCuboid(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
@@ -73,15 +73,15 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		const auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionSphereCuboid(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionSphereCuboid(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		respondCollisionCuboidCuboid(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionCuboidCuboid(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::BOWL)
 	{
-		respondCollisionCuboidBowl(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionCuboidBowl(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::BOWL && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
@@ -92,11 +92,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		const auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCuboidBowl(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionCuboidBowl(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::PLANE)
 	{
-		respondCollisionCuboidPlane(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionCuboidPlane(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANE && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
@@ -107,11 +107,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		const auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::CUBOID && rigidBody2->getObjectType() == ObjectType::PLANEHOLES)
 	{
-		respondCollisionCuboidPlaneHoles(pPoint, rigidBody1, rigidBody2, moved1, moved2);
+		respondCollisionCuboidPlaneHoles(pPoint, rigidBody1, rigidBody2, pMoved1, pMoved2);
 	}
 	else if (rigidBody1->getObjectType() == ObjectType::PLANEHOLES && rigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
@@ -122,11 +122,11 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & m
 		const auto tempVal = pPoint.mContactPoint1;
 		pPoint.mContactPoint2 = pPoint.mContactPoint1;
 		pPoint.mContactPoint1 = tempVal;
-		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, moved2, moved1);
+		respondCollisionCuboidPlane(pPoint, rigidBody2, rigidBody1, pMoved2, pMoved1);
 	}
 }
 
-void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, RigidBody * pSphere1, RigidBody * pSphere2, bool & pMoved1, bool & pMoved2)
 {
 	const auto changeTime1 = pPoint.mTime - pSphere1->getCurrentUpdateTime();
 
@@ -175,8 +175,8 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass1 + sphereInverseMass2 + sphereImpulseMag1 + sphereImpulseMag2);
 
-	tempVel1 = tempVel1 + (j * sphereInverseMass1 * pPoint.mContactNormal);
-	tempVel2 = tempVel2 - (j * sphereInverseMass2 * pPoint.mContactNormal);
+	tempVel1 = tempVel1 + j * sphereInverseMass1 * pPoint.mContactNormal;
+	tempVel2 = tempVel2 - j * sphereInverseMass2 * pPoint.mContactNormal;
 	tempAngVel1 = tempAngVel1 + sphereCenterToCollision1.cross(j * pPoint.mContactNormal) * sphereWorldTensor1;
 	tempAngVel2 = tempAngVel2 - sphereCenterToCollision2.cross(j * pPoint.mContactNormal) * sphereWorldTensor2;
 
@@ -190,11 +190,11 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	pSphere2->setNewAngularVel(tempAngVel2);
 	pSphere2->setNewOrientation(tempOrr2);
 
-	moved1 = true;
-	moved2 = true;
+	pMoved1 = true;
+	pMoved2 = true;
 }
 
-void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody* pBowl, bool& moved1, bool& moved2)
+void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody *, bool& pMoved1, bool& pMoved2)
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
@@ -202,7 +202,7 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	auto tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
-	auto rot = glm::toMat3(tempOrr);
+	auto rot = toMat3(tempOrr);
 	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
@@ -211,9 +211,6 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	{
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
-
-	const auto bowlMat = pBowl->getMatrix();
-	const auto center = pBowl->getPos() * bowlMat;
 
 	const auto tempBowlVel = Vector3F(0.0f, 0.0f, 0.0f);
 
@@ -229,7 +226,7 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 
-	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
 	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
@@ -237,11 +234,11 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	pSphere->setNewOrientation(tempOrr);
 	pSphere->setNewAngularVel(tempAngVel);
 
-	moved1 = true;
-	moved2 = false;
+	pMoved1 = true;
+	pMoved2 = false;
 }
 
-void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlane, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlane, bool & pMoved1, bool & pMoved2)
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
@@ -288,7 +285,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 	
-	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
 	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
@@ -296,19 +293,20 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	pSphere->setNewOrientation(tempOrr);
 	pSphere->setNewAngularVel(tempAngVel);
 
-	moved1 = true;
-	moved2 = false;
+	pMoved1 = true;
+	pMoved2 = false;
 }
 
-void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pPlaneHoles, bool & moved1, bool & moved2)
+auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, RigidBody* pSphere,
+                                                         RigidBody* pPlaneHoles, bool& pMoved1, bool& pMoved2) -> void
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
 	auto tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
 	auto tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
 	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
-	const auto tempOrr = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
-	auto rot = glm::toMat3(tempOrr);
+	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
+	auto rot = toMat3(tempOrr);
 	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
@@ -338,7 +336,7 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 	
-	tempVel = tempVel + (j * sphereInverseMass * pPoint.mContactNormal);
+	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
 	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
@@ -346,19 +344,19 @@ void CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	pSphere->setNewOrientation(tempOrr);
 	pSphere->setNewAngularVel(tempAngVel);
 
-	moved1 = true;
-	moved2 = false;
+	pMoved1 = true;
+	pMoved2 = false;
 }
 
-void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pCuboid, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, RigidBody * pSphere, RigidBody * pCuboid, bool & pMoved1, bool & pMoved2)
 {
 	const auto changeTime1 = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
 	auto tempPos1 = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime1);
 	auto tempVel1 = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime1);
 	auto tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
-	const auto tempOrr1 = glm::slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime1);
-	auto rot = glm::toMat3(tempOrr1);
+	const auto tempOrr1 = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime1);
+	auto rot = toMat3(tempOrr1);
 	const auto tempOrrMat1 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
@@ -368,8 +366,8 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	auto tempPos2 = pCuboid->getPos().interpolate(pCuboid->getNewPos(), changeTime2);
 	auto tempVel2 = pCuboid->getVel().interpolate(pCuboid->getNewVel(), changeTime2);
 	auto tempAngVel2 = pCuboid->getAngularVelocity().interpolate(pCuboid->getNewAngularVelocity(), changeTime2);
-	const auto tempOrr2 = glm::slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), changeTime2);
-	rot = glm::toMat3(tempOrr1);
+	const auto tempOrr2 = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), changeTime2);
+	rot = toMat3(tempOrr1);
 	const auto tempOrrMat2 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
@@ -399,8 +397,8 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + cuboidInverseMass + sphereImpulseMag + cuboidImpulseMag);
 
-	tempVel1 = tempVel1 + (j * sphereInverseMass * pPoint.mContactNormal);
-	tempVel2 = tempVel2 - (j * cuboidInverseMass * pPoint.mContactNormal);
+	tempVel1 = tempVel1 + j * sphereInverseMass * pPoint.mContactNormal;
+	tempVel2 = tempVel2 - j * cuboidInverseMass * pPoint.mContactNormal;
 	tempAngVel1 = tempAngVel1 + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
 	tempAngVel2 = tempAngVel2 - cuboidCenterToCollision.cross(j * pPoint.mContactNormal) * cuboidWorldTensor;
 
@@ -414,26 +412,26 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	pCuboid->setNewAngularVel(tempAngVel2);
 	pCuboid->setNewOrientation(tempOrr2);
 
-	moved1 = true;
-	moved2 = true;
+	pMoved1 = true;
+	pMoved2 = true;
 }
 
-void CollisionResponse::respondCollisionCuboidCuboid(ManifoldPoint & pPoint, RigidBody * pCuboid1, RigidBody * pCuboid2, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionCuboidCuboid(ManifoldPoint &, RigidBody *, RigidBody *, bool &, bool &)
 {
 	//TODO: Implement
 }
 
-void CollisionResponse::respondCollisionCuboidBowl(ManifoldPoint & pPoint, RigidBody * pCuboid, RigidBody * pBowl, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionCuboidBowl(ManifoldPoint &, RigidBody *, RigidBody *, bool &, bool &)
 {
 	//TODO: Implement
 }
 
-void CollisionResponse::respondCollisionCuboidPlane(ManifoldPoint & pPoint, RigidBody * pCuboid, RigidBody * pPlane, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionCuboidPlane(ManifoldPoint &, RigidBody *, RigidBody *, bool &, bool &)
 {
 	//TODO: Implement
 }
 
-void CollisionResponse::respondCollisionCuboidPlaneHoles(ManifoldPoint & pPoint, RigidBody * pCuboid, RigidBody * pPlaneHoles, bool & moved1, bool & moved2)
+void CollisionResponse::respondCollisionCuboidPlaneHoles(ManifoldPoint &, RigidBody *, RigidBody *, bool &, bool &)
 {
 	//TODO: Implement
 }

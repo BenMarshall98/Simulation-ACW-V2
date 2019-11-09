@@ -1,17 +1,17 @@
 #include "Model.h"
 #include <utility>
 #include <vector>
-#include "Vector3f.h"
-#include "Vector2f.h"
+#include "Vector3F.h"
+#include "Vector2F.h"
 #include "gl.h"
 #include <cmath>
 #include <corecrt_math_defines.h>
 
-Model * Model::lastModel = nullptr;
+Model * Model::mLastModel = nullptr;
 
 Model::Model(std::vector<Vector3F> pPositions, std::vector<Vector2F> pTexCoords,
 	std::vector<unsigned int> pIndices) : mPosition(std::move(pPositions)), mTexCoords(std::move(pTexCoords)),
-	mIndices(std::move(pIndices))
+	mIndices(std::move(pIndices)), mVao(0), mVbo{0, 0}, mEbo(0)
 {
 	glGenVertexArrays(1, &mVao);
 	glGenBuffers(2, mVbo);
@@ -46,10 +46,10 @@ Model::Model()
 
 void Model::render()
 {
-	if (this != lastModel)
+	if (this != mLastModel)
 	{
 		glBindVertexArray(mVao);
-		lastModel = this;
+		mLastModel = this;
 	}
 
 	glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, nullptr);

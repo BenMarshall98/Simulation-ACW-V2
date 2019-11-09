@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "Vector3f.h"
-#include "Vector2f.h"
+#include "Vector3F.h"
+#include "Vector2F.h"
 
 class Model
 {
@@ -10,7 +10,7 @@ public:
 	Model(std::vector<Vector3F> pPositions,
 		std::vector<Vector2F> pTexCoords, std::vector<unsigned int> pIndices);
 	Model();
-	~Model() = default;
+	virtual ~Model() = default;
 
 	Model(const Model &) = delete;
 	Model(Model &&) = delete;
@@ -35,6 +35,6 @@ private:
 	std::vector<unsigned int> mIndices;
 
 protected:
-	static Model * lastModel;
+	static Model * mLastModel;
 };
 

@@ -13,7 +13,7 @@ void ContactManifold::add(const ManifoldPoint & pPoint)
 	++mNumOfPoints;
 }
 
-void ContactManifold::remove(int pIndex)
+void ContactManifold::remove(const int pIndex)
 {
 	mPoints.erase(mPoints.begin() + pIndex);
 	mNumOfPoints--;
@@ -40,7 +40,7 @@ ManifoldPoint & ContactManifold::getPoint(const int pIndex)
 void ContactManifold::sort()
 {
 	std::sort(mPoints.begin(), mPoints.end(), 
-		[](ManifoldPoint pPoint1, ManifoldPoint pPoint2)
+		[](const ManifoldPoint pPoint1, const ManifoldPoint pPoint2)
 	{
 		return pPoint1.mTime < pPoint2.mTime;
 	});

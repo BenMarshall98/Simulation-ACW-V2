@@ -2,7 +2,7 @@
 
 
 
-HoldingCell::HoldingCell(Vector3F pLocation, Vector3F pSize) :
+HoldingCell::HoldingCell(const Vector3F pLocation, const Vector3F pSize) :
 	mLocation(pLocation), mSize(pSize)
 {
 }
@@ -18,9 +18,9 @@ void HoldingCell::addRigidBody(RigidBody* pRigidBody)
 
 void HoldingCell::update(std::vector<RigidBody *> & pToReassign)
 {
-	for (int i = 0; i < mRigidBodies.size(); i++)
+	for (auto i = 0u; i < mRigidBodies.size(); i++)
 	{
-		Vector3F pos = mRigidBodies[i]->getPos();
+		auto pos = mRigidBodies[i]->getPos();
 
 		if (pos.getX() > mLocation.getX() + mSize.getX() ||
 			pos.getX() < mLocation.getX() - mSize.getX() ||

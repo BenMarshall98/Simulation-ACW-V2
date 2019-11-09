@@ -127,8 +127,8 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 
 	if (time >= 0 && time <= 1)
 	{
-		const auto sphere1Point = sphere1Pos + (time * velSphere1);
-		const auto sphere2Point = sphere2Pos + (time * velSphere2);
+		const auto sphere1Point = sphere1Pos + time * velSphere1;
+		const auto sphere2Point = sphere2Pos + time * velSphere2;
 
 		ManifoldPoint manPoint;
 		manPoint.mContactId1 = pSphere1;
@@ -189,7 +189,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 		return;
 	}
 
-	const auto d = (velSphere * -1) / velSphere.length();
+	const auto d = velSphere * -1 / velSphere.length();
 	const auto b = relCenter.dot(d);
 	c = relCenter.dot(relCenter) - radius * radius;
 
@@ -202,14 +202,14 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 
 	const auto time = -b - sqrt(discr);
 
-	const auto intersection = spherePos + time * (d);
+	const auto intersection = spherePos + time * d;
 
 	if (abs(time) >= velSphere.length())
 	{
 		return;
 	}
 
-	const auto spherePoint = spherePos + (abs(time) * velSphere);
+	const auto spherePoint = spherePos + abs(time) * velSphere;
 
 	ManifoldPoint manPoint;
 	manPoint.mContactId1 = pSphere;
@@ -255,7 +255,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 	auto planeVelocity = newCenter - center;
 
-	auto velocity = (pSphere->getNewPos() - spherePos) - planeVelocity;
+	auto velocity = pSphere->getNewPos() - spherePos - planeVelocity;
 
 	auto planeDot = normal.dot(center + tangent);
 
@@ -266,7 +266,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 	if (abs(dist) <= abs(radius))
 	{
 		auto spherePoint = spherePos;
-		auto collisionPoint = spherePoint - (radius * normal);
+		auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlane->getSize().getX();
 		auto sizeY = pPlane->getSize().getZ();
@@ -292,7 +292,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			pManifold->add(manPoint);
 			return;
 		}
-		else if (dotX <= sizeX + radius && dotX >= -sizeX - radius &&
+		if (dotX <= sizeX + radius && dotX >= -sizeX - radius &&
 			dotY <= sizeY + radius && dotY >= -sizeY - radius)
 		{
 			std::vector<Vector3F> startPoints =
@@ -317,7 +317,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			{
 				if (detectCollisionSphereLine(pSphere, startPoints[i], endPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto lineVector = endPoints[i] - startPoints[i];
 
@@ -343,7 +343,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			{
 				if (detectCollisionSphereVertex(pSphere, startPoint, planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto closestPoint = startPoint;
 
@@ -374,8 +374,8 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 	if (time >= 0 && time <= 1)
 	{
-		auto spherePoint = spherePos + (time * velocity);
-		auto collisionPoint = spherePoint - (radius * normal);
+		auto spherePoint = spherePos + time * velocity;
+		auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlane->getSize().getX();
 		auto sizeY = pPlane->getSize().getZ();
@@ -422,7 +422,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			{
 				if (detectCollisionSphereLine(pSphere, startPoints[i], endPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto lineVector = endPoints[i] - startPoints[i];
 
@@ -448,7 +448,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 			{
 				if (detectCollisionSphereVertex(pSphere, startPoint, planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto closestPoint = startPoint;
 
@@ -514,7 +514,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 	if (abs(dist) <= abs(radius))
 	{
 		auto spherePoint = spherePos;
-		auto collisionPoint = spherePoint - (radius * normal);
+		auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlaneHoles->getSize().getX() * 5;
 		auto sizeY = pPlaneHoles->getSize().getZ() * 5;
@@ -560,7 +560,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 							if (detectCollisionSphereLine(pSphere, tempVertex1, tempVertex2, planeVelocity, time, pLastCollisionTime))
 							{
-								auto spherePoint = spherePos + (time * velocity);
+								auto spherePoint = spherePos + time * velocity;
 
 								auto lineVector = tempVertex2 - tempVertex1;
 
@@ -601,7 +601,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			pManifold->add(manPoint);
 			return;
 		}
-		else if (dotX <= sizeX + 2 * radius && dotX >= -sizeX - 2 * radius &&
+		if (dotX <= sizeX + 2 * radius && dotX >= -sizeX - 2 * radius &&
 			dotY <= sizeY + 2 * radius && dotY >= -sizeY - 2 * radius)
 		{
 			std::vector<Vector3F> startPoints =
@@ -624,7 +624,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			{
 				if (detectCollisionSphereLine(pSphere, startPoints[i], endPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					auto spherePoint = spherePos + (time * velocity);
+					auto spherePoint = spherePos + time * velocity;
 
 					auto lineVector = endPoints[i] - startPoints[i];
 
@@ -648,7 +648,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			{
 				if (detectCollisionSphereVertex(pSphere, startPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto closestPoint = startPoints[i];
 
@@ -677,8 +677,8 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 	if (time >= 0 && time <= 1)
 	{
-		auto spherePoint = spherePos + (time * velocity);
-		auto collisionPoint = spherePoint - (radius * normal);
+		auto spherePoint = spherePos + time * velocity;
+		auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlaneHoles->getSize().getX() * 5;
 		auto sizeY = pPlaneHoles->getSize().getZ() * 5;
@@ -724,7 +724,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 							if(detectCollisionSphereLine(pSphere, tempVertex1, tempVertex2, planeVelocity, time, pLastCollisionTime))
 							{
-								spherePoint = spherePos + (time * velocity);
+								spherePoint = spherePos + time * velocity;
 
 								auto lineVector = tempVertex2 - tempVertex1;
 
@@ -786,7 +786,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			{
 				if (detectCollisionSphereLine(pSphere, startPoints[i], endPoints[i], planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto lineVector = endPoints[i] - startPoints[i];
 
@@ -810,7 +810,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 			{
 				if (detectCollisionSphereVertex(pSphere, startPoint, planeVelocity, time, pLastCollisionTime))
 				{
-					spherePoint = spherePos + (time * velocity);
+					spherePoint = spherePos + time * velocity;
 
 					auto closestPoint = startPoint;
 
@@ -831,7 +831,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 //http://www.peroxide.dk/papers/collision/collision.pdf
 
-bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, Vector3F pLineEnd1, Vector3F pLineEnd2, Vector3F pLineVelocity, float& pTime, const float pLastCollisionTime)
+bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, const Vector3F pLineEnd1, const Vector3F pLineEnd2, const Vector3F pLineVelocity, float& pTime, const float pLastCollisionTime)
 {
 	Vector3F spherePos;
 
@@ -847,7 +847,7 @@ bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, Vector3F pLi
 	}
 
 	const auto d = pLineEnd2 - pLineEnd1;
-	const auto n = (pSphere->getNewPos()+ pLineVelocity) - spherePos;
+	const auto n = pSphere->getNewPos()+ pLineVelocity - spherePos;
 	const auto m = spherePos - pLineEnd1;
 	const auto radius = pSphere->getSize().getX();
 
@@ -962,7 +962,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 		spherePos = pSphere->getPos();
 	}
 
-	auto velocity = (pSphere->getNewPos() - spherePos) - pTriangleVelocity;
+	auto velocity = pSphere->getNewPos() - spherePos - pTriangleVelocity;
 	auto radius = pSphere->getSize().getX();
 
 	auto planeNormal = (pVertex2 - pVertex1).cross(pVertex3 - pVertex1).normalize();
@@ -1007,8 +1007,8 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, Vector3F
 
 	const auto time = (radius - dist) / denom;
 
-	const auto spherePoint = spherePos + (time * velocity);
-	const auto collisionPoint = spherePoint - (radius * planeNormal);
+	const auto spherePoint = spherePos + time * velocity;
+	const auto collisionPoint = spherePoint - radius * planeNormal;
 
 	auto tempVertex1 = pVertex1 - collisionPoint;
 	auto tempVertex2 = pVertex2 - collisionPoint;
@@ -1055,7 +1055,7 @@ void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * 
 		const auto interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
 
 		cuboidPos = pCuboid->getPos().interpolate(pCuboid->getNewPos(), interValue);
-		cuboidOrientation = glm::slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+		cuboidOrientation = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
 	}
 	else
 	{
@@ -1066,7 +1066,7 @@ void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * 
 	const auto sphereRadius = pSphere->getSize().getX();
 	const auto cuboidSize = pCuboid->getSize();
 
-	const auto rot = glm::toMat4(cuboidOrientation);
+	const auto rot = toMat4(cuboidOrientation);
 	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
 		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
 		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
@@ -1185,25 +1185,25 @@ Vector3F CollisionDetection::calculateCuboidCollisionNormal(const Vector3F pCubo
 		yDist == pCuboidSize.getY() &&
 		zDist == pCuboidSize.getZ())
 	{
-		return (-1 * pCuboidXAxis) + pCuboidYAxis + pCuboidZAxis;
+		return -1 * pCuboidXAxis + pCuboidYAxis + pCuboidZAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		yDist == pCuboidSize.getY() &&
 		zDist == -pCuboidSize.getZ())
 	{
-		return (-1 * pCuboidXAxis) + pCuboidYAxis - pCuboidZAxis;
+		return -1 * pCuboidXAxis + pCuboidYAxis - pCuboidZAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		yDist == -pCuboidSize.getY() &&
 		zDist == pCuboidSize.getZ())
 	{
-		return (-1 * pCuboidXAxis) - pCuboidYAxis + pCuboidZAxis;
+		return -1 * pCuboidXAxis - pCuboidYAxis + pCuboidZAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		yDist == -pCuboidSize.getY() &&
 		zDist == -pCuboidSize.getZ())
 	{
-		return (-1 * pCuboidXAxis) - pCuboidYAxis - pCuboidZAxis;
+		return -1 * pCuboidXAxis - pCuboidYAxis - pCuboidZAxis;
 	}
 	if (xDist == pCuboidSize.getX() &&
 		yDist == pCuboidSize.getY())
@@ -1228,22 +1228,22 @@ Vector3F CollisionDetection::calculateCuboidCollisionNormal(const Vector3F pCubo
 	if (xDist == -pCuboidSize.getX() &&
 		yDist == pCuboidSize.getY())
 	{
-		return (-1.0f * pCuboidXAxis) + pCuboidYAxis;
+		return -1.0f * pCuboidXAxis + pCuboidYAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		yDist == -pCuboidSize.getY())
 	{
-		return (-1.0f * pCuboidXAxis) - pCuboidYAxis;
+		return -1.0f * pCuboidXAxis - pCuboidYAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		zDist == pCuboidSize.getZ())
 	{
-		return (-1.0f * pCuboidXAxis) + pCuboidZAxis;
+		return -1.0f * pCuboidXAxis + pCuboidZAxis;
 	}
 	if (xDist == -pCuboidSize.getX() &&
 		zDist == -pCuboidSize.getZ())
 	{
-		return (-1.0f * pCuboidXAxis) - pCuboidZAxis;
+		return -1.0f * pCuboidXAxis - pCuboidZAxis;
 	}
 	if (yDist == pCuboidSize.getY() &&
 		zDist == pCuboidSize.getZ())
@@ -1258,12 +1258,12 @@ Vector3F CollisionDetection::calculateCuboidCollisionNormal(const Vector3F pCubo
 	if (yDist == -pCuboidSize.getY() &&
 		zDist == pCuboidSize.getZ())
 	{
-		return (-1.0f * pCuboidYAxis) + pCuboidZAxis;
+		return -1.0f * pCuboidYAxis + pCuboidZAxis;
 	}
 	if (yDist == -pCuboidSize.getY() &&
 		zDist == -pCuboidSize.getZ())
 	{
-		return (-1.0f * pCuboidYAxis) - pCuboidZAxis;
+		return -1.0f * pCuboidYAxis - pCuboidZAxis;
 	}
 	if (xDist == pCuboidSize.getX())
 	{
@@ -1292,4 +1292,195 @@ Vector3F CollisionDetection::calculateCuboidCollisionNormal(const Vector3F pCubo
 
 	//TODO: Check that this is almost never reached
 	return Vector3F(0, 1, 0);
+}
+
+bool CollisionDetection::detectCollisionCuboidCuboidStep(Vector3F pCuboid1Center, Vector3F pCuboidXAxis1, Vector3F pCuboidYAxis1, Vector3F pCuboidZAxis1, Vector3F pCuboidSize1, Vector3F pCuboid2Center, Vector3F pCuboidXAxis2, Vector3F pCuboidYAxis2, Vector3F pCuboidZAxis2, Vector3F pCuboidSize2)
+{
+	float ra, rb;
+	Matrix3F rot, absRot;
+
+	rot[0][0] = pCuboidXAxis1.dot(pCuboidXAxis2);
+	rot[0][1] = pCuboidXAxis1.dot(pCuboidYAxis2);
+	rot[0][2] = pCuboidXAxis1.dot(pCuboidZAxis2);
+	rot[1][0] = pCuboidYAxis1.dot(pCuboidXAxis2);
+	rot[1][1] = pCuboidYAxis1.dot(pCuboidYAxis2);
+	rot[1][2] = pCuboidYAxis1.dot(pCuboidZAxis2);
+	rot[2][0] = pCuboidZAxis1.dot(pCuboidXAxis2);
+	rot[2][1] = pCuboidZAxis1.dot(pCuboidYAxis2);
+	rot[2][2] = pCuboidZAxis1.dot(pCuboidZAxis2);
+
+	auto t = pCuboid2Center - pCuboid1Center;
+
+	t = Vector3F(t.dot(pCuboidXAxis1), t.dot(pCuboidZAxis1), t.dot(pCuboidZAxis1));
+
+	for (auto i = 0u; i < 3; i++)
+	{
+		for (auto j = 0u; j < 3; j++)
+		{
+			absRot[i][j] = abs(rot[i][j]) + 0.00001f;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX();
+		rb = pCuboidSize2.getX() * absRot[0][0] + pCuboidSize2.getY() * absRot[0][1] + pCuboidSize2.getZ() * absRot[0][2];
+
+		if (abs(t.getX()) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getY();
+		rb = pCuboidSize2.getX() * absRot[1][0] + pCuboidSize2.getY() * absRot[1][1] + pCuboidSize2.getZ() * absRot[1][2];
+
+		if (abs(t.getY()) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getZ();
+		rb = pCuboidSize2.getX() * absRot[2][0] + pCuboidSize2.getY() * absRot[2][1] + pCuboidSize2.getZ() * absRot[2][2];
+
+		if (abs(t.getZ()) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[0][0] + pCuboidSize1.getY() * absRot[1][0] + pCuboidSize1.getZ() * absRot[2][0];
+		rb = pCuboidSize2.getX();
+		const auto temp = t.getX() * rot[0][0] + t.getY() * rot[1][0] + t.getZ() * rot[2][0];
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[0][1] + pCuboidSize1.getY() * absRot[1][1] + pCuboidSize1.getZ() * absRot[2][1];
+		rb = pCuboidSize2.getY();
+		const auto temp = t.getX() * rot[0][1] + t.getY() * rot[1][1] + t.getZ() * rot[2][1];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[0][2] + pCuboidSize1.getY() * absRot[1][2] + pCuboidSize1.getZ() * absRot[2][2];
+		rb = pCuboidSize2.getZ();
+		const auto temp = t.getX() * rot[0][2] + t.getY() * rot[1][2] + t.getZ() * rot[2][2];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getY() * absRot[2][0] + pCuboidSize1.getZ() * absRot[1][0];
+		rb = pCuboidSize2.getY() * absRot[0][2] + pCuboidSize2.getZ() * absRot[0][1];
+		const auto temp = t.getZ() * rot[1][0] - t.getY() * rot[2][0];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getY() * absRot[2][1] + pCuboidSize1.getZ() * absRot[1][1];
+		rb = pCuboidSize2.getX() * absRot[0][2] + pCuboidSize2.getZ() * absRot[0][0];
+		const auto temp = t.getZ() * rot[1][1] - t.getY() * rot[2][1];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getY() * absRot[2][2] + pCuboidSize2.getZ() * absRot[1][2];
+		rb = pCuboidSize2.getX() * absRot[0][1] + pCuboidSize2.getY() * absRot[0][0];
+		const auto temp = t.getZ() * rot[1][2] - t.getY() * rot[2][2];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[2][0] + pCuboidSize1.getZ() * absRot[0][0];
+		rb = pCuboidSize2.getY() * absRot[1][2] + pCuboidSize2.getZ() * absRot[1][1];
+		const auto temp = t.getX() * rot[2][0] - t.getZ() * rot[0][0];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[2][1] + pCuboidSize1.getZ() * absRot[0][1];
+		rb = pCuboidSize2.getX() * absRot[1][2] + pCuboidSize2.getZ() * absRot[1][1];
+		const auto temp = t.getX() * rot[2][1] - t.getZ() * rot[0][1];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[2][2] + pCuboidSize1.getZ() * absRot[0][2];
+		rb = pCuboidSize2.getX() * absRot[1][1] + pCuboidSize2.getY() * absRot[1][0];
+		const auto temp = t.getX() * rot[2][2] - t.getZ() * rot[0][2];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[1][0] + pCuboidSize1.getY() * absRot[0][0];
+		rb = pCuboidSize2.getY() * absRot[2][2] + pCuboidSize2.getZ() * absRot[2][0];
+		const auto temp = t.getY() * rot[0][0] - t.getX() * rot[1][0];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[1][1] + pCuboidSize1.getY() * absRot[0][1];
+		rb = pCuboidSize2.getX() * absRot[2][2] + pCuboidSize2.getZ() * absRot[2][0];
+		const auto temp = t.getY() * rot[0][1] - t.getX() * rot[1][1];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	{
+		ra = pCuboidSize1.getX() * absRot[1][2] + pCuboidSize1.getY() * absRot[0][2];
+		rb = pCuboidSize2.getX() * absRot[2][1] + pCuboidSize2.getY() * absRot[2][0];
+		const auto temp = t.getY() * rot[0][2] - t.getX() * rot[1][2];
+
+		if (abs(temp) > ra + rb)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }

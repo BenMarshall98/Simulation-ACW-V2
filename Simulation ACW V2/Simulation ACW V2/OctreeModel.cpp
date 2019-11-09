@@ -57,10 +57,10 @@ OctreeModel::~OctreeModel()
 
 void OctreeModel::render()
 {
-	if (this != lastModel)
+	if (this != mLastModel)
 	{
 		glBindVertexArray(mVao);
-		lastModel = this;
+		mLastModel = this;
 	}
 
 	glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, nullptr);
