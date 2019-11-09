@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "Vector3f.h"
 #include "RigidBody.h"
 #include "OctreeModel.h"
 
@@ -21,12 +20,12 @@ class Octree
 	std::vector<Octree *> neighbours;
 	Octree * parent;
 
-	Vector3F size;
-	Vector3F center;
+	glm::vec3 size;
+	glm::vec3 center;
 	bool checked = false;
 
 public:
-	Octree(Vector3F pCenter, Vector3F pSize, Octree * pParent = nullptr);
+	Octree(glm::vec3 pCenter, glm::vec3 pSize, Octree * pParent = nullptr);
 	~Octree();
 
 	bool AddRigidBody(RigidBody * rigidBody);
@@ -47,7 +46,7 @@ public:
 
 	void GetNeighbours();
 	void DeleteNeighbour(Octree * neighbour);
-	void FindNeighbour(Vector3F center, Vector3F size, std::vector<Octree *> & neighbours, Octree * neighbour);
+	void FindNeighbour(glm::vec3 center, glm::vec3 size, std::vector<Octree *> & neighbours, Octree * neighbour);
 	void GetPossibleCollisions(std::vector<PossibleCollision> & pPossibleCollisions);
 };
 

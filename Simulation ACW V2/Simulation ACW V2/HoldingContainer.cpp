@@ -2,26 +2,26 @@
 #include "Sphere.h"
 #include "Game.h"
 
-HoldingContainer::HoldingContainer(Octree * pOctree, const Vector3F pLocation, const Vector3F pSize) :
+HoldingContainer::HoldingContainer(Octree * pOctree, const glm::vec3 pLocation, const glm::vec3 pSize) :
 	mOctree(pOctree), mLocation(pLocation), mSize(pSize), mOverflow(0)
 {
-	auto location = Vector3F(pLocation.getX(), pLocation.getY() - pSize.getY() * 2, pLocation.getZ());
-	const auto size = Vector3F(1, 1, 1);
+	auto location = glm::vec3(pLocation.x, pLocation.y - pSize.y * 2, pLocation.z);
+	const auto size = glm::vec3(1, 1, 1);
 
 	mHoldingCells.emplace_back(new HoldingCell(location, size));
 
-	for (auto i = -pSize.getY(); i <= pSize.getY(); ++i)
+	for (auto i = -pSize.y; i <= pSize.y; ++i)
 	{
-		for (auto j = -pSize.getX(); j <= pSize.getX(); ++j)
+		for (auto j = -pSize.x; j <= pSize.x; ++j)
 		{
-			for (auto k = -pSize.getZ(); k <= pSize.getZ(); ++k)
+			for (auto k = -pSize.z; k <= pSize.z; ++k)
 			{
-				if (j == 0 && k == 0 && i == -pSize.getY())
+				if (j == 0 && k == 0 && i == -pSize.y)
 				{
 					continue;
 				}
 
-				location = Vector3F(pLocation.getX() + j * 2, pLocation.getY() + i * 2, pLocation.getZ() + k * 2);
+				location = glm::vec3(pLocation.x + j * 2, pLocation.y + i * 2, pLocation.z + k * 2);
 
 				mHoldingCells.emplace_back(new HoldingCell(location, size));
 			}
@@ -40,9 +40,9 @@ void HoldingContainer::addRigidBody()
 		if (mHoldingCells[i]->getNumberRigidBody() == 0)
 		{
 			//TODO: Look at random velocity
-			const auto velocity = Vector3F(0, 0, 0);
+			const auto velocity = glm::vec3(0, 0, 0);
 			const auto sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[i]->getLocation(),
-				Vector3F(0, 1, 1), velocity);
+				glm::vec3(0, 1, 1), velocity);
 
 			mHoldingCells[i]->addRigidBody(sphere);
 			mOctree->AddRigidBody(sphere);
@@ -67,12 +67,12 @@ void HoldingContainer::update()
 				auto location = k->getLocation();
 				auto pos = j->getPos();
 
-				if (pos.getX() <= location.getX() + 1 &&
-					pos.getX() >= location.getX() - 1 &&
-					pos.getY() <= location.getY() + 1 &&
-					pos.getY() >= location.getY() - 1 &&
-					pos.getZ() <= location.getZ() + 1 &&
-					pos.getZ() >= location.getZ() - 1)
+				if (pos.x <= location.x + 1 &&
+					pos.x >= location.x - 1 &&
+					pos.y <= location.y + 1 &&
+					pos.y >= location.y - 1 &&
+					pos.z <= location.z + 1 &&
+					pos.z >= location.z - 1)
 				{
 					k->addRigidBody(j);
 					break;
@@ -91,9 +91,9 @@ void HoldingContainer::update()
 			if (holdingCell->getNumberRigidBody() == 0)
 			{
 				//TODO: Look at random velocity
-				const auto velocity = Vector3F(0, 0, 0);
+				const auto velocity = glm::vec3(0, 0, 0);
 				const auto sphere = new Sphere(Game::getSphereSize(), 0.02, holdingCell->getLocation(),
-					Vector3F(0, 1, 1), velocity);
+					glm::vec3(0, 1, 1), velocity);
 
 				holdingCell->addRigidBody(sphere);
 				mOctree->AddRigidBody(sphere);

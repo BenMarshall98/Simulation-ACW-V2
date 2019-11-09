@@ -4,43 +4,39 @@
 
 int RigidBody::mCountId = 0;
 
-RigidBody::RigidBody(const Vector3F pSize, const float pMass, const Vector3F pPos, const Vector3F pAngularVelocity, const Vector3F pVelocity, const ObjectType pType, const Matrix3F pImpulseTensor) :
+RigidBody::RigidBody(const glm::vec3 pSize, const float pMass, const glm::vec3 pPos, const glm::vec3 pAngularVelocity, const glm::vec3 pVelocity, const ObjectType pType, const glm::mat3 pImpulseTensor) :
 	mSize(pSize), mMass(pMass), mPos(pPos), mAngularVelocity(pAngularVelocity), mVelocity(pVelocity), mType(pType), mObjectId(mCountId), mNewPos(pPos), mNewVelocity(pVelocity),
-	mNewAngularVelocity(pAngularVelocity), mRotation(glm::mat3(1.0f)), mNewRotation(glm::mat3(1.0f)), mImpulseTensor(pImpulseTensor), mInverseImpulseTensor(pImpulseTensor.inverse())
+	mNewAngularVelocity(pAngularVelocity), mRotation(glm::mat3(1.0f)), mNewRotation(glm::mat3(1.0f)), mImpulseTensor(pImpulseTensor), mInverseImpulseTensor(inverse(pImpulseTensor))
 {
 	mCountId++;
 }
 
-void RigidBody::setPos(const Vector3F pPos)
+void RigidBody::setPos(const glm::vec3 pPos)
 {
 	mPos = pPos;
 }
 
-void RigidBody::setNewPos(const Vector3F pPos)
+void RigidBody::setNewPos(const glm::vec3 pPos)
 {
-	if (isnan(pPos.getX()))
-	{
-		int i = 0; 
-	}
 	mNewPos = pPos;
 }
 
-void RigidBody::setVel(const Vector3F pVel)
+void RigidBody::setVel(const glm::vec3 pVel)
 {
 	mVelocity = pVel;
 }
 
-void RigidBody::setNewVel(const Vector3F pVel)
+void RigidBody::setNewVel(const glm::vec3 pVel)
 {
 	mNewVelocity = pVel;
 }
 
-void RigidBody::setAngularVel(Vector3F pAngularVel)
+void RigidBody::setAngularVel(glm::vec3 pAngularVel)
 {
 	mAngularVelocity = pAngularVel;
 }
 
-void RigidBody::setNewAngularVel(Vector3F pAngularVel)
+void RigidBody::setNewAngularVel(glm::vec3 pAngularVel)
 {
 	mNewAngularVelocity = pAngularVel;
 }
@@ -66,9 +62,9 @@ void RigidBody::setSceneGraphNode(SceneGraphNode* pParent)
 }
 
 
-Vector3F RigidBody::acceleration(const State& state, float time)
+glm::vec3 RigidBody::acceleration(const State& state, float time)
 {
-	return Vector3F(0.0f, -9.81f, 0.0f);
+	return glm::vec3(0.0f, -9.81f, 0.0f);
 }
 
 Derivative RigidBody::evaluate(const State& initial, float time, float dt, const Derivative& derivative)
@@ -77,7 +73,7 @@ Derivative RigidBody::evaluate(const State& initial, float time, float dt, const
 	state.pos = initial.pos + derivative.dVel * dt;
 	state.vel = initial.vel + derivative.dAcc * dt;
 
-	glm::vec3 changeAngle = glm::vec3(derivative.dAngVel.getX(), derivative.dAngVel.getY(), derivative.dAngVel.getZ()) * dt;
+	glm::vec3 changeAngle = derivative.dAngVel * dt;
 	glm::quat changeQuat = glm::quat(0.0f, changeAngle);
 	state.orientation = glm::normalize(initial.orientation + 0.5f * changeQuat * initial.orientation);
 	state.angVel = initial.angVel + derivative.dAngAcc * dt;
@@ -86,7 +82,7 @@ Derivative RigidBody::evaluate(const State& initial, float time, float dt, const
 	output.dVel = state.vel;
 	output.dAcc = acceleration(state, time + dt);
 	output.dAngVel = state.angVel;
-	output.dAngAcc = Vector3F(0, 0, 0);
+	output.dAngAcc = glm::vec3(0, 0, 0);
 	return output;
 }
 
@@ -99,16 +95,16 @@ void RigidBody::integrate(State& state, float time, float dt)
 	k3 = evaluate(state, time, dt * 0.5f, k2);
 	k4 = evaluate(state, time, dt, k3);
 
-	Vector3F dPos = 1.0f / 6.0f * (k1.dVel + 2.0f * (k2.dVel + k3.dVel) + k4.dVel);
-	Vector3F dVel = 1.0f / 6.0f * (k1.dAcc + 2.0f * (k2.dAcc + k3.dAcc) + k4.dAcc);
-	Vector3F dRot = 1.0f / 6.0f * (k1.dAngVel + 2.0f * (k2.dAngVel + k3.dAngVel) + k4.dAngVel);
-	Vector3F dAngVel = 1.0f / 6.0f * (k1.dAngAcc + 2.0f * (k2.dAngAcc + k3.dAngAcc) + k4.dAngAcc);
+	auto dPos = 1.0f / 6.0f * (k1.dVel + 2.0f * (k2.dVel + k3.dVel) + k4.dVel);
+	auto dVel = 1.0f / 6.0f * (k1.dAcc + 2.0f * (k2.dAcc + k3.dAcc) + k4.dAcc);
+	auto dRot = 1.0f / 6.0f * (k1.dAngVel + 2.0f * (k2.dAngVel + k3.dAngVel) + k4.dAngVel);
+	auto dAngVel = 1.0f / 6.0f * (k1.dAngAcc + 2.0f * (k2.dAngAcc + k3.dAngAcc) + k4.dAngAcc);
 
 	state.pos = state.pos + dPos * dt;
 	state.vel = state.vel + dVel * dt;
 
-	glm::vec3 changeAngle = glm::vec3(dRot.getX(), dRot.getY(), dRot.getZ()) * dt;
-	glm::quat changeQuat = glm::quat(0.0f, changeAngle);
+	auto changeAngle = dRot * dt;
+	auto changeQuat = glm::quat(0.0f, changeAngle);
 	state.orientation = glm::normalize(state.orientation + 0.5f * changeQuat * state.orientation);
 	state.angVel = state.angVel + dAngVel * dt;
 }
@@ -147,7 +143,7 @@ void RigidBody::update()
 	mAngularVelocity = mNewAngularVelocity;
 }
 
-Vector3F RigidBody::getSize() const
+glm::vec3 RigidBody::getSize() const
 {
 	return mSize;
 }
@@ -158,12 +154,12 @@ float RigidBody::getMass() const
 	return mMass;
 }
 
-Vector3F RigidBody::getPos() const
+glm::vec3 RigidBody::getPos() const
 {
 	return mPos;
 }
 
-Vector3F RigidBody::getRenderPos() const
+glm::vec3 RigidBody::getRenderPos() const
 {
 	return mRenderPos;
 }
@@ -176,7 +172,7 @@ void RigidBody::updateRender()
 }
 
 
-Vector3F RigidBody::getNewPos() const
+glm::vec3 RigidBody::getNewPos() const
 {
 	return mNewPos;
 }
@@ -196,22 +192,22 @@ glm::quat RigidBody::getNewOrientation() const
 	return mNewRotation;
 }
 
-Vector3F RigidBody::getAngularVelocity() const
+glm::vec3 RigidBody::getAngularVelocity() const
 {
 	return mAngularVelocity;
 }
 
-Vector3F RigidBody::getNewAngularVelocity() const
+glm::vec3 RigidBody::getNewAngularVelocity() const
 {
 	return mNewAngularVelocity;
 }
 
-Vector3F RigidBody::getVel() const
+glm::vec3 RigidBody::getVel() const
 {
 	return mVelocity;
 }
 
-Vector3F RigidBody::getNewVel() const
+glm::vec3 RigidBody::getNewVel() const
 {
 	return mNewVelocity;
 }
@@ -221,55 +217,47 @@ float RigidBody::getCurrentUpdateTime() const
 	return mLastUpdateTime;
 }
 
-Matrix4F RigidBody::getMatrix() const
+glm::mat4 RigidBody::getMatrix() const
 {
-	auto modelMat = Matrix4F();
+	auto modelMat = glm::mat4(1.0f);
 
 	if (mParent)
 	{
 		modelMat = modelMat * mParent->getRenderMatrix();
 	}
 
-	const auto translation = Matrix4F::createTranslation(mPos);
-	const auto scale = Matrix4F::createScale(mSize);
-	const auto rot = glm::toMat4(mRotation);
-	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
-		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
-		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
-		rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
+	const auto translation = translate(glm::mat4(1.0f), mPos);
+	const auto scale = glm::scale(glm::mat4(1.0f), mSize);
+	const auto rotation = toMat4(mRotation);
 
 	modelMat = modelMat * translation * rotation * scale;
 
 	return modelMat;
 }
 
-Matrix3F RigidBody::getImpulseTenser() const
+glm::mat3 RigidBody::getImpulseTenser() const
 {
 	return mImpulseTensor;
 }
 
-Matrix3F RigidBody::getInverseImpulseTenser() const
+glm::mat3 RigidBody::getInverseImpulseTenser() const
 {
 	return mInverseImpulseTensor;
 }
 
 
-Matrix4F RigidBody::getNewMatrix() const
+glm::mat4 RigidBody::getNewMatrix() const
 {
-	auto modelMat = Matrix4F();
+	auto modelMat = glm::mat4(1.0f);
 
 	if (mParent)
 	{
 		modelMat = modelMat * mParent->getUpdateMatrix();
 	}
 
-	const auto translation = Matrix4F::createTranslation(mNewPos);
-	const auto scale = Matrix4F::createScale(mSize);
-	const auto rot = glm::toMat4(mNewRotation);
-	const auto rotation = Matrix4F(rot[0][0], rot[0][1], rot[0][2], rot[0][3],
-		rot[1][0], rot[1][1], rot[1][2], rot[1][3],
-		rot[2][0], rot[2][1], rot[2][2], rot[2][3],
-		rot[3][0], rot[3][1], rot[3][2], rot[3][3]);
+	const auto translation = translate(glm::mat4(1.0f), mNewPos);
+	const auto scale = glm::scale(glm::mat4(1.0f), mSize);
+	const auto rotation = toMat4(mNewRotation);
 
 	modelMat = modelMat * translation * rotation * scale;
 

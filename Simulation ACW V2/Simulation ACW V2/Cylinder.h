@@ -6,7 +6,7 @@
 class Cylinder final : public RigidBody
 {
 public:
-	Cylinder(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
+	Cylinder(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity);
 	~Cylinder() = default;
 
 	Cylinder(const Cylinder &) = delete;

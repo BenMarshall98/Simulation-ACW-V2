@@ -6,11 +6,11 @@
 class TranslationNode final : public SceneGraphNode
 {
 	TranslationAnimation * mAnimation;
-	Vector3F mTranslation;
+	glm::vec3 mTranslation;
 
 public:
-	TranslationNode(Vector3F pTranslation, TranslationAnimation * pAnimation = nullptr);
+	TranslationNode(glm::vec3 pTranslation, TranslationAnimation * pAnimation = nullptr);
 	~TranslationNode();
 
-	Matrix4F updateNode(float pDt) override;
+	glm::mat4 updateNode(float pDt) override;
 };

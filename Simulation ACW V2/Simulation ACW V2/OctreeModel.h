@@ -1,13 +1,12 @@
 #pragma once
 
 #include <vector>
-#include "Vector3f.h"
 #include "Model.h"
 
 class OctreeModel : public Model
 {
 	unsigned int mVao, mEbo, mVbo;
-	std::vector<Vector3F> positions;
+	std::vector<glm::vec3> positions;
 	std::vector<unsigned int> indices;
 
 public:

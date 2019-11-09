@@ -4,14 +4,14 @@
 OctreeModel::OctreeModel() : Model()
 {
 	positions = {
-		Vector3F(1.0f, 1.0f, 1.0f),
-		Vector3F(1.0f, 1.0f, -1.0f),
-		Vector3F(1.0f, -1.0f, 1.0f),
-		Vector3F(1.0f, -1.0f, -1.0f),
-		Vector3F(-1.0f, 1.0f, 1.0f),
-		Vector3F(-1.0f, 1.0f, -1.0f),
-		Vector3F(-1.0f, -1.0f, 1.0f),
-		Vector3F(-1.0f, -1.0f, -1.0f)
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(1.0f, 1.0f, -1.0f),
+		glm::vec3(1.0f, -1.0f, 1.0f),
+		glm::vec3(1.0f, -1.0f, -1.0f),
+		glm::vec3(-1.0f, 1.0f, 1.0f),
+		glm::vec3(-1.0f, 1.0f, -1.0f),
+		glm::vec3(-1.0f, -1.0f, 1.0f),
+		glm::vec3(-1.0f, -1.0f, -1.0f)
 	};
 
 	indices = {
@@ -36,7 +36,7 @@ OctreeModel::OctreeModel() : Model()
 	glBindVertexArray(mVao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(Vector3F), &positions[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);

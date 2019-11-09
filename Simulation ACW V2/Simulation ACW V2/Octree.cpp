@@ -1,5 +1,4 @@
 #include "Octree.h"
-#include "Matrix4f.h"
 #include "Game.h"
 #include <algorithm>
 #include <iostream>
@@ -9,7 +8,7 @@
 OctreeModel * Octree::model = nullptr;// new OctreeModel();
 Shader * Octree::shader = nullptr;// new Shader("octreeVertex.vert", "octreeFragment.frag");
 
-Octree::Octree(Vector3F pCenter, Vector3F pSize, Octree * pParent) : center(pCenter), size(pSize), parent(pParent)
+Octree::Octree(glm::vec3 pCenter, glm::vec3 pSize, Octree * pParent) : center(pCenter), size(pSize), parent(pParent)
 {
 	if (!model)
 	{
@@ -28,21 +27,21 @@ Octree::~Octree()
 
 bool Octree::AddRigidBody(RigidBody * rigidBody)
 {
-	Vector3F bodyPos = rigidBody->getPos();
+	glm::vec3 bodyPos = rigidBody->getPos();
 
-	if (bodyPos.getX() < center.getX() - size.getX() ||
-		bodyPos.getX() > center.getX() + size.getX() ||
-		bodyPos.getY() < center.getY() - size.getY() ||
-		bodyPos.getY() > center.getY() + size.getY() ||
-		bodyPos.getZ() < center.getZ() - size.getZ() ||
-		bodyPos.getZ() > center.getZ() + size.getZ())
+	if (bodyPos.x < center.x - size.x ||
+		bodyPos.x > center.x + size.x ||
+		bodyPos.y < center.y - size.y ||
+		bodyPos.y > center.y + size.y ||
+		bodyPos.z < center.z - size.z ||
+		bodyPos.z > center.z + size.z)
 	{
 		return false;
 	}
 
-	if (size.getX() > 2 &&
-		size.getY() > 2 &&
-		size.getZ() > 2)
+	if (size.x > 2 &&
+		size.y > 2 &&
+		size.z > 2)
 	{
 		if (children[0])
 		{
@@ -56,17 +55,17 @@ bool Octree::AddRigidBody(RigidBody * rigidBody)
 		}
 		else
 		{
-			Vector3F childSize = size / 2;
-			Vector3F centers[8] =
+			glm::vec3 childSize = size / 2.0f;
+			glm::vec3 centers[8] =
 			{
-				center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * 1.0f, childSize.getZ() * 1.0f),
-				center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * 1.0f, childSize.getZ() * -1.0f),
-				center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * -1.0f, childSize.getZ() * 1.0f),
-				center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * -1.0f, childSize.getZ() * -1.0f),
-				center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * 1.0f, childSize.getZ() * 1.0f),
-				center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * 1.0f, childSize.getZ() * -1.0f),
-				center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * -1.0f, childSize.getZ() * 1.0f),
-				center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * -1.0f, childSize.getZ() * -1.0f)
+				center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
+				center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * -1.0f),
+				center + glm::vec3(childSize.x * 1.0f, childSize.y * -1.0f, childSize.z * 1.0f),
+				center + glm::vec3(childSize.x * 1.0f, childSize.y * -1.0f, childSize.z * -1.0f),
+				center + glm::vec3(childSize.x * -1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
+				center + glm::vec3(childSize.x * -1.0f, childSize.y * 1.0f, childSize.z * -1.0f),
+				center + glm::vec3(childSize.x * -1.0f, childSize.y * -1.0f, childSize.z * 1.0f),
+				center + glm::vec3(childSize.x * -1.0f, childSize.y * -1.0f, childSize.z * -1.0f)
 			};
 
 
@@ -114,7 +113,7 @@ bool Octree::Render()
 	{
 		shader->useShader();
 
-		auto perspective = Matrix4F::createPerspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
+		auto perspective = glm::perspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
 		auto view = Game::camera->getViewMatrix();
 
 		auto perspectiveLocation = glGetUniformLocation(shader->getShaderId(), "perspective");
@@ -123,8 +122,8 @@ bool Octree::Render()
 		auto viewLocation = glGetUniformLocation(shader->getShaderId(), "view");
 		view.useMatrix(viewLocation);
 
-		const auto translation = Matrix4F::createTranslation(center);
-		const auto scale = Matrix4F::createScale(size);
+		const auto translation = translate(glm::mat4(1.0f), center);
+		const auto scale = glm::scale(glm::mat4(1.0f), size);
 
 		auto modelMat = translation * scale;
 
@@ -141,14 +140,14 @@ void Octree::UpdateTree()
 	checked = false;
 	for (int i = 0; i < rigidBodies.size(); i++)
 	{
-		Vector3F bodyPos = rigidBodies[i]->getPos();
+		glm::vec3 bodyPos = rigidBodies[i]->getPos();
 
-		if (bodyPos.getX() < center.getX() - size.getX() ||
-			bodyPos.getX() > center.getX() + size.getX() ||
-			bodyPos.getY() < center.getY() - size.getY() ||
-			bodyPos.getY() > center.getY() + size.getY() ||
-			bodyPos.getZ() < center.getZ() - size.getZ() ||
-			bodyPos.getZ() > center.getZ() + size.getZ())
+		if (bodyPos.x < center.x - size.x ||
+			bodyPos.x > center.x + size.x ||
+			bodyPos.y < center.y - size.y ||
+			bodyPos.y > center.y + size.y ||
+			bodyPos.z < center.z - size.z ||
+			bodyPos.z > center.z + size.z)
 		{
 			if (parent)
 			{
@@ -197,14 +196,14 @@ void Octree::UpdateTree()
 
 void Octree::MoveBody(RigidBody * rigidBody)
 {
-	Vector3F bodyPos = rigidBody->getPos();
+	glm::vec3 bodyPos = rigidBody->getPos();
 
-	if (bodyPos.getX() < center.getX() - size.getX() ||
-		bodyPos.getX() > center.getX() + size.getX() ||
-		bodyPos.getY() < center.getY() - size.getY() ||
-		bodyPos.getY() > center.getY() + size.getY() ||
-		bodyPos.getZ() < center.getZ() - size.getZ() ||
-		bodyPos.getZ() > center.getZ() + size.getZ())
+	if (bodyPos.x < center.x - size.x ||
+		bodyPos.x > center.x + size.x ||
+		bodyPos.y < center.y - size.y ||
+		bodyPos.y > center.y + size.y ||
+		bodyPos.z < center.z - size.z ||
+		bodyPos.z > center.z + size.z)
 	{
 		if (parent)
 		{
@@ -217,9 +216,9 @@ void Octree::MoveBody(RigidBody * rigidBody)
 	}
 	else
 	{
-		if (size.getX() > 2 &&
-			size.getY() > 2 &&
-			size.getZ() > 2)
+		if (size.x > 2 &&
+			size.y > 2 &&
+			size.z > 2)
 		{
 			if (children[0])
 			{
@@ -233,17 +232,17 @@ void Octree::MoveBody(RigidBody * rigidBody)
 			}
 			else
 			{
-				Vector3F childSize = size / 2;
-				Vector3F centers[8] =
+				glm::vec3 childSize = size / 2.0f;
+				glm::vec3 centers[8] =
 				{
-					center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * 1.0f, childSize.getZ() * 1.0f),
-					center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * 1.0f, childSize.getZ() * -1.0f),
-					center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * -1.0f, childSize.getZ() * 1.0f),
-					center + Vector3F(childSize.getX() * 1.0f, childSize.getY() * -1.0f, childSize.getZ() * -1.0f),
-					center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * 1.0f, childSize.getZ() * 1.0f),
-					center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * 1.0f, childSize.getZ() * -1.0f),
-					center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * -1.0f, childSize.getZ() * 1.0f),
-					center + Vector3F(childSize.getX() * -1.0f, childSize.getY() * -1.0f, childSize.getZ() * -1.0f)
+					center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
+					center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * -1.0f),
+					center + glm::vec3(childSize.x * 1.0f, childSize.y * -1.0f, childSize.z * 1.0f),
+					center + glm::vec3(childSize.x * 1.0f, childSize.y * -1.0f, childSize.z * -1.0f),
+					center + glm::vec3(childSize.x * -1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
+					center + glm::vec3(childSize.x * -1.0f, childSize.y * 1.0f, childSize.z * -1.0f),
+					center + glm::vec3(childSize.x * -1.0f, childSize.y * -1.0f, childSize.z * 1.0f),
+					center + glm::vec3(childSize.x * -1.0f, childSize.y * -1.0f, childSize.z * -1.0f)
 				};
 
 
@@ -295,48 +294,48 @@ void Octree::GetNeighbours()
 	grandParent->FindNeighbour(center, size, neighbours, this);
 }
 
-void Octree::FindNeighbour(Vector3F pCenter, Vector3F pSize, std::vector<Octree*>& pNeighbours, Octree* pNeighbour)
+void Octree::FindNeighbour(glm::vec3 pCenter, glm::vec3 pSize, std::vector<Octree*>& pNeighbours, Octree* pNeighbour)
 {
 	if (this == pNeighbour)
 	{
 		return;
 	}
 
-	if (size.getX() > pSize.getX())
+	if (size.x > pSize.x)
 	{
 		for (int i = 0; i < 8 && children[i]; i++)
 		{
 			children[i]->FindNeighbour(pCenter, pSize, pNeighbours, pNeighbour);
 		}
 	}
-	else if (size.getX() == pSize.getX())
+	else if (size.x == pSize.x)
 	{
-		if (center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 2, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 0, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 0, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * 0, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * -2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * -2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * 2, pSize.getY() * -2, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * 2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * 2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * 2, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * 0, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * 0, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * -2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * -2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * 0, pSize.getY() * -2, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 2, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 0, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 0, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * 0, pSize.getZ() * -2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * -2, pSize.getZ() * 2) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * -2, pSize.getZ() * 0) ||
-			center == pCenter + Vector3F(pSize.getX() * -2, pSize.getY() * -2, pSize.getZ() * -2))
+		if (center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 2, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 0, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 0, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * 0, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * -2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * -2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * 2, pSize.y * -2, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * 2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * 2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * 2, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * 0, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * 0, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * -2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * -2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * 0, pSize.y * -2, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 2, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 0, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 0, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * 0, pSize.z * -2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * -2, pSize.z * 2) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * -2, pSize.z * 0) ||
+			center == pCenter + glm::vec3(pSize.x * -2, pSize.y * -2, pSize.z * -2))
 		{
 			if (std::find(pNeighbours.begin(), pNeighbours.end(), this) == pNeighbours.end())
 			{

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3F.h"
+#include "glm/glm.hpp"
 #include <vector>
 
 class RigidBody;
@@ -15,9 +15,9 @@ struct ManifoldPoint
 {
 	RigidBody * mContactId1;
 	RigidBody * mContactId2;
-	Vector3F mContactPoint1;
-	Vector3F mContactPoint2;
-	Vector3F mContactNormal;
+	glm::vec3 mContactPoint1;
+	glm::vec3 mContactPoint2;
+	glm::vec3 mContactNormal;
 	float mTime;
 	float mCollisionDepth;
 	CollisionType mCollisionType;

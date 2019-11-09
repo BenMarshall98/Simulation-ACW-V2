@@ -1,14 +1,14 @@
 #pragma once
 
 #include <vector>
-#include "Vector3F.h"
-#include "Vector2F.h"
+
+#include "glm/glm.hpp"
 
 class Model
 {
 public:
-	Model(std::vector<Vector3F> pPositions,
-		std::vector<Vector2F> pTexCoords, std::vector<unsigned int> pIndices);
+	Model(std::vector<glm::vec3> pPositions,
+		std::vector<glm::vec2> pTexCoords, std::vector<unsigned int> pIndices);
 	Model();
 	virtual ~Model() = default;
 
@@ -30,8 +30,8 @@ private:
 	unsigned int mVao, mEbo;
 	unsigned int mVbo[2];
 
-	std::vector<Vector3F> mPosition;
-	std::vector<Vector2F> mTexCoords;
+	std::vector<glm::vec3> mPosition;
+	std::vector<glm::vec2> mTexCoords;
 	std::vector<unsigned int> mIndices;
 
 protected:

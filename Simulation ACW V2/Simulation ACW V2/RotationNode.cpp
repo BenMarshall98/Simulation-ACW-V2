@@ -1,6 +1,6 @@
 #include "RotationNode.h"
 
-RotationNode::RotationNode(Vector3F pRotationAxis, float mRotationAngle, RotationAnimation * pAnimation) :
+RotationNode::RotationNode(glm::vec3 pRotationAxis, float mRotationAngle, RotationAnimation * pAnimation) :
 	mRotationAxis(pRotationAxis), mRotationAngle(mRotationAngle), mAnimation(pAnimation)
 {
 }
@@ -10,12 +10,12 @@ RotationNode::~RotationNode()
 
 }
 
-Matrix4F RotationNode::updateNode(float pDt)
+glm::mat4 RotationNode::updateNode(float pDt)
 {
 	if (mAnimation)
 	{
 		mAnimation->callFunction(mRotationAxis, mRotationAngle, pDt);
 	}
 
-	return Matrix4F::createRotation(mRotationAxis, mRotationAngle);
+	return glm::mat4::createRotation(mRotationAxis, mRotationAngle);
 }

@@ -1,6 +1,6 @@
 #include "RotationAnimation.h"
 
-RotationAnimation::RotationAnimation(std::function<void(Vector3F&, float&, float, float)> pFunction, char pKey1, char pKey2) :
+RotationAnimation::RotationAnimation(std::function<void(glm::vec3&, float&, float, float)> pFunction, char pKey1, char pKey2) :
 	SceneGraphAnimation(pKey1, pKey2), mFunction(pFunction)
 {
 }
@@ -21,7 +21,7 @@ void RotationAnimation::keyPressed(char pKey)
 	}
 }
 
-void RotationAnimation::callFunction(Vector3F& pRotationAxis, float& pRotationAngle, float pDt)
+void RotationAnimation::callFunction(glm::vec3& pRotationAxis, float& pRotationAngle, float pDt)
 {
 	mFunction(pRotationAxis, pRotationAngle, mAngleSpeed, pDt);
 }

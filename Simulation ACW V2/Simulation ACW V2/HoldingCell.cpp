@@ -2,7 +2,7 @@
 
 
 
-HoldingCell::HoldingCell(const Vector3F pLocation, const Vector3F pSize) :
+HoldingCell::HoldingCell(const glm::vec3 pLocation, const glm::vec3 pSize) :
 	mLocation(pLocation), mSize(pSize)
 {
 }
@@ -22,12 +22,12 @@ void HoldingCell::update(std::vector<RigidBody *> & pToReassign)
 	{
 		auto pos = mRigidBodies[i]->getPos();
 
-		if (pos.getX() > mLocation.getX() + mSize.getX() ||
-			pos.getX() < mLocation.getX() - mSize.getX() ||
-			pos.getY() > mLocation.getY() + mSize.getY() ||
-			pos.getY() < mLocation.getY() - mSize.getY() ||
-			pos.getZ() > mLocation.getZ() + mSize.getZ() ||
-			pos.getZ() < mLocation.getZ() - mSize.getZ())
+		if (pos.x > mLocation.x + mSize.x ||
+			pos.x < mLocation.x - mSize.x ||
+			pos.y > mLocation.y + mSize.y ||
+			pos.y < mLocation.y - mSize.y ||
+			pos.z > mLocation.z + mSize.z ||
+			pos.z < mLocation.z - mSize.z)
 		{
 			pToReassign.push_back(mRigidBodies[i]);
 			mRigidBodies.erase(mRigidBodies.begin() + i);

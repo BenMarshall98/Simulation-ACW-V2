@@ -8,7 +8,7 @@ IdentityNode::~IdentityNode()
 {
 }
 
-Matrix4F IdentityNode::updateNode(float pDt)
+glm::mat4 IdentityNode::updateNode(float pDt)
 {
 	return {};
 }

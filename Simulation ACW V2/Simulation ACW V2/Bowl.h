@@ -6,7 +6,7 @@
 class Bowl final : public RigidBody
 {
 public:
-	Bowl(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
+	Bowl(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity);
 	~Bowl() = default;
 
 	Bowl(const Bowl &) = delete;

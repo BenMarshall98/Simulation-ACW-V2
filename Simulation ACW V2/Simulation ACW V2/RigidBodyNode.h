@@ -11,6 +11,6 @@ public:
 	RigidBodyNode(RigidBody * pRigidBody);
 	~RigidBodyNode();
 
-	Matrix4F updateNode(float pDt) override;
+	glm::mat4 updateNode(float pDt) override;
 };
 

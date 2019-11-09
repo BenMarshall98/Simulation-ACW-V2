@@ -1,15 +1,13 @@
 #include "Model.h"
 #include <utility>
 #include <vector>
-#include "Vector3F.h"
-#include "Vector2F.h"
 #include "gl.h"
 #include <cmath>
 #include <corecrt_math_defines.h>
 
 Model * Model::mLastModel = nullptr;
 
-Model::Model(std::vector<Vector3F> pPositions, std::vector<Vector2F> pTexCoords,
+Model::Model(std::vector<glm::vec3> pPositions, std::vector<glm::vec2> pTexCoords,
 	std::vector<unsigned int> pIndices) : mPosition(std::move(pPositions)), mTexCoords(std::move(pTexCoords)),
 	mIndices(std::move(pIndices)), mVao(0), mVbo{0, 0}, mEbo(0)
 {
@@ -20,13 +18,13 @@ Model::Model(std::vector<Vector3F> pPositions, std::vector<Vector2F> pTexCoords,
 	glBindVertexArray(mVao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mVbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, mPosition.size() * sizeof(Vector3F), &mPosition[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mPosition.size() * sizeof(glm::vec3), &mPosition[0], GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mVbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, mTexCoords.size() * sizeof(Vector2F), &mTexCoords[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mTexCoords.size() * sizeof(glm::vec2), &mTexCoords[0], GL_STATIC_DRAW);
 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(1);
@@ -66,8 +64,8 @@ Model* Model::createSphere()
 
 	const auto segments = 30;
 
-	std::vector<Vector3F> positions;
-	std::vector<Vector2F> texCoords;
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec2> texCoords;
 	std::vector<unsigned int> indices;
 
 	const auto angle = static_cast<float>(M_PI) / segments;
@@ -80,12 +78,12 @@ Model* Model::createSphere()
 			const auto y = sin(j * angle) * sin(i * angle);
 			const auto z = cos(i * angle);
 
-			positions.emplace_back(Vector3F(x, y, z));
+			positions.emplace_back(glm::vec3(x, y, z));
 
 			const auto u = 1.0f / (segments * 2) * j;
 			const auto v = 1.0f / segments * i;
-
-			texCoords.emplace_back(Vector2F(u, v));
+			
+			texCoords.emplace_back(glm::vec2(u, v));
 		}
 	}
 
@@ -172,18 +170,18 @@ Model* Model::createPlane()
 		return model;
 	}
 
-	const std::vector<Vector3F> positions = {
-		Vector3F(1, 0, 1),
-		Vector3F(1, 0, -1),
-		Vector3F(-1, 0, -1),
-		Vector3F(-1, 0, 1)
+	const std::vector<glm::vec3> positions = {
+		glm::vec3(1, 0, 1),
+		glm::vec3(1, 0, -1),
+		glm::vec3(-1, 0, -1),
+		glm::vec3(-1, 0, 1)
 	};
 
-	const std::vector<Vector2F> texCoords = {
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1)
+	const std::vector<glm::vec2> texCoords = {
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1)
 	};
 
 	const std::vector<unsigned int> indices = {
@@ -204,24 +202,24 @@ Model* Model::createCylinder()
 		return model;
 	}
 
-	std::vector<Vector3F> positions;
-	std::vector<Vector2F> texCoords;
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec2> texCoords;
 	std::vector<unsigned int> indices;
 
 	const auto segments = 30;
 
 	const auto angle = 2.0f * static_cast<float>(M_PI) / segments;
 
-	positions.emplace_back(Vector3F(0.0f, 0.5f, 0.0f));
-	texCoords.emplace_back(Vector2F(0.5f, 0.5f));
+	positions.emplace_back(glm::vec3(0.0f, 0.5f, 0.0f));
+	texCoords.emplace_back(glm::vec2(0.5f, 0.5f));
 
 	for (auto i = 0; i <= segments; i++)
 	{
 		const auto x = 0.5f * cos(angle * i);
 		const auto z = 0.5f * sin(angle * i);
 
-		positions.emplace_back(Vector3F(x, 0.5f, z));
-		texCoords.emplace_back(Vector2F(0.5f + x, 0.5f + z));
+		positions.emplace_back(glm::vec3(x, 0.5f, z));
+		texCoords.emplace_back(glm::vec2(0.5f + x, 0.5f + z));
 	}
 
 	for (auto i = 0; i <= segments; i++)
@@ -229,8 +227,8 @@ Model* Model::createCylinder()
 		const auto x = 0.5f * cos(angle * i);
 		const auto z = 0.5f * sin(angle * i);
 
-		positions.emplace_back(Vector3F(x, 0.5f, z));
-		texCoords.emplace_back(Vector2F(0.5f + x, 0.5f + z));
+		positions.emplace_back(glm::vec3(x, 0.5f, z));
+		texCoords.emplace_back(glm::vec2(0.5f + x, 0.5f + z));
 	}
 
 	for (auto i = 0; i <= segments; i++)
@@ -238,20 +236,20 @@ Model* Model::createCylinder()
 		const auto x = 0.5f * cos(angle * i);
 		const auto z = 0.5f * sin(angle * i);
 
-		positions.emplace_back(Vector3F(x, -0.5f, z));
-		texCoords.emplace_back(Vector2F(0.5f + x, 0.5f + z));
+		positions.emplace_back(glm::vec3(x, -0.5f, z));
+		texCoords.emplace_back(glm::vec2(0.5f + x, 0.5f + z));
 	}
 
-	positions.emplace_back(Vector3F(0.0f, -0.5f, 0.0f));
-	texCoords.emplace_back(Vector2F(0.5f, 0.5f));
+	positions.emplace_back(glm::vec3(0.0f, -0.5f, 0.0f));
+	texCoords.emplace_back(glm::vec2(0.5f, 0.5f));
 
 	for (auto i = 0; i <= segments; i++)
 	{
 		const auto x = 0.5f * cos(angle * i);
 		const auto z = 0.5f * sin(angle * i);
 
-		positions.emplace_back(Vector3F(x, -0.5f, z));
-		texCoords.emplace_back(Vector2F(0.5f + x, 0.5f + z));
+		positions.emplace_back(glm::vec3(x, -0.5f, z));
+		texCoords.emplace_back(glm::vec2(0.5f + x, 0.5f + z));
 	}
 
 	auto count = 1;
@@ -302,89 +300,89 @@ Model* Model::createPlaneWithHoles()
 		return model;
 	}
 
-	std::vector<Vector3F> positions = {
-		Vector3F(-5, 0, 5),
-		Vector3F(-4, 0, 5),
-		Vector3F(-2, 0, 5),
-		Vector3F(-1, 0, 5),
-		Vector3F(1, 0, 5),
-		Vector3F(2, 0, 5),
-		Vector3F(4, 0, 5),
-		Vector3F(5, 0, 5),
+	std::vector<glm::vec3> positions = {
+		glm::vec3(-5, 0, 5),
+		glm::vec3(-4, 0, 5),
+		glm::vec3(-2, 0, 5),
+		glm::vec3(-1, 0, 5),
+		glm::vec3(1, 0, 5),
+		glm::vec3(2, 0, 5),
+		glm::vec3(4, 0, 5),
+		glm::vec3(5, 0, 5),
 
-		Vector3F(-5, 0, 4),
-		Vector3F(-4, 0, 4),
-		Vector3F(-2, 0, 4),
-		Vector3F(-1, 0, 4),
-		Vector3F(1, 0, 4),
-		Vector3F(2, 0, 4),
-		Vector3F(4, 0, 4),
-		Vector3F(5, 0, 4),
+		glm::vec3(-5, 0, 4),
+		glm::vec3(-4, 0, 4),
+		glm::vec3(-2, 0, 4),
+		glm::vec3(-1, 0, 4),
+		glm::vec3(1, 0, 4),
+		glm::vec3(2, 0, 4),
+		glm::vec3(4, 0, 4),
+		glm::vec3(5, 0, 4),
 
-		Vector3F(-5, 0, 2),
-		Vector3F(-4, 0, 2),
-		Vector3F(-2, 0, 2),
-		Vector3F(-1, 0, 2),
-		Vector3F(1, 0, 2),
-		Vector3F(2, 0, 2),
-		Vector3F(4, 0, 2),
-		Vector3F(5, 0, 2),
+		glm::vec3(-5, 0, 2),
+		glm::vec3(-4, 0, 2),
+		glm::vec3(-2, 0, 2),
+		glm::vec3(-1, 0, 2),
+		glm::vec3(1, 0, 2),
+		glm::vec3(2, 0, 2),
+		glm::vec3(4, 0, 2),
+		glm::vec3(5, 0, 2),
 
-		Vector3F(-5, 0, 1),
-		Vector3F(-4, 0, 1),
-		Vector3F(-2, 0, 1),
-		Vector3F(-1, 0, 1),
-		Vector3F(1, 0, 1),
-		Vector3F(2, 0, 1),
-		Vector3F(4, 0, 1),
-		Vector3F(5, 0, 1),
+		glm::vec3(-5, 0, 1),
+		glm::vec3(-4, 0, 1),
+		glm::vec3(-2, 0, 1),
+		glm::vec3(-1, 0, 1),
+		glm::vec3(1, 0, 1),
+		glm::vec3(2, 0, 1),
+		glm::vec3(4, 0, 1),
+		glm::vec3(5, 0, 1),
 
-		Vector3F(-5, 0, -1),
-		Vector3F(-4, 0, -1),
-		Vector3F(-2, 0, -1),
-		Vector3F(-1, 0, -1),
-		Vector3F(1, 0, -1),
-		Vector3F(2, 0, -1),
-		Vector3F(4, 0, -1),
-		Vector3F(5, 0, -1),
+		glm::vec3(-5, 0, -1),
+		glm::vec3(-4, 0, -1),
+		glm::vec3(-2, 0, -1),
+		glm::vec3(-1, 0, -1),
+		glm::vec3(1, 0, -1),
+		glm::vec3(2, 0, -1),
+		glm::vec3(4, 0, -1),
+		glm::vec3(5, 0, -1),
 
-		Vector3F(-5, 0, -2),
-		Vector3F(-4, 0, -2),
-		Vector3F(-2, 0, -2),
-		Vector3F(-1, 0, -2),
-		Vector3F(1, 0, -2),
-		Vector3F(2, 0, -2),
-		Vector3F(4, 0, -2),
-		Vector3F(5, 0, -2),
+		glm::vec3(-5, 0, -2),
+		glm::vec3(-4, 0, -2),
+		glm::vec3(-2, 0, -2),
+		glm::vec3(-1, 0, -2),
+		glm::vec3(1, 0, -2),
+		glm::vec3(2, 0, -2),
+		glm::vec3(4, 0, -2),
+		glm::vec3(5, 0, -2),
 
-		Vector3F(-5, 0, -4),
-		Vector3F(-4, 0, -4),
-		Vector3F(-2, 0, -4),
-		Vector3F(-1, 0, -4),
-		Vector3F(1, 0, -4),
-		Vector3F(2, 0, -4),
-		Vector3F(4, 0, -4),
-		Vector3F(5, 0, -4),
+		glm::vec3(-5, 0, -4),
+		glm::vec3(-4, 0, -4),
+		glm::vec3(-2, 0, -4),
+		glm::vec3(-1, 0, -4),
+		glm::vec3(1, 0, -4),
+		glm::vec3(2, 0, -4),
+		glm::vec3(4, 0, -4),
+		glm::vec3(5, 0, -4),
 
-		Vector3F(-5, 0, -5),
-		Vector3F(-4, 0, -5),
-		Vector3F(-2, 0, -5),
-		Vector3F(-1, 0, -5),
-		Vector3F(1, 0, -5),
-		Vector3F(2, 0, -5),
-		Vector3F(4, 0, -5),
-		Vector3F(5, 0, -5)
+		glm::vec3(-5, 0, -5),
+		glm::vec3(-4, 0, -5),
+		glm::vec3(-2, 0, -5),
+		glm::vec3(-1, 0, -5),
+		glm::vec3(1, 0, -5),
+		glm::vec3(2, 0, -5),
+		glm::vec3(4, 0, -5),
+		glm::vec3(5, 0, -5)
 	};
 
-	const std::vector<Vector3F> centersPosition = {
-		Vector3F(-3, 0, 3),
-		Vector3F(0, 0, 3),
-		Vector3F(3, 0, 3),
-		Vector3F(-3, 0, 0),
-		Vector3F(3, 0, 0),
-		Vector3F(-3, 0, -3),
-		Vector3F(0, 0, -3),
-		Vector3F(3, 0, -3),
+	const std::vector<glm::vec3> centersPosition = {
+		glm::vec3(-3, 0, 3),
+		glm::vec3(0, 0, 3),
+		glm::vec3(3, 0, 3),
+		glm::vec3(-3, 0, 0),
+		glm::vec3(3, 0, 0),
+		glm::vec3(-3, 0, -3),
+		glm::vec3(0, 0, -3),
+		glm::vec3(3, 0, -3),
 	};
 
 	const auto segments = 20;
@@ -400,93 +398,93 @@ Model* Model::createPlaneWithHoles()
 			const auto x = cos(j * angle);
 			const auto z = sin(j * angle);
 
-			positions.push_back(center + Vector3F(x, 0, z));
+			positions.push_back(center + glm::vec3(x, 0, z));
 		}
 	}
 
-	std::vector<Vector2F> texCoords = {
-		Vector2F(0.0f, 1.0f),
-		Vector2F(0.1f, 1.0f),
-		Vector2F(0.3f, 1.0f),
-		Vector2F(0.4f, 1.0f),
-		Vector2F(0.6f, 1.0f),
-		Vector2F(0.7f, 1.0f),
-		Vector2F(0.9f, 1.0f),
-		Vector2F(1.0f, 1.0f),
+	std::vector<glm::vec2> texCoords = {
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(0.1f, 1.0f),
+		glm::vec2(0.3f, 1.0f),
+		glm::vec2(0.4f, 1.0f),
+		glm::vec2(0.6f, 1.0f),
+		glm::vec2(0.7f, 1.0f),
+		glm::vec2(0.9f, 1.0f),
+		glm::vec2(1.0f, 1.0f),
 
-		Vector2F(0.0f, 0.9f),
-		Vector2F(0.1f, 0.9f),
-		Vector2F(0.3f, 0.9f),
-		Vector2F(0.4f, 0.9f),
-		Vector2F(0.6f, 0.9f),
-		Vector2F(0.7f, 0.9f),
-		Vector2F(0.9f, 0.9f),
-		Vector2F(1.0f, 0.9f),
+		glm::vec2(0.0f, 0.9f),
+		glm::vec2(0.1f, 0.9f),
+		glm::vec2(0.3f, 0.9f),
+		glm::vec2(0.4f, 0.9f),
+		glm::vec2(0.6f, 0.9f),
+		glm::vec2(0.7f, 0.9f),
+		glm::vec2(0.9f, 0.9f),
+		glm::vec2(1.0f, 0.9f),
 
-		Vector2F(0.0f, 0.7f),
-		Vector2F(0.1f, 0.7f),
-		Vector2F(0.3f, 0.7f),
-		Vector2F(0.4f, 0.7f),
-		Vector2F(0.6f, 0.7f),
-		Vector2F(0.7f, 0.7f),
-		Vector2F(0.9f, 0.7f),
-		Vector2F(1.0f, 0.7f),
+		glm::vec2(0.0f, 0.7f),
+		glm::vec2(0.1f, 0.7f),
+		glm::vec2(0.3f, 0.7f),
+		glm::vec2(0.4f, 0.7f),
+		glm::vec2(0.6f, 0.7f),
+		glm::vec2(0.7f, 0.7f),
+		glm::vec2(0.9f, 0.7f),
+		glm::vec2(1.0f, 0.7f),
 
-		Vector2F(0.0f, 0.6f),
-		Vector2F(0.1f, 0.6f),
-		Vector2F(0.3f, 0.6f),
-		Vector2F(0.4f, 0.6f),
-		Vector2F(0.6f, 0.6f),
-		Vector2F(0.7f, 0.6f),
-		Vector2F(0.9f, 0.6f),
-		Vector2F(1.0f, 0.6f),
+		glm::vec2(0.0f, 0.6f),
+		glm::vec2(0.1f, 0.6f),
+		glm::vec2(0.3f, 0.6f),
+		glm::vec2(0.4f, 0.6f),
+		glm::vec2(0.6f, 0.6f),
+		glm::vec2(0.7f, 0.6f),
+		glm::vec2(0.9f, 0.6f),
+		glm::vec2(1.0f, 0.6f),
 
-		Vector2F(0.0f, 0.4f),
-		Vector2F(0.1f, 0.4f),
-		Vector2F(0.3f, 0.4f),
-		Vector2F(0.4f, 0.4f),
-		Vector2F(0.6f, 0.4f),
-		Vector2F(0.7f, 0.4f),
-		Vector2F(0.9f, 0.4f),
-		Vector2F(1.0f, 0.4f),
+		glm::vec2(0.0f, 0.4f),
+		glm::vec2(0.1f, 0.4f),
+		glm::vec2(0.3f, 0.4f),
+		glm::vec2(0.4f, 0.4f),
+		glm::vec2(0.6f, 0.4f),
+		glm::vec2(0.7f, 0.4f),
+		glm::vec2(0.9f, 0.4f),
+		glm::vec2(1.0f, 0.4f),
 
-		Vector2F(0.0f, 0.3f),
-		Vector2F(0.1f, 0.3f),
-		Vector2F(0.3f, 0.3f),
-		Vector2F(0.4f, 0.3f),
-		Vector2F(0.6f, 0.3f),
-		Vector2F(0.7f, 0.3f),
-		Vector2F(0.9f, 0.3f),
-		Vector2F(1.0f, 0.3f),
+		glm::vec2(0.0f, 0.3f),
+		glm::vec2(0.1f, 0.3f),
+		glm::vec2(0.3f, 0.3f),
+		glm::vec2(0.4f, 0.3f),
+		glm::vec2(0.6f, 0.3f),
+		glm::vec2(0.7f, 0.3f),
+		glm::vec2(0.9f, 0.3f),
+		glm::vec2(1.0f, 0.3f),
 
-		Vector2F(0.0f, 0.1f),
-		Vector2F(0.1f, 0.1f),
-		Vector2F(0.3f, 0.1f),
-		Vector2F(0.4f, 0.1f),
-		Vector2F(0.6f, 0.1f),
-		Vector2F(0.7f, 0.1f),
-		Vector2F(0.9f, 0.1f),
-		Vector2F(1.0f, 0.1f),
+		glm::vec2(0.0f, 0.1f),
+		glm::vec2(0.1f, 0.1f),
+		glm::vec2(0.3f, 0.1f),
+		glm::vec2(0.4f, 0.1f),
+		glm::vec2(0.6f, 0.1f),
+		glm::vec2(0.7f, 0.1f),
+		glm::vec2(0.9f, 0.1f),
+		glm::vec2(1.0f, 0.1f),
 
-		Vector2F(0.0f, 0.0f),
-		Vector2F(0.1f, 0.0f),
-		Vector2F(0.3f, 0.0f),
-		Vector2F(0.4f, 0.0f),
-		Vector2F(0.6f, 0.0f),
-		Vector2F(0.7f, 0.0f),
-		Vector2F(0.9f, 0.0f),
-		Vector2F(1.0f, 0.0f)
+		glm::vec2(0.0f, 0.0f),
+		glm::vec2(0.1f, 0.0f),
+		glm::vec2(0.3f, 0.0f),
+		glm::vec2(0.4f, 0.0f),
+		glm::vec2(0.6f, 0.0f),
+		glm::vec2(0.7f, 0.0f),
+		glm::vec2(0.9f, 0.0f),
+		glm::vec2(1.0f, 0.0f)
 	};
 
-	const std::vector<Vector2F> centersTexCoords = {
-		Vector2F(0.2f, 0.8f),
-		Vector2F(0.5f, 0.8f),
-		Vector2F(0.8f, 0.8f),
-		Vector2F(0.2f, 0.5f),
-		Vector2F(0.8f, 0.5f),
-		Vector2F(0.2f, 0.2f),
-		Vector2F(0.5f, 0.2f),
-		Vector2F(0.8f, 0.2f)
+	const std::vector<glm::vec2> centersTexCoords = {
+		glm::vec2(0.2f, 0.8f),
+		glm::vec2(0.5f, 0.8f),
+		glm::vec2(0.8f, 0.8f),
+		glm::vec2(0.2f, 0.5f),
+		glm::vec2(0.8f, 0.5f),
+		glm::vec2(0.2f, 0.2f),
+		glm::vec2(0.5f, 0.2f),
+		glm::vec2(0.8f, 0.2f)
 	};
 
 	for (auto center : centersTexCoords)
@@ -496,7 +494,7 @@ Model* Model::createPlaneWithHoles()
 			const auto u = 0.1f * cos(j * angle);
 			const auto v = 0.1f * sin(j * angle);
 
-			texCoords.push_back(center + Vector2F(u, v));
+			texCoords.push_back(center + glm::vec2(u, v));
 		}
 	}
 
@@ -641,8 +639,8 @@ Model* Model::createBowl()
 		return model;
 	}
 
-	std::vector<Vector3F> positions;
-	std::vector<Vector2F> texCoords;
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec2> texCoords;
 
 	const int segments = 20;
 
@@ -658,12 +656,12 @@ Model* Model::createBowl()
 			const auto y = sin(j * angle1) * sin(i * angle2);
 			const auto z = cos(i * angle2);
 
-			positions.emplace_back(Vector3F(x, y, z));
+			positions.emplace_back(glm::vec3(x, y, z));
 
 			const auto u = 1.0f / (segments * 2) * j;
 			const auto v = 1.0f / segments * i;
 
-			texCoords.emplace_back(Vector2F(u, v));
+			texCoords.emplace_back(glm::vec2(u, v));
 		}
 	}
 
@@ -737,58 +735,58 @@ Model * Model::createCube()
 		return model;
 	}
 
-	const std::vector<Vector3F> positions = {
-		Vector3F(1, 1, 1),
-		Vector3F(1, 1, -1),
-		Vector3F(-1, 1, -1),
-		Vector3F(-1, 1, 1),
-		Vector3F(1, -1, 1),
-		Vector3F(1, -1, -1),
-		Vector3F(-1, -1, -1),
-		Vector3F(-1, -1, 1),
-		Vector3F(1, 1, 1),
-		Vector3F(1, 1, -1),
-		Vector3F(1, -1, -1),
-		Vector3F(1, -1, 1),
-		Vector3F(-1, 1, 1),
-		Vector3F(-1, 1, -1),
-		Vector3F(-1, -1, -1),
-		Vector3F(-1, -1, 1),
-		Vector3F(1, 1, 1),
-		Vector3F(1, -1, 1),
-		Vector3F(-1, -1, 1),
-		Vector3F(-1, 1, 1),
-		Vector3F(1, 1, -1),
-		Vector3F(1, -1, -1),
-		Vector3F(-1, -1, -1),
-		Vector3F(-1, 1, -1)
+	const std::vector<glm::vec3> positions = {
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, 1, -1),
+		glm::vec3(-1, 1, -1),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(1, -1, -1),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, 1, -1),
+		glm::vec3(1, -1, -1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(-1, 1, -1),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(1, 1, 1),
+		glm::vec3(1, -1, 1),
+		glm::vec3(-1, -1, 1),
+		glm::vec3(-1, 1, 1),
+		glm::vec3(1, 1, -1),
+		glm::vec3(1, -1, -1),
+		glm::vec3(-1, -1, -1),
+		glm::vec3(-1, 1, -1)
 	};
 
-	const std::vector<Vector2F> texCoords = {
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1),
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1),
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1),
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1),
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1),
-		Vector2F(1, 1),
-		Vector2F(1, 0),
-		Vector2F(0, 0),
-		Vector2F(0, 1)
+	const std::vector<glm::vec2> texCoords = {
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1),
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1),
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1),
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1),
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1),
+		glm::vec2(1, 1),
+		glm::vec2(1, 0),
+		glm::vec2(0, 0),
+		glm::vec2(0, 1)
 	};
 
 	const std::vector<unsigned int> indices = {

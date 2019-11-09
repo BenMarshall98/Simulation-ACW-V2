@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Matrix4F.h"
-#include "Vector3F.h"
+#include "glm/glm.hpp"
 
 class Camera
 {
-	Matrix4F mViewMatrix;
-	Vector3F mUpDirection;
-	Vector3F mEyePosition;
-	Vector3F mTargetPosition;
+	glm::mat4 mViewMatrix;
+	glm::vec3 mUpDirection;
+	glm::vec3 mEyePosition;
+	glm::vec3 mTargetPosition;
 	float mAngleSpeed = 15.0f;
 	float mMovementSpeed = 5.0f;
 	bool mRotateLeft = false;
@@ -23,7 +22,7 @@ class Camera
 	void panForwardBackward(bool pForward = true);
 
 public:
-	Camera(Vector3F pEyePosition, Vector3F pUpDirection, Vector3F pTargetPosition);
+	Camera(glm::vec3 pEyePosition, glm::vec3 pUpDirection, glm::vec3 pTargetPosition);
 	~Camera() = default;
 
 	Camera(const Camera &) = delete;
@@ -63,7 +62,7 @@ public:
 
 	void update();
 
-	[[nodiscard]] Matrix4F getViewMatrix() const
+	glm::mat4 getViewMatrix() const
 	{
 		return mViewMatrix;
 	}

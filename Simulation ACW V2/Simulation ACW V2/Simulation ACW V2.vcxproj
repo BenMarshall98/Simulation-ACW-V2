@@ -138,14 +138,11 @@
     <ClCompile Include="HoldingCell.cpp" />
     <ClCompile Include="HoldingContainer.cpp" />
     <ClCompile Include="IdentityNode.cpp" />
-    <ClCompile Include="Matrix3F.cpp" />
-    <ClCompile Include="Matrix4F.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OctreeModel.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="PlaneHoles.cpp" />
-    <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="RigidBodyNode.cpp" />
     <ClCompile Include="RotationAnimation.cpp" />
@@ -158,8 +155,6 @@
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TranslationAnimation.cpp" />
     <ClCompile Include="TranslationNode.cpp" />
-    <ClCompile Include="Vector2F.cpp" />
-    <ClCompile Include="Vector3F.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bowl.h" />
@@ -175,14 +170,11 @@
     <ClInclude Include="HoldingCell.h" />
     <ClInclude Include="HoldingContainer.h" />
     <ClInclude Include="IdentityNode.h" />
-    <ClInclude Include="Matrix3F.h" />
-    <ClInclude Include="Matrix4F.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Octree.h" />
     <ClInclude Include="OctreeModel.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="PlaneHoles.h" />
-    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="RigidBodyNode.h" />
     <ClInclude Include="RotationAnimation.h" />
@@ -194,8 +186,6 @@
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TranslationAnimation.h" />
     <ClInclude Include="TranslationNode.h" />
-    <ClInclude Include="Vector2F.h" />
-    <ClInclude Include="Vector3F.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="octreeFragment.frag" />

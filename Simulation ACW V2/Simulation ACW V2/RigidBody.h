@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Vector3f.h"
 #include "Shader.h"
 #include "Model.h"
 #include "gl.h"
-#include "Matrix4f.h"
-#include "Matrix3F.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 
@@ -13,18 +10,18 @@ class SceneGraphNode;
 
 struct State
 {
-	Vector3F pos;
-	Vector3F vel;
-	Vector3F angVel;
+	glm::vec3 pos;
+	glm::vec3 vel;
+	glm::vec3 angVel;
 	glm::quat orientation;
 };
 
 struct Derivative
 {
-	Vector3F dVel;
-	Vector3F dAcc;
-	Vector3F dAngVel;
-	Vector3F dAngAcc;
+	glm::vec3 dVel;
+	glm::vec3 dAcc;
+	glm::vec3 dAngVel;
+	glm::vec3 dAngAcc;
 };
 
 enum class ObjectType
@@ -40,7 +37,7 @@ enum class ObjectType
 class RigidBody
 {
 public:
-	RigidBody(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity, ObjectType pType, Matrix3F pImpulseTensor);
+	RigidBody(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity, ObjectType pType,  glm::mat3 pImpulseTensor);
 	virtual ~RigidBody() = default;
 
 	RigidBody(const RigidBody &) = delete;
@@ -49,37 +46,37 @@ public:
 	RigidBody & operator= (RigidBody &&) = delete;
 
 	static Derivative evaluate(const State & initial, float time, float dt, const Derivative & derivative);
-	static Vector3F acceleration(const State& state, float time);
+	static glm::vec3 acceleration(const State& state, float time);
 	static void integrate(State & state, float time, float dt);
 	void calculatePhysics(float pDt, float pCurrentUpdateTime);
 	void update();
 	void updateRender();
-	void setPos(Vector3F pPos);
-	void setVel(Vector3F pVel);
-	void setAngularVel(Vector3F pAngularVel);
+	void setPos(glm::vec3 pPos);
+	void setVel(glm::vec3 pVel);
+	void setAngularVel(glm::vec3 pAngularVel);
 	void setOrientation(glm::quat pOrientation);
-	void setNewPos(Vector3F pPos);
-	void setNewVel(Vector3F pVel);
-	void setNewAngularVel(Vector3F pAngularVel);
+	void setNewPos(glm::vec3 pPos);
+	void setNewVel(glm::vec3 pVel);
+	void setNewAngularVel(glm::vec3 pAngularVel);
 	void setNewOrientation(glm::quat pOrientation);
 	void setMass(float pMass);
 	void setSceneGraphNode(SceneGraphNode * pParent);
 
-	Vector3F getPos() const;
-	Vector3F getRenderPos() const;
-	Vector3F getNewPos() const;
-	Vector3F getVel() const;
-	Vector3F getNewVel() const;
+	glm::vec3 getPos() const;
+	glm::vec3 getRenderPos() const;
+	glm::vec3 getNewPos() const;
+	glm::vec3 getVel() const;
+	glm::vec3 getNewVel() const;
 	glm::quat getOrientation() const;
 	glm::quat getRenderOrientation() const;
 	glm::quat getNewOrientation() const;
-	Vector3F getAngularVelocity() const;
-	Vector3F getNewAngularVelocity() const;
-	Vector3F getSize() const;
-	Matrix4F getMatrix() const;
-	Matrix4F getNewMatrix() const;
-	Matrix3F getInverseImpulseTenser() const;
-	Matrix3F getImpulseTenser() const;
+	glm::vec3 getAngularVelocity() const;
+	glm::vec3 getNewAngularVelocity() const;
+	glm::vec3 getSize() const;
+	glm::mat4 getMatrix() const;
+	glm::mat4 getNewMatrix() const;
+	glm::mat3 getInverseImpulseTenser() const;
+	glm::mat3 getImpulseTenser() const;
 	float getCurrentUpdateTime() const;
 
 	ObjectType getObjectType() const;
@@ -99,17 +96,17 @@ protected:
 	glm::quat mRotation;
 	glm::quat mRenderRotation;
 	glm::quat mNewRotation;
-	Matrix3F mImpulseTensor;
-	Matrix3F mInverseImpulseTensor;
+	glm::mat3 mImpulseTensor;
+	glm::mat3 mInverseImpulseTensor;
 
-	Vector3F mPos;
-	Vector3F mRenderPos;
-	Vector3F mNewPos;
-	Vector3F mVelocity;
-	Vector3F mNewVelocity;
-	Vector3F mSize;
-	Vector3F mAngularVelocity;
-	Vector3F mNewAngularVelocity;
+	glm::vec3 mPos;
+	glm::vec3 mRenderPos;
+	glm::vec3 mNewPos;
+	glm::vec3 mVelocity;
+	glm::vec3 mNewVelocity;
+	glm::vec3 mSize;
+	glm::vec3 mAngularVelocity;
+	glm::vec3 mNewAngularVelocity;
 
 	SceneGraphNode * mParent = nullptr;
 	float mMass;

@@ -10,7 +10,7 @@ RigidBodyNode::~RigidBodyNode()
 {
 }
 
-Matrix4F RigidBodyNode::updateNode(float pDt)
+glm::mat4 RigidBodyNode::updateNode(float pDt)
 {
-	return Matrix4F::createIdentity();
+	return glm::mat4(1.0f);
 }

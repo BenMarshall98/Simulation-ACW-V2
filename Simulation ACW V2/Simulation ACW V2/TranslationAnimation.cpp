@@ -1,6 +1,6 @@
 #include "TranslationAnimation.h"
 
-TranslationAnimation::TranslationAnimation(std::function<void(Vector3F&, float, bool)> pFunction, char pKey1, char pKey2) :
+TranslationAnimation::TranslationAnimation(std::function<void(glm::vec3&, float, bool)> pFunction, char pKey1, char pKey2) :
 	SceneGraphAnimation(pKey1, pKey2), mFunction(pFunction)
 {
 }
@@ -21,7 +21,7 @@ void TranslationAnimation::keyPressed(char pKey)
 	}
 }
 
-void TranslationAnimation::callFunction(Vector3F& pTranslation, float pDt)
+void TranslationAnimation::callFunction(glm::vec3& pTranslation, float pDt)
 {
 	mFunction(pTranslation, pDt, mDirection);
 }

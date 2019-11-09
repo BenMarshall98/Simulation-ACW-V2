@@ -8,13 +8,13 @@ class HoldingContainer
 {
 private:
 	Octree * mOctree;
-	Vector3F mLocation;
-	Vector3F mSize;
+	glm::vec3 mLocation;
+	glm::vec3 mSize;
 	int mOverflow;
 	std::vector<HoldingCell *> mHoldingCells;
 
 public:
-	HoldingContainer(Octree * pOctree, Vector3F pLocation, Vector3F pSize);
+	HoldingContainer(Octree * pOctree, glm::vec3 pLocation, glm::vec3 pSize);
 	~HoldingContainer();
 
 	void addRigidBody();

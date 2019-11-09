@@ -7,11 +7,11 @@ class HoldingCell
 {
 private:
 	std::vector<RigidBody *> mRigidBodies;
-	Vector3F mLocation;
-	Vector3F mSize;
+	glm::vec3 mLocation;
+	glm::vec3 mSize;
 
 public:
-	HoldingCell(Vector3F pLocation, Vector3F pSize);
+	HoldingCell(glm::vec3 pLocation, glm::vec3 pSize);
 	~HoldingCell();
 
 	void addRigidBody(RigidBody * pRigidBody);
@@ -23,7 +23,7 @@ public:
 		return mRigidBodies.size();
 	}
 
-	Vector3F getLocation()
+	glm::vec3 getLocation()
 	{
 		return mLocation;
 	}

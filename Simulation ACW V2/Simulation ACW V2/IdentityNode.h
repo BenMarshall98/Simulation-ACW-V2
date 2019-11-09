@@ -8,6 +8,6 @@ public:
 	IdentityNode();
 	~IdentityNode();
 
-	Matrix4F updateNode(float pDt) override;
+	glm::mat4 updateNode(float pDt) override;
 };
 

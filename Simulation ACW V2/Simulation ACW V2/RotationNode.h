@@ -6,12 +6,12 @@
 class RotationNode final : public SceneGraphNode
 {
 	RotationAnimation * mAnimation;
-	Vector3F mRotationAxis;
+	glm::vec3 mRotationAxis;
 	float mRotationAngle;
 
 public:
-	RotationNode(Vector3F pRotationAxis, float mRotationAngle, RotationAnimation * pAnimation = nullptr);
+	RotationNode(glm::vec3 pRotationAxis, float mRotationAngle, RotationAnimation * pAnimation = nullptr);
 	~RotationNode();
 
-	Matrix4F updateNode(float pDt) override;
+	glm::mat4 updateNode(float pDt) override;
 };

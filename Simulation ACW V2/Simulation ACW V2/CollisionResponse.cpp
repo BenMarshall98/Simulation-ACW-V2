@@ -135,7 +135,7 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	auto tempAngVel1 = pSphere1->getAngularVelocity().interpolate(pSphere1->getNewAngularVelocity(), changeTime1);
 	const auto tempOrr1 = slerp(pSphere1->getOrientation(), pSphere1->getNewOrientation(), changeTime1);
 	auto rot = toMat3(tempOrr1);
-	const auto tempOrrMat1 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat1 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 
@@ -146,7 +146,7 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	auto tempAngVel2 = pSphere2->getAngularVelocity().interpolate(pSphere2->getNewAngularVelocity(), changeTime2);
 	const auto tempOrr2 = slerp(pSphere2->getOrientation(), pSphere2->getNewOrientation(), changeTime2);
 	rot = toMat3(tempOrr1);
-	const auto tempOrrMat2 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat2 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 
@@ -203,7 +203,7 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
 	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 	
@@ -212,7 +212,7 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
-	const auto tempBowlVel = Vector3F(0.0f, 0.0f, 0.0f);
+	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
 	const auto tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
@@ -247,7 +247,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
 	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 	
@@ -262,7 +262,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	const auto newPlaneMat = pPlane->getNewMatrix();
 	const auto newCenter = pPlane->getPos() * newPlaneMat;
 
-	Vector3F tempPlaneVel;
+	glm::vec3 tempPlaneVel;
 	
 	if (changeTime > 0.0f)
 	{
@@ -270,7 +270,7 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	}
 	else
 	{
-		tempPlaneVel = Vector3F(0.0f, 0.0f, 0.0f);
+		tempPlaneVel = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
@@ -307,7 +307,7 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
 	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 	
@@ -357,7 +357,7 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	auto tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
 	const auto tempOrr1 = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime1);
 	auto rot = toMat3(tempOrr1);
-	const auto tempOrrMat1 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat1 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 
@@ -368,7 +368,7 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	auto tempAngVel2 = pCuboid->getAngularVelocity().interpolate(pCuboid->getNewAngularVelocity(), changeTime2);
 	const auto tempOrr2 = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), changeTime2);
 	rot = toMat3(tempOrr1);
-	const auto tempOrrMat2 = Matrix3F(rot[0][0], rot[0][1], rot[0][2],
+	const auto tempOrrMat2 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
 		rot[1][0], rot[1][1], rot[1][2],
 		rot[2][0], rot[2][1], rot[2][2]);
 	

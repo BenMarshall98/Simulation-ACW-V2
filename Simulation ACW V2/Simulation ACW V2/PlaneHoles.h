@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Vector2f.h"
-#include "Vector3f.h"
 #include "Shader.h"
 #include "RigidBody.h"
 
 class PlaneHoles : public RigidBody
 {
 public:
-	PlaneHoles(Vector3F pSize, float pMass, Vector3F pPos, Vector3F pAngularVelocity, Vector3F pVelocity);
+	PlaneHoles(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity);
 	~PlaneHoles();
 
 	PlaneHoles(const PlaneHoles &) = delete;

@@ -15,7 +15,7 @@ void SceneGraphNode::addChild(SceneGraphNode* pChild)
 	mChildren.push_back(pChild);
 }
 
-void SceneGraphNode::updateSceneGraph(float pDt, Matrix4F pWorldMatrix)
+void SceneGraphNode::updateSceneGraph(float pDt, glm::mat4 pWorldMatrix)
 {
 	mUpdateMatrix = pWorldMatrix * updateNode(pDt);
 
