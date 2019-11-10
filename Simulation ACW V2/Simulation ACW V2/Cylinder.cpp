@@ -2,7 +2,7 @@
 #include "gl.h"
 #include "SceneGraphNode.h"
 
-Cylinder::Cylinder(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity) :
+Cylinder::Cylinder(const glm::vec3 pSize, const float pMass, const glm::vec3 pPos, const glm::vec3 pAngularVelocity, const glm::vec3 pVelocity) :
 	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CYLINDER, glm::mat3())
 {
 }

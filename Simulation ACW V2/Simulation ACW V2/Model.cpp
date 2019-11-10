@@ -602,7 +602,7 @@ Model* Model::createPlaneWithHoles()
 		46, 45, 53, 54
 	};
 
-	int count = 1;
+	auto count = 1;
 
 	for (auto center : centerIndices)
 	{
@@ -642,7 +642,7 @@ Model* Model::createBowl()
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec2> texCoords;
 
-	const int segments = 20;
+	const auto segments = 20;
 
 	const auto maxAngle = acos(0.8f);
 	const auto angle1 = static_cast<float>(2 * M_PI) / segments;

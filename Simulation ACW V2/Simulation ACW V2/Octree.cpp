@@ -2,32 +2,33 @@
 #include "Game.h"
 #include <algorithm>
 #include <iostream>
+#include "GLFWWindow.h"
 
 //TODO: Change the size to reflect the actual size of the balls
 
-OctreeModel * Octree::model = nullptr;// new OctreeModel();
-Shader * Octree::shader = nullptr;// new Shader("octreeVertex.vert", "octreeFragment.frag");
+OctreeModel * Octree::mModel = nullptr;// new OctreeModel();
+Shader * Octree::mShader = nullptr;// new Shader("octreeVertex.vert", "octreeFragment.frag");
 
-Octree::Octree(glm::vec3 pCenter, glm::vec3 pSize, Octree * pParent) : center(pCenter), size(pSize), parent(pParent)
+Octree::Octree(const glm::vec3 pCenter, const glm::vec3 pSize, Octree * pParent) : parent(pParent), size(pSize), center(pCenter)
 {
-	if (!model)
+	if (!mModel)
 	{
-		model = new OctreeModel();
-		shader = new Shader("octreeVertex.vert", "octreeFragment.frag");
+		mModel = new OctreeModel();
+		mShader = new Shader("octreeVertex.vert", "octreeFragment.frag");
 	}
 }
 
 Octree::~Octree()
 {
-	for (int i = 0; i < neighbours.size(); i++)
+	for (auto& neighbour : neighbours)
 	{
-		neighbours[i]->DeleteNeighbour(this);
+		neighbour->deleteNeighbour(this);
 	}
 }
 
-bool Octree::AddRigidBody(RigidBody * rigidBody)
+bool Octree::addRigidBody(RigidBody * pRigidBody)
 {
-	glm::vec3 bodyPos = rigidBody->getPos();
+	const auto bodyPos = pRigidBody->getPos();
 
 	if (bodyPos.x < center.x - size.x ||
 		bodyPos.x > center.x + size.x ||
@@ -45,9 +46,9 @@ bool Octree::AddRigidBody(RigidBody * rigidBody)
 	{
 		if (children[0])
 		{
-			for (int i = 0; i < 8; i++)
+			for (auto& i : children)
 			{
-				if (children[i]->AddRigidBody(rigidBody))
+				if (i->addRigidBody(pRigidBody))
 				{
 					break;
 				}
@@ -55,7 +56,7 @@ bool Octree::AddRigidBody(RigidBody * rigidBody)
 		}
 		else
 		{
-			glm::vec3 childSize = size / 2.0f;
+			const auto childSize = size / 2.0f;
 			glm::vec3 centers[8] =
 			{
 				center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
@@ -69,57 +70,57 @@ bool Octree::AddRigidBody(RigidBody * rigidBody)
 			};
 
 
-			bool found = false;
-			for (int i = 0; i < 8; i++)
+			auto found = false;
+			for (auto i = 0; i < 8; i++)
 			{
 				children[i] = new Octree(centers[i], childSize, this);
-				if (!found && children[i]->AddRigidBody(rigidBody))
+				if (!found && children[i]->addRigidBody(pRigidBody))
 				{
 					found = true;
 				}
 			}
 
-			for (int i = 0; i < 8; i++)
+			for (auto& i : children)
 			{
-				children[i]->GetNeighbours();
+				i->getNeighbours();
 			}
 		}
 	}
 	else
 	{
-		rigidBodies.push_back(rigidBody);
+		rigidBodies.push_back(pRigidBody);
 	}
 	return true;
 }
 
-bool Octree::Render()
+bool Octree::render()
 {
-	bool render = false;
+	auto render = false;
 
-	if (rigidBodies.size() != 0)
+	if (!rigidBodies.empty())
 	{
 		render = true;
 	}
 
 	if (children[0])
 	{
-		for (int i = 0; i < 8; i++)
+		for (auto& i : children)
 		{
-			render |= children[i]->Render();
+			render |= i->render();
 		}
 	}
 
-	//if (render)
+	if (render)
 	{
-		shader->useShader();
+		mShader->useShader();
 
-		auto perspective = glm::perspective(45.0f, 600.0f / 600.0f, 0.1f, 1000.0f);
-		auto view = Game::camera->getViewMatrix();
+		auto perspective = glm::perspective(45.0f, static_cast<float>(GLFWWindow::instance()->getWidth()) / static_cast<float>(GLFWWindow::instance()->getHeight()), 0.1f, 1000.0f);
+		auto view = Game::mCamera->getViewMatrix();
 
-		auto perspectiveLocation = glGetUniformLocation(shader->getShaderId(), "perspective");
+		const auto perspectiveLocation = glGetUniformLocation(mShader->getShaderId(), "perspective");
 		glUniformMatrix4fv(perspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
 
-		auto viewLocation = glGetUniformLocation(shader->getShaderId(), "view");
+		const auto viewLocation = glGetUniformLocation(mShader->getShaderId(), "view");
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
 		const auto translation = translate(glm::mat4(1.0f), center);
@@ -127,20 +128,20 @@ bool Octree::Render()
 
 		auto modelMat = translation * scale;
 
-		const auto modelLocation = glGetUniformLocation(shader->getShaderId(), "model");
+		const auto modelLocation = glGetUniformLocation(mShader->getShaderId(), "model");
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
-		model->render();
+		mModel->render();
 	}
 
 	return render;
 }
 
-void Octree::UpdateTree()
+void Octree::updateTree()
 {
 	checked = false;
-	for (int i = 0; i < rigidBodies.size(); i++)
+	for (auto i = 0u; i < rigidBodies.size(); i++)
 	{
-		glm::vec3 bodyPos = rigidBodies[i]->getPos();
+		const auto bodyPos = rigidBodies[i]->getPos();
 
 		if (bodyPos.x < center.x - size.x ||
 			bodyPos.x > center.x + size.x ||
@@ -151,7 +152,7 @@ void Octree::UpdateTree()
 		{
 			if (parent)
 			{
-				parent->MoveBody(rigidBodies[i]);
+				parent->moveBody(rigidBodies[i]);
 				rigidBodies.erase(rigidBodies.begin() + i);
 				i--;
 			}
@@ -167,16 +168,16 @@ void Octree::UpdateTree()
 
 	if (children[0])
 	{
-		for (int i = 0; i < 8; i++)
+		for (auto& i : children)
 		{
-			children[i]->UpdateTree();
+			i->updateTree();
 		}
 
-		bool deleteChildren = true;
+		auto deleteChildren = true;
 
-		for (int i = 0; i < 8; i++)
+		for (auto& i : children)
 		{
-			if (children[i]->HasChildren() || children[i]->NumOfRigidBodies() > 0)
+			if (i->HasChildren() || i->NumOfRigidBodies() > 0)
 			{
 				deleteChildren = false;
 				break;
@@ -185,18 +186,18 @@ void Octree::UpdateTree()
 
 		if (deleteChildren)
 		{
-			for (int i = 0; i < 8; i++)
+			for (auto& i : children)
 			{
-				delete children[i];
-				children[i] = nullptr;
+				delete i;
+				i = nullptr;
 			}
 		}
 	}
 }
 
-void Octree::MoveBody(RigidBody * rigidBody)
+void Octree::moveBody(RigidBody * pRigidBody)
 {
-	glm::vec3 bodyPos = rigidBody->getPos();
+	const auto bodyPos = pRigidBody->getPos();
 
 	if (bodyPos.x < center.x - size.x ||
 		bodyPos.x > center.x + size.x ||
@@ -207,11 +208,11 @@ void Octree::MoveBody(RigidBody * rigidBody)
 	{
 		if (parent)
 		{
-			parent->MoveBody(rigidBody);
+			parent->moveBody(pRigidBody);
 		}
 		else
 		{
-			delete rigidBody;
+			delete pRigidBody;
 		}
 	}
 	else
@@ -222,9 +223,9 @@ void Octree::MoveBody(RigidBody * rigidBody)
 		{
 			if (children[0])
 			{
-				for (int i = 0; i < 8; i++)
+				for (auto& i : children)
 				{
-					if (children[i]->AddRigidBody(rigidBody))
+					if (i->addRigidBody(pRigidBody))
 					{
 						break;
 					}
@@ -232,7 +233,7 @@ void Octree::MoveBody(RigidBody * rigidBody)
 			}
 			else
 			{
-				glm::vec3 childSize = size / 2.0f;
+				const auto childSize = size / 2.0f;
 				glm::vec3 centers[8] =
 				{
 					center + glm::vec3(childSize.x * 1.0f, childSize.y * 1.0f, childSize.z * 1.0f),
@@ -246,55 +247,55 @@ void Octree::MoveBody(RigidBody * rigidBody)
 				};
 
 
-				bool found = false;
-				for (int i = 0; i < 8; i++)
+				auto found = false;
+				for (auto i = 0; i < 8; i++)
 				{
 					children[i] = new Octree(centers[i], childSize, this);
-					if (!found && children[i]->AddRigidBody(rigidBody))
+					if (!found && children[i]->addRigidBody(pRigidBody))
 					{
 						found = true;
 					}
 				}
 
-				for (int i = 0; i < 8; i++)
+				for (auto& i : children)
 				{
-					children[i]->GetNeighbours();
+					i->getNeighbours();
 				}
 			}
 		}
 		else
 		{
-			rigidBodies.push_back(rigidBody);
+			rigidBodies.push_back(pRigidBody);
 		}
 	}
 }
 
-void Octree::GetRigidBodies(std::vector<RigidBody*> & pRigidBodies)
+void Octree::getRigidBodies(std::vector<RigidBody*> & pRigidBodies)
 {
 	pRigidBodies.insert(pRigidBodies.end(), rigidBodies.begin(), rigidBodies.end());
 
 	if (children[0])
 	{
-		for (int i = 0; i < 8; i++)
+		for (auto& i : children)
 		{
-			children[i]->GetRigidBodies(pRigidBodies);
+			i->getRigidBodies(pRigidBodies);
 		}
 	}
 }
 
-void Octree::GetNeighbours()
+void Octree::getNeighbours()
 {
-	Octree * grandParent = parent;
+	auto grandParent = parent;
 
 	while (grandParent->parent)
 	{
 		grandParent = grandParent->parent;
 	}
 
-	grandParent->FindNeighbour(center, size, neighbours, this);
+	grandParent->findNeighbour(center, size, neighbours, this);
 }
 
-void Octree::FindNeighbour(glm::vec3 pCenter, glm::vec3 pSize, std::vector<Octree*>& pNeighbours, Octree* pNeighbour)
+void Octree::findNeighbour(const glm::vec3 pCenter, const glm::vec3 pSize, std::vector<Octree*>& pNeighbours, Octree* pNeighbour)
 {
 	if (this == pNeighbour)
 	{
@@ -303,9 +304,9 @@ void Octree::FindNeighbour(glm::vec3 pCenter, glm::vec3 pSize, std::vector<Octre
 
 	if (size.x > pSize.x)
 	{
-		for (int i = 0; i < 8 && children[i]; i++)
+		for (auto i = 0; i < 8 && children[i]; i++)
 		{
-			children[i]->FindNeighbour(pCenter, pSize, pNeighbours, pNeighbour);
+			children[i]->findNeighbour(pCenter, pSize, pNeighbours, pNeighbour);
 		}
 	}
 	else if (size.x == pSize.x)
@@ -349,9 +350,9 @@ void Octree::FindNeighbour(glm::vec3 pCenter, glm::vec3 pSize, std::vector<Octre
 	}
 }
 
-void Octree::DeleteNeighbour(Octree* neighbour)
+void Octree::deleteNeighbour(Octree* pNeighbour)
 {
-	auto i = std::find(neighbours.begin(), neighbours.end(), neighbour);
+	const auto i = std::find(neighbours.begin(), neighbours.end(), pNeighbour);
 
 	if (i != neighbours.end())
 	{
@@ -360,23 +361,23 @@ void Octree::DeleteNeighbour(Octree* neighbour)
 }
 
 
-void Octree::GetPossibleCollisions(std::vector<PossibleCollision>& pPossibleCollisions)
+void Octree::getPossibleCollisions(std::vector<PossibleCollision>& pPossibleCollisions)
 {
-	if (rigidBodies.size() == 0)
+	if (rigidBodies.empty())
 	{
 		if (children[0])
 		{
-			for (int i = 0; i < 8; i++)
+			for (auto& i : children)
 			{
-				children[i]->GetPossibleCollisions(pPossibleCollisions);
+				i->getPossibleCollisions(pPossibleCollisions);
 			}
 		}
 	}
 	else
 	{
-		for (int i = 0; i < rigidBodies.size(); i++)
+		for (auto i = 0u; i < rigidBodies.size(); i++)
 		{
-			for (int j = i + 1; j < rigidBodies.size(); j++)
+			for (auto j = i + 1u; j < rigidBodies.size(); j++)
 			{
 				pPossibleCollisions.emplace_back(PossibleCollision{ rigidBodies[i], rigidBodies[j] });
 			}
@@ -384,15 +385,15 @@ void Octree::GetPossibleCollisions(std::vector<PossibleCollision>& pPossibleColl
 
 		checked = true;
 
-		for (int i = 0; i < rigidBodies.size(); i++)
+		for (auto& rigidBody : rigidBodies)
 		{
-			for (int j = 0; j < neighbours.size(); j++)
+			for (auto& neighbour : neighbours)
 			{
-				if (!neighbours[j]->checked)
+				if (!neighbour->checked)
 				{
-					for (int k = 0; k < neighbours[j]->rigidBodies.size(); k++)
+					for (auto& neighbourRigidBody : neighbour->rigidBodies)
 					{
-						pPossibleCollisions.emplace_back(PossibleCollision{ rigidBodies[i], neighbours[j]->rigidBodies[k] });
+						pPossibleCollisions.emplace_back(PossibleCollision{rigidBody, neighbourRigidBody});
 					}
 				}
 			}

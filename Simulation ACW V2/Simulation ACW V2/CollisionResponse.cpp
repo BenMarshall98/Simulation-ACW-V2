@@ -245,10 +245,10 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	}
 
 	const auto planeMat = pPlane->getMatrix();
-	const auto center = pPlane->getPos() * glm::mat3(planeMat);
+	const auto center = glm::vec3(planeMat * glm::vec4(pPlane->getPos(), 1.0f));
 
 	const auto newPlaneMat = pPlane->getNewMatrix();
-	const auto newCenter = pPlane->getPos() * glm::mat3(newPlaneMat);
+	const auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlane->getPos(), 1.0f));
 
 	glm::vec3 tempPlaneVel;
 	
@@ -302,10 +302,10 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	}
 
 	const auto planeMat = pPlaneHoles->getMatrix();
-	const auto center = pPlaneHoles->getPos() * glm::mat3(planeMat);
+	const auto center = glm::vec3(planeMat * glm::vec4(pPlaneHoles->getPos(), 1.0f));
 
 	const auto newPlaneMat = pPlaneHoles->getNewMatrix();
-	const auto newCenter = pPlaneHoles->getPos() * glm::mat3(newPlaneMat);
+	const auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlaneHoles->getPos(), 1.0f));
 
 	const auto tempPlaneVel = (newCenter - center) / changeTime;
 

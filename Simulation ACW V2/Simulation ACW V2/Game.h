@@ -11,21 +11,21 @@
 
 class Game
 {
-	std::mutex m;
-	std::condition_variable cv;
-	bool ready = false;
-	bool processed = false;
-	bool end = false;
+	std::mutex mMutex;
+	std::condition_variable mCv;
+	bool mReady = false;
+	bool mProcessed = false;
+	bool mEnd = false;
 
 	std::multimap<RigidBody *, RigidBody *> mPossibleRigidBodyCollisions;
 	Shader * mPlaneShader;
 	Shader * mSphereShader;
-	IdentityNode * sceneGraph;
+	IdentityNode * mSceneGraph;
 	HoldingContainer * mHoldingContainer;
-	std::vector<RigidBody *> octreeBody;
-	std::vector<RigidBody *> sceneBody;
+	std::vector<RigidBody *> mOctreeBody;
+	std::vector<RigidBody *> mSceneBody;
 	std::vector<PossibleCollision> mPossibleCollisions;
-	Octree * octree;
+	Octree * mOctree;
 	ContactManifold * mManifold;
 	
 	static bool mReset;
@@ -49,7 +49,7 @@ class Game
 	void swap();
 
 public:
-	static Camera * camera;
+	static Camera * mCamera;
 	
 	Game();
 	~Game();
@@ -76,7 +76,7 @@ public:
 		mReset = true;
 	}
 
-	static void changeTimeScale(bool pDirection)
+	static void changeTimeScale(const bool pDirection)
 	{
 		if (pDirection)
 		{
@@ -92,7 +92,7 @@ public:
 		}
 	}
 
-	static void changeFriction(bool pDirection)
+	static void changeFriction(const bool pDirection)
 	{
 		if (pDirection)
 		{
@@ -108,7 +108,7 @@ public:
 		}
 	}
 
-	static void changeSphereElasticty(bool pDirection)
+	static void changeSphereElasticty(const bool pDirection)
 	{
 		if (pDirection && mSphereElasticity < 1.0f)
 		{
@@ -120,7 +120,7 @@ public:
 		}
 	}
 
-	static void changeSphereSize(bool pDirection)
+	static void changeSphereSize(const bool pDirection)
 	{
 		if (pDirection)
 		{

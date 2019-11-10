@@ -11,14 +11,14 @@ GLFWWindow::GLFWWindow()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(mWidth, mHeight, "Simulation ACW", nullptr, nullptr);
+	mWindow = glfwCreateWindow(mWidth, mHeight, "Simulation ACW", nullptr, nullptr);
 
-	if (window == nullptr)
+	if (mWindow == nullptr)
 	{
 		glfwTerminate();
 	}
 
-	glfwMakeContextCurrent(window);
+	glfwMakeContextCurrent(mWindow);
 	glfwSwapInterval(1);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -42,121 +42,121 @@ GLFWWindow * GLFWWindow::instance()
 
 bool GLFWWindow::windowEvents()
 {
-	glfwSwapBuffers(window);
+	glfwSwapBuffers(mWindow);
 	glfwPollEvents();
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		Game::camera->panForward(true);
+		Game::mCamera->panForward(true);
 	}
 	else
 	{
-		Game::camera->panForward(false);
+		Game::mCamera->panForward(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		Game::camera->panBackward(true);
+		Game::mCamera->panBackward(true);
 	}
 	else
 	{
-		Game::camera->panBackward(false);
+		Game::mCamera->panBackward(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		Game::camera->rotateUp(true);
+		Game::mCamera->rotateUp(true);
 	}
 	else
 	{
-		Game::camera->rotateUp(false);
+		Game::mCamera->rotateUp(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		Game::camera->rotateDown(true);
+		Game::mCamera->rotateDown(true);
 	}
 	else
 	{
-		Game::camera->rotateDown(false);
+		Game::mCamera->rotateDown(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		Game::camera->rotateLeft(true);
+		Game::mCamera->rotateLeft(true);
 	}
 	else
 	{
-		Game::camera->rotateLeft(false);
+		Game::mCamera->rotateLeft(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		Game::camera->rotateRight(true);
+		Game::mCamera->rotateRight(true);
 	}
 	else
 	{
-		Game::camera->rotateRight(false);
+		Game::mCamera->rotateRight(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_P) == GLFW_PRESS)
 	{
 		Game::setPause();
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_R) == GLFW_PRESS)
 	{
 		Game::setReset();
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_U) == GLFW_PRESS)
 	{
 		Game::changeTimeScale(true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_J) == GLFW_PRESS)
 	{
 		Game::changeTimeScale(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_I) == GLFW_PRESS)
 	{
 		Game::changeFriction(true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_K) == GLFW_PRESS)
 	{
 		Game::changeFriction(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_O) == GLFW_PRESS)
 	{
 		Game::changeSphereElasticty(true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_L) == GLFW_PRESS)
 	{
 		Game::changeSphereElasticty(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_Y) == GLFW_PRESS)
 	{
 		Game::changeSphereSize(true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_H) == GLFW_PRESS)
 	{
 		Game::changeSphereSize(false);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+	if (glfwGetKey(mWindow, GLFW_KEY_1) == GLFW_PRESS)
 	{
 		Game::addSphere();
 	}
 
-	for (auto it = keyListener.begin(); it != keyListener.end(); ++it)
+	for (auto it = mKeyListener.begin(); it != mKeyListener.end(); ++it)
 	{
-		if (glfwGetKey(window, it->first) == GLFW_PRESS)
+		if (glfwGetKey(mWindow, it->first) == GLFW_PRESS)
 		{
 			it->second->keyPressed(it->first);
 		}
@@ -164,7 +164,7 @@ bool GLFWWindow::windowEvents()
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	return !glfwWindowShouldClose(window);
+	return !glfwWindowShouldClose(mWindow);
 }
 
 GLFWWindow::~GLFWWindow()

@@ -35,7 +35,7 @@ HoldingContainer::~HoldingContainer()
 
 void HoldingContainer::addRigidBody()
 {
-	for (int i = 0; i < mHoldingCells.size(); i++)
+	for (auto i = 0u; i < mHoldingCells.size(); i++)
 	{
 		if (mHoldingCells[i]->getNumberRigidBody() == 0)
 		{
@@ -45,7 +45,7 @@ void HoldingContainer::addRigidBody()
 				glm::vec3(0, 1, 1), velocity);
 
 			mHoldingCells[i]->addRigidBody(sphere);
-			mOctree->AddRigidBody(sphere);
+			mOctree->addRigidBody(sphere);
 			return;
 		}
 	}
@@ -96,7 +96,7 @@ void HoldingContainer::update()
 					glm::vec3(0, 1, 1), velocity);
 
 				holdingCell->addRigidBody(sphere);
-				mOctree->AddRigidBody(sphere);
+				mOctree->addRigidBody(sphere);
 
 				mOverflow--;
 				i--;

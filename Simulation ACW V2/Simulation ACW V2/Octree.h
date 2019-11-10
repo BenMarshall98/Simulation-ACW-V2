@@ -13,8 +13,8 @@ struct PossibleCollision
 
 class Octree
 {
-	static OctreeModel * model;
-	static Shader * shader;
+	static OctreeModel * mModel;
+	static Shader * mShader;
 	Octree * children[8];
 	std::vector<RigidBody *> rigidBodies;
 	std::vector<Octree *> neighbours;
@@ -28,11 +28,11 @@ public:
 	Octree(glm::vec3 pCenter, glm::vec3 pSize, Octree * pParent = nullptr);
 	~Octree();
 
-	bool AddRigidBody(RigidBody * rigidBody);
-	bool Render();
-	void UpdateTree();
-	void MoveBody(RigidBody * rigidBody);
-	void GetRigidBodies(std::vector<RigidBody *> & pRigidBodies);
+	bool addRigidBody(RigidBody * pRigidBody);
+	bool render();
+	void updateTree();
+	void moveBody(RigidBody * pRigidBody);
+	void getRigidBodies(std::vector<RigidBody *> & pRigidBodies);
 
 	int NumOfRigidBodies()
 	{
@@ -44,9 +44,9 @@ public:
 		return children[0];
 	}
 
-	void GetNeighbours();
-	void DeleteNeighbour(Octree * neighbour);
-	void FindNeighbour(glm::vec3 center, glm::vec3 size, std::vector<Octree *> & neighbours, Octree * neighbour);
-	void GetPossibleCollisions(std::vector<PossibleCollision> & pPossibleCollisions);
+	void getNeighbours();
+	void deleteNeighbour(Octree * pNeighbour);
+	void findNeighbour(glm::vec3 pCenter, glm::vec3 pSize, std::vector<Octree *> & pNeighbours, Octree * pNeighbour);
+	void getPossibleCollisions(std::vector<PossibleCollision> & pPossibleCollisions);
 };
 

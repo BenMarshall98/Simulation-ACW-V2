@@ -158,8 +158,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 
 	const auto bowlMat = pBowl->getMatrix();
 
-	const auto center = glm::vec3(glm::vec4(pBowl->getPos(), 0.0f) * bowlMat);
-
+	const auto center = glm::vec3(bowlMat * glm::vec4(pBowl->getPos(), 1.0f));
 	const auto relCenter = spherePos - center;
 
 	const auto velSphere = pSphere->getNewPos() - spherePos;
@@ -238,20 +237,20 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 	auto planeMat = pPlane->getMatrix();
 
-	auto center = glm::vec3(glm::vec4(0, 0, 0, 0.0f) * planeMat);
-	auto normal = glm::vec3(glm::vec4(0, 1, 0, 0.0f) * planeMat);
-	auto tangent = glm::vec3(glm::vec4(1, 0, 0, 0.0f) * planeMat);
-	auto biTangent = glm::vec3(glm::vec4(0, 0, 1, 0.0f) * planeMat);
+	auto center = glm::vec3(planeMat * glm::vec4(0, 0, 0, 1.0f));
+	auto normal = glm::vec3(planeMat * glm::vec4(0, 1, 0, 1.0f));
+	auto tangent = glm::vec3(planeMat * glm::vec4(1, 0, 0, 1.0f));
+	auto biTangent = glm::vec3(planeMat * glm::vec4(0, 0, 1, 1.0f));
 
 	normal = normalize(normal - center);
 	tangent = normalize(tangent - center);
 	biTangent = normalize(biTangent - center);
 
-	center = glm::vec3(glm::vec4(pPlane->getPos(), 0.0f) * planeMat);
+	center = glm::vec3(planeMat * glm::vec4(pPlane->getPos(), 1.0f));
 
 	auto newPlaneMat = pPlane->getNewMatrix();
 
-	auto newCenter = glm::vec3(glm::vec4(pPlane->getPos(), 1.0f) * newPlaneMat);
+	auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlane->getPos(), 1.0f));
 
 	auto planeVelocity = newCenter - center;
 
@@ -486,20 +485,20 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 	auto planeMat = pPlaneHoles->getMatrix();
 
-	auto center = glm::vec3(glm::vec4(0, 0, 0, 0.0f) * planeMat);
-	auto normal = glm::vec3(glm::vec4(0, 1, 0, 0.0f) * planeMat);
-	auto tangent = glm::vec3(glm::vec4(1, 0, 0, 0.0f) * planeMat);
-	auto bitangent = glm::vec3(glm::vec4(0, 0, 1, 0.0f) * planeMat);
+	auto center = glm::vec3(planeMat * glm::vec4(0, 0, 0, 1.0f));
+	auto normal = glm::vec3(planeMat * glm::vec4(0, 1, 0, 1.0f));
+	auto tangent = glm::vec3(planeMat * glm::vec4(1, 0, 0, 1.0f));
+	auto bitangent = glm::vec3(planeMat * glm::vec4(0, 0, 1, 1.0f));
 
 	normal = normalize(normal - center);
 	tangent = normalize(tangent - center);
 	bitangent = normalize(bitangent - center);
 
-	center = glm::vec3(glm::vec4(pPlaneHoles->getPos(), 0.0f) * planeMat);
+	center = glm::vec3(planeMat * glm::vec4(pPlaneHoles->getPos(), 1.0f));
 
 	auto newPlaneMat = pPlaneHoles->getNewMatrix();
 
-	auto newCenter = glm::vec3(glm::vec4(pPlaneHoles->getPos(), 0.0f) * newPlaneMat);
+	auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlaneHoles->getPos(), 1.0f));
 
 	auto planeVelocity = newCenter - center;
 
@@ -1032,7 +1031,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, glm::vec
 	return true;
 }
 
-void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * pCuboid, ContactManifold * pManifold, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * pCuboid, ContactManifold *, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -1068,9 +1067,9 @@ void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * 
 
 	const auto rotation = toMat4(cuboidOrientation);
 
-	const auto cuboidXAxis = glm::vec3(glm::vec4(1, 0, 0, 0.0f) * rotation);
-	const auto cuboidYAxis = glm::vec3(glm::vec4(0, 1, 0, 0.0f) * rotation);
-	const auto cuboidZAxis = glm::vec3(glm::vec4(0, 0, 1, 0.0f) * rotation);
+	const auto cuboidXAxis = glm::vec3(rotation * glm::vec4(1, 0, 0, 1.0f));
+	const auto cuboidYAxis = glm::vec3(rotation * glm::vec4(0, 1, 0, 1.0f));
+	const auto cuboidZAxis = glm::vec3(rotation * glm::vec4(0, 0, 1, 1.0f));
 
 	glm::vec3 closestPoint;
 	if (detectCollisionSphereCuboidStep(spherePos, sphereRadius, cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint))

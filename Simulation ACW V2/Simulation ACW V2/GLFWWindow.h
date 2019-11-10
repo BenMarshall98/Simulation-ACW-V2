@@ -1,6 +1,5 @@
 #pragma once
 #include "gl.h"
-#define NOMINMAX
 #include "GLFW/glfw3.h"
 #include <map>
 #include "SceneGraphAnimation.h"
@@ -9,8 +8,8 @@ class GLFWWindow
 {
 	static GLFWWindow * mInstance;
 
-	std::map<char, SceneGraphAnimation *> keyListener;
-	GLFWwindow * window;
+	std::map<char, SceneGraphAnimation *> mKeyListener;
+	GLFWwindow * mWindow;
 
 	int mWidth = 800;
 	int mHeight = 600;
@@ -22,18 +21,18 @@ public:
 
 	static GLFWWindow * instance();
 
-	void addKeyListener(char pKey, SceneGraphAnimation * pAnimation)
+	void addKeyListener(const char pKey, SceneGraphAnimation * pAnimation)
 	{
-		keyListener[pKey] = pAnimation;
+		mKeyListener[pKey] = pAnimation;
 	}
 
-	void removeKeyListener(char pKey)
+	void removeKeyListener(const char pKey)
 	{
-		auto it = keyListener.find(pKey);
+		auto it = mKeyListener.find(pKey);
 
-		if (it != keyListener.end())
+		if (it != mKeyListener.end())
 		{
-			keyListener.erase(it);
+			mKeyListener.erase(it);
 		}
 	}
 

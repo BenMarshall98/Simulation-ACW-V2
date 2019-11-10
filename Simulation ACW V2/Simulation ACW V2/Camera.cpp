@@ -40,7 +40,7 @@ void Camera::rotateUpDown(const bool pUp)
 	const auto leftRightMat = rotate(glm::mat4(1.0f), glm::radians(angleChange), xAxis);
 
 	mTargetPosition = mEyePosition + glm::vec3(leftRightMat * glm::vec4(zAxis, 0.0f));
-	mUpDirection = glm::vec3(glm::vec4(mUpDirection, 0.0f) * leftRightMat);
+	mUpDirection = glm::vec3(leftRightMat * glm::vec4(mUpDirection, 0.0f));
 }
 
 void Camera::panForwardBackward(const bool pForward)

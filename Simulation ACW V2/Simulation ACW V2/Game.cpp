@@ -25,21 +25,21 @@ bool Game::mReset = false;
 bool Game::mPause = false;
 bool Game::mAddSphere = false;
 
-Camera * Game::camera = new Camera(glm::vec3(0, 25, 50), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
+Camera * Game::mCamera = new Camera(glm::vec3(0, 25, 50), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
 
 Game::Game()
 {
 	mSphereShader = new Shader("sphereVertex.vert", "sphereFragment.frag");
 	mPlaneShader = new Shader("planeVertex.vert", "planeFragment.frag");
 
-	octree = new Octree(glm::vec3(0, 0, 0), glm::vec3(25, 25, 25));
-	mHoldingContainer = new HoldingContainer(octree, glm::vec3(0, 18, 0), glm::vec3(2, 2, 2));
+	mOctree = new Octree(glm::vec3(0, 0, 0), glm::vec3(25, 25, 25));
+	mHoldingContainer = new HoldingContainer(mOctree, glm::vec3(0, 18, 0), glm::vec3(2, 2, 2));
 	mManifold = new ContactManifold();
 	
-	sceneGraph = new IdentityNode();
+	mSceneGraph = new IdentityNode();
 
 	auto planeHolesTranslation = new TranslationNode(glm::vec3(0, -2, 0));
-	sceneGraph->addChild(planeHolesTranslation);
+	mSceneGraph->addChild(planeHolesTranslation);
 
 	const auto planeHolesAnimation = new TranslationAnimation(
 		[](glm::vec3& pVector, const float pDt, const bool pDirection)
@@ -75,10 +75,10 @@ Game::Game()
 	const auto planeHoles = new PlaneHoles(glm::vec3(1, 1, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
 	const auto planeHolesNode = new RigidBodyNode(planeHoles);
 	planeHolesTranslationWithAnimation->addChild(planeHolesNode);
-	sceneBody.push_back(planeHoles);
+	mSceneBody.push_back(planeHoles);
 
 	const auto propellerAnimation = new RotationAnimation(
-		[](glm::vec3& pRotationAxis, float & pRotationAngle, float pDt, float pAngleChange)
+		[](glm::vec3&, float & pRotationAngle, const float pDt, const float pAngleChange)
 	{
 		pRotationAngle += pDt * pAngleChange;
 	}
@@ -97,7 +97,7 @@ Game::Game()
 	const auto propellerCentreNode = new RigidBodyNode(cylinder);
 
 	propellerCentreTranslation->addChild(propellerCentreNode);
-	sceneBody.push_back(cylinder);
+	mSceneBody.push_back(cylinder);
 
 	auto propellerBladeTranslation = new TranslationNode(glm::vec3(0, 6, 0));
 
@@ -120,7 +120,7 @@ Game::Game()
 	const auto propellerBlade1Node = new RigidBodyNode(cylinder);
 
 	propellerBlade1Translation->addChild(propellerBlade1Node);
-	sceneBody.push_back(cylinder);
+	mSceneBody.push_back(cylinder);
 
 	auto propellerBlade2Rotation = new RotationNode(glm::vec3(0, 0, 1), 120);
 
@@ -135,7 +135,7 @@ Game::Game()
 	const auto propellerBlade2Node = new RigidBodyNode(cylinder);
 
 	propellerBlade2Translation->addChild(propellerBlade2Node);
-	sceneBody.push_back(cylinder);
+	mSceneBody.push_back(cylinder);
 
 	auto propellerBlade3Rotation = new RotationNode(glm::vec3(0, 0, 1), 240);
 
@@ -150,18 +150,18 @@ Game::Game()
 	const auto propellerBlade3Node = new RigidBodyNode(cylinder);
 
 	propellerBlade3Translation->addChild(propellerBlade3Node);
-	sceneBody.push_back(cylinder);
+	mSceneBody.push_back(cylinder);
 
 	auto planeTranslation = new TranslationNode(glm::vec3(0, -8, 0));
 
-	sceneGraph->addChild(planeTranslation);
+	mSceneGraph->addChild(planeTranslation);
 
 	const auto planeAnimation = new TranslationAnimation(
-		[](glm::vec3&pVector, float pDt, bool pDirection)
+		[](glm::vec3&pVector, const float pDt, const bool pDirection)
 	{
 		if (!pDirection)
 		{
-			float newX = pVector.x + pDt;
+			auto newX = pVector.x + pDt;
 
 			if (newX > 15.0f)
 			{
@@ -172,7 +172,7 @@ Game::Game()
 		}
 		else
 		{
-			float newX = pVector.x - pDt;
+			auto newX = pVector.x - pDt;
 
 			if (newX < 0.0f)
 			{
@@ -193,11 +193,11 @@ Game::Game()
 	const auto planeNode = new RigidBodyNode(plane);
 
 	planeTranslationWithAnimation->addChild(planeNode);
-	sceneBody.push_back(plane);
+	mSceneBody.push_back(plane);
 
 	auto leftPlaneTranslation = new TranslationNode(glm::vec3(-5, 0, 0));
 
-	sceneGraph->addChild(leftPlaneTranslation);
+	mSceneGraph->addChild(leftPlaneTranslation);
 
 	auto leftPlaneRotation = new RotationNode(glm::vec3(0, 0, 1), 90);
 
@@ -208,11 +208,11 @@ Game::Game()
 	const auto leftPlaneNode = new RigidBodyNode(plane);
 
 	leftPlaneRotation->addChild(leftPlaneNode);
-	sceneBody.push_back(plane);
+	mSceneBody.push_back(plane);
 
 	auto rightPlaneTranslation = new TranslationNode(glm::vec3(5, 0, 0));
 
-	sceneGraph->addChild(rightPlaneTranslation);
+	mSceneGraph->addChild(rightPlaneTranslation);
 
 	auto rightPlaneRotation = new RotationNode(glm::vec3(0, 0, 1), -90);
 
@@ -223,11 +223,11 @@ Game::Game()
 	const auto rightPlaneNode = new RigidBodyNode(plane);
 
 	rightPlaneRotation->addChild(rightPlaneNode);
-	sceneBody.push_back(plane);
+	mSceneBody.push_back(plane);
 
 	auto frontPlaneTranslation = new TranslationNode(glm::vec3(0, 0, 5));
 
-	sceneGraph->addChild(frontPlaneTranslation);
+	mSceneGraph->addChild(frontPlaneTranslation);
 
 	auto frontPlaneRotation = new RotationNode(glm::vec3(1, 0, 0), 90);
 
@@ -239,11 +239,11 @@ Game::Game()
 
 	frontPlaneRotation->addChild(frontPlaneNode);
 
-	sceneBody.push_back(plane);
+	mSceneBody.push_back(plane);
 
 	auto backPlaneTranslation = new TranslationNode(glm::vec3(0, 0, -5));
 
-	sceneGraph->addChild(backPlaneTranslation);
+	mSceneGraph->addChild(backPlaneTranslation);
 
 	auto backPlaneRotation = new RotationNode(glm::vec3(1, 0, 0), -90);
 
@@ -255,11 +255,11 @@ Game::Game()
 
 	backPlaneRotation->addChild(backPlaneNode);
 
-	sceneBody.push_back(plane);
+	mSceneBody.push_back(plane);
 
 	auto bowlTranslation = new TranslationNode(glm::vec3(0, 10, 0));
 
-	sceneGraph->addChild(bowlTranslation);
+	mSceneGraph->addChild(bowlTranslation);
 
 	auto bowlRotation = new RotationNode(glm::vec3(1, 0, 0), 90);
 
@@ -271,7 +271,7 @@ Game::Game()
 
 	bowlRotation->addChild(bowlNode);
 
-	sceneBody.push_back(bowl);
+	mSceneBody.push_back(bowl);
 }
 
 Game::~Game()
@@ -299,18 +299,18 @@ void Game::run()
 		if (!mPause)
 		{
 			{
-				std::lock_guard<std::mutex> lock(m);
-				ready = true;
-				processed = false;
+				std::lock_guard<std::mutex> lock(mMutex);
+				mReady = true;
+				mProcessed = false;
 			}
 
-			cv.notify_one();
+			mCv.notify_one();
 
 			render();
 
 			{
-				std::unique_lock<std::mutex> lock(m);
-				cv.wait(lock, [this] {return processed; });
+				std::unique_lock<std::mutex> lock(mMutex);
+				mCv.wait(lock, [this] {return mProcessed; });
 			}
 		}
 		else
@@ -327,35 +327,35 @@ void Game::run()
 	}
 
 	{
-		std::lock_guard<std::mutex>lock(m);
-		ready = true;
-		end = true;
+		std::lock_guard<std::mutex>lock(mMutex);
+		mReady = true;
+		mEnd = true;
 	}
 
-	cv.notify_one();
+	mCv.notify_one();
 
 	updateThread.join();
 }
 
 void Game::swap()
 {
-	octreeBody.clear();
-	octreeBody.shrink_to_fit();
+	mOctreeBody.clear();
+	mOctreeBody.shrink_to_fit();
 	mHoldingContainer->update();
-	octree->UpdateTree();
-	octree->GetRigidBodies(octreeBody);
+	mOctree->updateTree();
+	mOctree->getRigidBodies(mOctreeBody);
 	updateObjectRender();
-	sceneGraph->swap();
+	mSceneGraph->swap();
 }
 
 void Game::update()
 {
 	while(true)
 	{
-		std::unique_lock<std::mutex> lock(m);
-		cv.wait(lock, [this] {return ready; });
+		std::unique_lock<std::mutex> lock(mMutex);
+		mCv.wait(lock, [this] {return mReady; });
 
-		if (end)
+		if (mEnd)
 		{
 			lock.unlock();
 			return;
@@ -363,10 +363,10 @@ void Game::update()
 
 		simulationLoop();
 
-		processed = true;
-		ready = false;
+		mProcessed = true;
+		mReady = false;
 		lock.unlock();
-		cv.notify_one();
+		mCv.notify_one();
 	}
 }
 
@@ -379,7 +379,7 @@ void Game::simulationLoop()
 	mManifold->clear();
 	mPossibleCollisions.clear();
 	mPossibleCollisions.shrink_to_fit();
-	octree->GetPossibleCollisions(mPossibleCollisions);
+	mOctree->getPossibleCollisions(mPossibleCollisions);
 	mPossibleRigidBodyCollisions.clear();
 
 	for (auto& possibleCollision : mPossibleCollisions)
@@ -407,9 +407,9 @@ void Game::simulationLoop()
 
 void Game::calculateObjectPhysics() const
 {
-	sceneGraph->updateSceneGraph(getUpdateDt(), glm::mat4(1.0f));
+	mSceneGraph->updateSceneGraph(getUpdateDt(), glm::mat4(1.0f));
 
-	for (auto octreeRigidBody : octreeBody)
+	for (auto octreeRigidBody : mOctreeBody)
 	{
 		octreeRigidBody->calculatePhysics(getUpdateDt(), 0.0f);
 	}
@@ -418,9 +418,9 @@ void Game::calculateObjectPhysics() const
 void Game::dynamicCollisionDetection() const
 {
 	OutputDebugString((std::to_string(mPossibleCollisions.size()) + "\n").c_str());
-	for (auto sceneRigidBody : sceneBody)
+	for (auto sceneRigidBody : mSceneBody)
 	{
-		for (auto octreeRigidBody : octreeBody)
+		for (auto octreeRigidBody : mOctreeBody)
 		{
 			CollisionDetection::dynamicCollisionDetection(sceneRigidBody, octreeRigidBody, mManifold, 0.0f);
 		}
@@ -471,7 +471,7 @@ void Game::dynamicCollisionResponse() const
 			rigidBody2->update();
 			rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
 		}
-		continue;
+		//continue;
 
 		//float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
 
@@ -582,12 +582,12 @@ void Game::dynamicCollisionResponse() const
 
 void Game::updateObjectPhysics() const
 {
-	for (auto sceneRigidBody : sceneBody)
+	for (auto sceneRigidBody : mSceneBody)
 	{
 		sceneRigidBody->update();
 	}
 
-	for (auto octreeRigidBody : octreeBody)
+	for (auto octreeRigidBody : mOctreeBody)
 	{
 		octreeRigidBody->update();
 	}
@@ -595,12 +595,12 @@ void Game::updateObjectPhysics() const
 
 void Game::updateObjectRender() const
 {
-	for (auto i : sceneBody)
+	for (auto i : mSceneBody)
 	{
 		i->updateRender();
 	}
 
-	for (auto i : octreeBody)
+	for (auto i : mOctreeBody)
 	{
 		i->updateRender();
 	}
@@ -608,10 +608,10 @@ void Game::updateObjectRender() const
 
 void Game::render() const
 {
-	camera->update();
+	mCamera->update();
 
 	auto perspective = glm::perspective(45.0f, static_cast<float>(GLFWWindow::instance()->getWidth()) / static_cast<float>(GLFWWindow::instance()->getHeight()), 0.1f, 1000.0f);
-	auto view = camera->getViewMatrix();
+	auto view = mCamera->getViewMatrix();
 
 	mSphereShader->useShader();
 
@@ -621,7 +621,7 @@ void Game::render() const
 	auto viewLocation = glGetUniformLocation(mSphereShader->getShaderId(), "view");
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
-	for (auto i : octreeBody)
+	for (auto i : mOctreeBody)
 	{
 		i->render(mSphereShader);
 	}
@@ -634,10 +634,14 @@ void Game::render() const
 	viewLocation = glGetUniformLocation(mPlaneShader->getShaderId(), "view");
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
-	for (auto i : sceneBody)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	for (auto i : mSceneBody)
 	{
 		i->render(mPlaneShader);
 	}
 
-	octree->Render();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	mOctree->render();
 }

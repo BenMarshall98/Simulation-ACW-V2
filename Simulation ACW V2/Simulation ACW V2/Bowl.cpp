@@ -9,7 +9,7 @@ Bowl::Bowl(const glm::vec3 pSize, const float pMass, const glm::vec3 pPos, const
 
 void Bowl::render(Shader* pShader) const
 {
-	auto modelMat = glm::mat4();
+	auto modelMat = glm::mat4(1.0f);
 
 	if (mParent)
 	{

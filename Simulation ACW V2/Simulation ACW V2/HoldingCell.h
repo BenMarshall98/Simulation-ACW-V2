@@ -5,7 +5,6 @@
 
 class HoldingCell
 {
-private:
 	std::vector<RigidBody *> mRigidBodies;
 	glm::vec3 mLocation;
 	glm::vec3 mSize;

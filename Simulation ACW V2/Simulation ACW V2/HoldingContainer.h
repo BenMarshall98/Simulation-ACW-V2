@@ -6,7 +6,6 @@
 
 class HoldingContainer
 {
-private:
 	Octree * mOctree;
 	glm::vec3 mLocation;
 	glm::vec3 mSize;

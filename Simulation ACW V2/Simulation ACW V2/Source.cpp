@@ -3,7 +3,6 @@
 #include "GLFWWindow.h"
 #include "Game.h"
 #include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
 
 int main()
 {
