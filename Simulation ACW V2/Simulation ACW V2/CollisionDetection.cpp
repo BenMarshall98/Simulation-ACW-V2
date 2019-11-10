@@ -95,13 +95,20 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 
 	if (c < 0.0f)
 	{
-		ManifoldPoint manPoint;
-		manPoint.mContactId1 = pSphere1;
-		manPoint.mContactId2 = pSphere2;
-		manPoint.mContactNormal = normalize(sphere1Pos - sphere2Pos);
-		manPoint.mTime = pLastCollisionTime;
-		manPoint.mCollisionDepth = radius - (sphere1Pos - sphere2Pos).length();
-		manPoint.mCollisionType = CollisionType::PENETRATION;
+		const auto contactNormal = normalize(sphere1Pos - sphere2Pos);
+		const auto contactPoint1 = sphere1Pos - contactNormal * pSphere1->getSize().x;
+		const auto contactPoint2 = sphere2Pos + contactNormal * pSphere2->getSize().y;
+		
+		ManifoldPoint manPoint = {
+			pSphere1,
+			pSphere2,
+			contactPoint1,
+			contactPoint2,
+			contactNormal,
+			pLastCollisionTime,
+			radius - length(sphere1Pos - sphere2Pos),
+			CollisionType::PENETRATION
+		};
 
 		pManifold->add(manPoint);
 		return;
@@ -130,13 +137,21 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 		const auto sphere1Point = sphere1Pos + time * velSphere1;
 		const auto sphere2Point = sphere2Pos + time * velSphere2;
 
-		ManifoldPoint manPoint;
-		manPoint.mContactId1 = pSphere1;
-		manPoint.mContactId2 = pSphere2;
-		manPoint.mContactNormal = normalize(sphere1Point - sphere2Point);
-		manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
-		manPoint.mCollisionType = CollisionType::COLLISION;
+		const auto contactNormal = normalize(sphere1Point - sphere2Point);
+		const auto contactPoint1 = sphere1Point - contactNormal * pSphere1->getSize().x;
+		const auto contactPoint2 = sphere2Point + contactNormal * pSphere2->getSize().y;
 
+		ManifoldPoint manPoint = {
+			pSphere1,
+			pSphere2,
+			contactNormal,
+			contactPoint1,
+			contactPoint2,
+			pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+			0.0f,
+			CollisionType::COLLISION,
+		};
+		
 		pManifold->add(manPoint);
 	}
 }
@@ -171,14 +186,20 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 
 	if (c >= 0.0f)
 	{
-		ManifoldPoint manPoint;
-		manPoint.mContactId1 = pSphere;
-		manPoint.mContactId2 = pBowl;
-		manPoint.mContactNormal = normalize(spherePos - center);
-		manPoint.mTime = pLastCollisionTime;
-		manPoint.mCollisionDepth = (spherePos - center).length() - radius;
-		manPoint.mCollisionType = CollisionType::PENETRATION;
-
+		const auto contactNormal = normalize(spherePos - center);
+		const auto contactPoint = spherePos - contactNormal * pSphere->getSize().x;
+		
+		ManifoldPoint manPoint = {
+			pSphere,
+			pBowl,
+			contactPoint,
+			contactPoint,
+			contactNormal,
+			pLastCollisionTime,
+			(spherePos - center).length() - radius,
+			CollisionType::PENETRATION,
+		};
+		
 		pManifold->add(manPoint);
 		return;
 	}
@@ -210,12 +231,18 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 
 	const auto spherePoint = spherePos + abs(time) * velSphere;
 
-	ManifoldPoint manPoint;
-	manPoint.mContactId1 = pSphere;
-	manPoint.mContactId2 = pBowl;
-	manPoint.mContactNormal = normalize(spherePoint - intersection);
-	manPoint.mTime = pLastCollisionTime + abs(time) * (1.0f - pLastCollisionTime);
-	manPoint.mCollisionType = CollisionType::COLLISION;
+	const auto contactNormal = normalize(spherePoint - intersection);
+
+	ManifoldPoint manPoint = {
+		pSphere,
+		pBowl,
+		intersection,
+		intersection,
+		contactNormal,
+		pLastCollisionTime + abs(time) * (1.0f - pLastCollisionTime),
+		0.0f,
+		CollisionType::COLLISION
+	};
 
 	pManifold->add(manPoint);
 }
@@ -278,15 +305,16 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 		if (dotX <= sizeX && dotX >= -sizeX &&
 			dotY <= sizeY && dotY >= -sizeY)
 		{
-			ManifoldPoint manPoint;
-			manPoint.mContactId1 = pSphere;
-			manPoint.mContactId2 = pPlane;
-			manPoint.mContactNormal = normalize(normal);
-			manPoint.mTime = pLastCollisionTime;
-			manPoint.mCollisionType = CollisionType::PENETRATION;
-			manPoint.mCollisionDepth = abs(radius) - abs(dist);
-			manPoint.mContactPoint1 = collisionPoint;
-			manPoint.mContactPoint2 = collisionPoint;
+			ManifoldPoint manPoint = {
+				pSphere,
+				pPlane,
+				collisionPoint,
+				collisionPoint,
+				normalize(normal),
+				pLastCollisionTime,
+				abs(radius) - abs(dist),
+				CollisionType::PENETRATION
+			};
 
 			pManifold->add(manPoint);
 			return;
@@ -324,14 +352,16 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 					auto closestPoint = startPoints[i] + t * lineVector;
 
-					ManifoldPoint manPoint;
-					manPoint.mContactId1 = pSphere;
-					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = normalize(normal);
-					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
-					manPoint.mCollisionType = CollisionType::COLLISION;
-					manPoint.mContactPoint1 = closestPoint;
-					manPoint.mContactPoint2 = closestPoint;
+					ManifoldPoint manPoint = {
+						pSphere,
+						pPlane,
+						closestPoint,
+						closestPoint,
+						normalize(normal),
+						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+						0.0f,
+						CollisionType::COLLISION
+					};
 
 					pManifold->add(manPoint);
 					return;
@@ -346,15 +376,17 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 
 					auto closestPoint = startPoint;
 
-					ManifoldPoint manPoint;
-					manPoint.mContactId1 = pSphere;
-					manPoint.mContactId2 = pPlane;
-					manPoint.mContactNormal = normalize(normal);
-					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
-					manPoint.mCollisionType = CollisionType::PENETRATION;
-					manPoint.mContactPoint1 = closestPoint;
-					manPoint.mContactPoint2 = closestPoint;
-
+					ManifoldPoint manPoint = {
+						pSphere,
+						pPlane,
+						closestPoint,
+						closestPoint,
+						normalize(normal),
+						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+						0.0f,
+						CollisionType::PENETRATION
+					};
+					
 					pManifold->add(manPoint);
 					return;
 				}
@@ -387,14 +419,16 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 		if (dotX <= sizeX && dotX >= -sizeX &&
 			dotY <= sizeY && dotY >= -sizeY)
 		{
-			ManifoldPoint manPoint;
-			manPoint.mContactId1 = pSphere;
-			manPoint.mContactId2 = pPlane;
-			manPoint.mContactNormal = normalize(normal);
-			manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
-			manPoint.mCollisionType = CollisionType::COLLISION;
-			manPoint.mContactPoint1 = collisionPoint;
-			manPoint.mContactPoint2 = collisionPoint;
+			ManifoldPoint manPoint = {
+				pSphere,
+				pPlane,
+				collisionPoint,
+				collisionPoint,
+				normalize(normal),
+				pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+				0.0f,
+				CollisionType::COLLISION
+			};
 
 			pManifold->add(manPoint);
 		}
