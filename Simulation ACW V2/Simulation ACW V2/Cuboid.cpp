@@ -28,7 +28,7 @@ void Cuboid::render(Shader * pShader) const
 	auto modelMat = translation * scale * rotation;
 	
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
-	modelMat.useMatrix(modelLocation);
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mTexture);

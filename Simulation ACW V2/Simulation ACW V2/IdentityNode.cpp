@@ -10,5 +10,5 @@ IdentityNode::~IdentityNode()
 
 glm::mat4 IdentityNode::updateNode(float pDt)
 {
-	return {};
+	return glm::mat4(1.0f);
 }

@@ -130,25 +130,19 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 {
 	const auto changeTime1 = pPoint.mTime - pSphere1->getCurrentUpdateTime();
 
-	auto tempPos1 = pSphere1->getPos().interpolate(pSphere1->getNewPos(), changeTime1);
-	auto tempVel1 = pSphere1->getVel().interpolate(pSphere1->getNewVel(), changeTime1);
-	auto tempAngVel1 = pSphere1->getAngularVelocity().interpolate(pSphere1->getNewAngularVelocity(), changeTime1);
+	auto tempPos1 = mix(pSphere1->getPos(), pSphere1->getNewPos(), changeTime1);
+	auto tempVel1 = mix(pSphere1->getVel(), pSphere1->getNewVel(), changeTime1);
+	auto tempAngVel1 = mix(pSphere1->getAngularVelocity(), pSphere1->getNewAngularVelocity(), changeTime1);
 	const auto tempOrr1 = slerp(pSphere1->getOrientation(), pSphere1->getNewOrientation(), changeTime1);
-	auto rot = toMat3(tempOrr1);
-	const auto tempOrrMat1 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat1 = toMat3(tempOrr1);
 
 	const auto changeTime2 = pPoint.mTime - pSphere2->getCurrentUpdateTime();
 
-	auto tempPos2 = pSphere2->getPos().interpolate(pSphere2->getNewPos(), changeTime2);
-	auto tempVel2 = pSphere2->getVel().interpolate(pSphere2->getNewVel(), changeTime2);
-	auto tempAngVel2 = pSphere2->getAngularVelocity().interpolate(pSphere2->getNewAngularVelocity(), changeTime2);
+	auto tempPos2 = mix(pSphere2->getPos(), pSphere2->getNewPos(), changeTime2);
+	auto tempVel2 = mix(pSphere2->getVel(), pSphere2->getNewVel(), changeTime2);
+	auto tempAngVel2 = mix(pSphere2->getAngularVelocity(), pSphere2->getNewAngularVelocity(), changeTime2);
 	const auto tempOrr2 = slerp(pSphere2->getOrientation(), pSphere2->getNewOrientation(), changeTime2);
-	rot = toMat3(tempOrr1);
-	const auto tempOrrMat2 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat2 = toMat3(tempOrr1);
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -159,26 +153,26 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 	const auto sphereCenterToCollision1 = pPoint.mContactPoint1 - tempPos1;
 	const auto sphereCenterToCollision2 = pPoint.mContactPoint2 - tempPos2;
 
-	const auto tempSphereVel1 = tempVel1 + tempAngVel1.cross(sphereCenterToCollision1);
-	const auto tempSphereVel2 = tempVel2 + tempAngVel2.cross(sphereCenterToCollision2);
+	const auto tempSphereVel1 = tempVel1 + cross(tempAngVel1, sphereCenterToCollision1);
+	const auto tempSphereVel2 = tempVel2 + cross(tempAngVel2, sphereCenterToCollision2);
 
-	const auto relVel = pPoint.mContactNormal.dot(tempSphereVel1 - tempSphereVel2);
+	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel1 - tempSphereVel2);
 
-	const auto sphereWorldTensor1 = tempOrrMat1 * pSphere1->getInverseImpulseTenser() * tempOrrMat1.transpose();
-	const auto sphereWorldTensor2 = tempOrrMat2 * pSphere2->getInverseImpulseTenser() * tempOrrMat2.transpose();
+	const auto sphereWorldTensor1 = tempOrrMat1 * pSphere1->getInverseImpulseTenser() * transpose(tempOrrMat1);
+	const auto sphereWorldTensor2 = tempOrrMat2 * pSphere2->getInverseImpulseTenser() * transpose(tempOrrMat2);
 
 	const auto sphereInverseMass1 = 1.0f / pSphere1->getMass();
 	const auto sphereInverseMass2 = 1.0f / pSphere2->getMass();
 
-	const auto sphereImpulseMag1 = pPoint.mContactNormal.dot((sphereWorldTensor1 * sphereCenterToCollision1.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
-	const auto sphereImpulseMag2 = pPoint.mContactNormal.dot((sphereWorldTensor2 * sphereCenterToCollision2.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	const auto sphereImpulseMag1 = dot(pPoint.mContactNormal, cross(sphereWorldTensor1 * cross(sphereCenterToCollision1, pPoint.mContactNormal), pPoint.mContactNormal));
+	const auto sphereImpulseMag2 = dot(pPoint.mContactNormal, cross(sphereWorldTensor2 * cross(sphereCenterToCollision2, pPoint.mContactNormal), pPoint.mContactNormal));
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass1 + sphereInverseMass2 + sphereImpulseMag1 + sphereImpulseMag2);
 
 	tempVel1 = tempVel1 + j * sphereInverseMass1 * pPoint.mContactNormal;
 	tempVel2 = tempVel2 - j * sphereInverseMass2 * pPoint.mContactNormal;
-	tempAngVel1 = tempAngVel1 + sphereCenterToCollision1.cross(j * pPoint.mContactNormal) * sphereWorldTensor1;
-	tempAngVel2 = tempAngVel2 - sphereCenterToCollision2.cross(j * pPoint.mContactNormal) * sphereWorldTensor2;
+	tempAngVel1 = tempAngVel1 + cross(sphereCenterToCollision1, j * pPoint.mContactNormal) * sphereWorldTensor1;
+	tempAngVel2 = tempAngVel2 - cross(sphereCenterToCollision2, j * pPoint.mContactNormal) * sphereWorldTensor2;
 
 	pSphere1->setNewPos(tempPos1);
 	pSphere1->setNewVel(tempVel1);
@@ -198,14 +192,11 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	auto tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
-	auto tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
-	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	auto tempPos = mix(pSphere->getPos(), pSphere->getNewPos(), changeTime);
+	auto tempVel = mix(pSphere->getVel(), pSphere->getNewVel(), changeTime);
+	auto tempAngVel = mix(pSphere->getAngularVelocity(), pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
-	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat = toMat3(tempOrr);
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -215,19 +206,19 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
-	const auto relVel = pPoint.mContactNormal.dot(tempSphereVel - tempBowlVel);
+	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel - tempBowlVel);
 
-	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
+	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * transpose(tempOrrMat);
 
 	const auto sphereInverseMass = 1.0f / pSphere->getMass();
 
-	const auto sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 
 	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
-	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
+	tempAngVel = tempAngVel + cross(sphereCenterToCollision, j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
@@ -242,14 +233,11 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	auto tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
-	auto tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
-	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	auto tempPos = mix(pSphere->getPos(), pSphere->getNewPos(), changeTime);
+	auto tempVel = mix(pSphere->getVel(), pSphere->getNewVel(), changeTime);
+	auto tempAngVel = mix(pSphere->getAngularVelocity(), pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
-	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat = toMat3(tempOrr);
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -257,10 +245,10 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	}
 
 	const auto planeMat = pPlane->getMatrix();
-	const auto center = pPlane->getPos() * planeMat;
+	const auto center = pPlane->getPos() * glm::mat3(planeMat);
 
 	const auto newPlaneMat = pPlane->getNewMatrix();
-	const auto newCenter = pPlane->getPos() * newPlaneMat;
+	const auto newCenter = pPlane->getPos() * glm::mat3(newPlaneMat);
 
 	glm::vec3 tempPlaneVel;
 	
@@ -274,19 +262,19 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
-	const auto relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
+	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel - tempPlaneVel);
 
-	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
+	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * transpose(tempOrrMat);
 
 	const auto sphereInverseMass = 1.0f / pSphere->getMass();
 
-	const auto sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 	
 	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
-	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
+	tempAngVel = tempAngVel + cross(sphereCenterToCollision, j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
@@ -302,14 +290,11 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 {
 	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	auto tempPos = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime);
-	auto tempVel = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime);
-	auto tempAngVel = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime);
+	auto tempPos = mix(pSphere->getPos(), pSphere->getNewPos(), changeTime);
+	auto tempVel = mix(pSphere->getVel(), pSphere->getNewVel(), changeTime);
+	auto tempAngVel = mix(pSphere->getAngularVelocity(), pSphere->getNewAngularVelocity(), changeTime);
 	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
-	auto rot = toMat3(tempOrr);
-	const auto tempOrrMat = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat = toMat3(tempOrr);
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -317,27 +302,27 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	}
 
 	const auto planeMat = pPlaneHoles->getMatrix();
-	const auto center = pPlaneHoles->getPos() * planeMat;
+	const auto center = pPlaneHoles->getPos() * glm::mat3(planeMat);
 
 	const auto newPlaneMat = pPlaneHoles->getNewMatrix();
-	const auto newCenter = pPlaneHoles->getPos() * newPlaneMat;
+	const auto newCenter = pPlaneHoles->getPos() * glm::mat3(newPlaneMat);
 
 	const auto tempPlaneVel = (newCenter - center) / changeTime;
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + tempAngVel.cross(sphereCenterToCollision);
-	const auto relVel = pPoint.mContactNormal.dot(tempSphereVel - tempPlaneVel);
+	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel - tempPlaneVel);
 
-	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * tempOrrMat.transpose();
+	const auto sphereWorldTensor = tempOrrMat * pSphere->getInverseImpulseTenser() * transpose(tempOrrMat);
 
 	const auto sphereInverseMass = 1.0f / pSphere->getMass();
 
-	const auto sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 	
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + sphereImpulseMag);
 	
 	tempVel = tempVel + j * sphereInverseMass * pPoint.mContactNormal;
-	tempAngVel = tempAngVel + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
+	tempAngVel = tempAngVel + cross(sphereCenterToCollision, j * pPoint.mContactNormal) * sphereWorldTensor;
 
 	pSphere->setNewPos(tempPos);
 	pSphere->setNewVel(tempVel);
@@ -352,25 +337,19 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 {
 	const auto changeTime1 = pPoint.mTime - pSphere->getCurrentUpdateTime();
 
-	auto tempPos1 = pSphere->getPos().interpolate(pSphere->getNewPos(), changeTime1);
-	auto tempVel1 = pSphere->getVel().interpolate(pSphere->getNewVel(), changeTime1);
-	auto tempAngVel1 = pSphere->getAngularVelocity().interpolate(pSphere->getNewAngularVelocity(), changeTime1);
+	auto tempPos1 = mix(pSphere->getPos(), pSphere->getNewPos(), changeTime1);
+	auto tempVel1 = mix(pSphere->getVel(), pSphere->getNewVel(), changeTime1);
+	auto tempAngVel1 = mix(pSphere->getAngularVelocity(), pSphere->getNewAngularVelocity(), changeTime1);
 	const auto tempOrr1 = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime1);
-	auto rot = toMat3(tempOrr1);
-	const auto tempOrrMat1 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat1 = toMat3(tempOrr1);
 
 	const auto changeTime2 = pPoint.mTime - pCuboid->getCurrentUpdateTime();
 
-	auto tempPos2 = pCuboid->getPos().interpolate(pCuboid->getNewPos(), changeTime2);
-	auto tempVel2 = pCuboid->getVel().interpolate(pCuboid->getNewVel(), changeTime2);
-	auto tempAngVel2 = pCuboid->getAngularVelocity().interpolate(pCuboid->getNewAngularVelocity(), changeTime2);
+	auto tempPos2 = mix(pCuboid->getPos(), pCuboid->getNewPos(), changeTime2);
+	auto tempVel2 = mix(pCuboid->getVel(), pCuboid->getNewVel(), changeTime2);
+	auto tempAngVel2 = mix(pCuboid->getAngularVelocity(), pCuboid->getNewAngularVelocity(), changeTime2);
 	const auto tempOrr2 = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), changeTime2);
-	rot = toMat3(tempOrr1);
-	const auto tempOrrMat2 = glm::mat3(rot[0][0], rot[0][1], rot[0][2],
-		rot[1][0], rot[1][1], rot[1][2],
-		rot[2][0], rot[2][1], rot[2][2]);
+	const auto tempOrrMat2 = toMat3(tempOrr1);
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
@@ -381,26 +360,26 @@ void CollisionResponse::respondCollisionSphereCuboid(ManifoldPoint& pPoint, Rigi
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos1;
 	const auto cuboidCenterToCollision = pPoint.mContactPoint2 - tempPos2;
 
-	const auto tempSphereVel = tempVel1 + tempAngVel1.cross(sphereCenterToCollision);
-	const auto tempCuboidVel = tempVel2 + tempAngVel2.cross(cuboidCenterToCollision);
+	const auto tempSphereVel = tempVel1 + cross(tempAngVel1, sphereCenterToCollision);
+	const auto tempCuboidVel = tempVel2 + cross(tempAngVel2, cuboidCenterToCollision);
 
-	const auto relVel = pPoint.mContactNormal.dot(tempSphereVel - tempCuboidVel);
+	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel - tempCuboidVel);
 
-	const auto sphereWorldTensor = tempOrrMat1 * pSphere->getInverseImpulseTenser() * tempOrrMat1.transpose();
-	const auto cuboidWorldTensor = tempOrrMat2 * pSphere->getInverseImpulseTenser() * tempOrrMat2.transpose();
+	const auto sphereWorldTensor = tempOrrMat1 * pSphere->getInverseImpulseTenser() * transpose(tempOrrMat1);
+	const auto cuboidWorldTensor = tempOrrMat2 * pSphere->getInverseImpulseTenser() * transpose(tempOrrMat2);
 
 	const auto sphereInverseMass = 1.0f / pSphere->getMass();
 	const auto cuboidInverseMass = 1.0f / pCuboid->getMass();
 
-	const auto sphereImpulseMag = pPoint.mContactNormal.dot((sphereWorldTensor * sphereCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
-	const auto cuboidImpulseMag = pPoint.mContactNormal.dot((cuboidWorldTensor * cuboidCenterToCollision.cross(pPoint.mContactNormal)).cross(pPoint.mContactNormal));
+	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
+	const auto cuboidImpulseMag = dot(pPoint.mContactNormal, cross(cuboidWorldTensor * cross(cuboidCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 
 	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + cuboidInverseMass + sphereImpulseMag + cuboidImpulseMag);
 
 	tempVel1 = tempVel1 + j * sphereInverseMass * pPoint.mContactNormal;
 	tempVel2 = tempVel2 - j * cuboidInverseMass * pPoint.mContactNormal;
-	tempAngVel1 = tempAngVel1 + sphereCenterToCollision.cross(j * pPoint.mContactNormal) * sphereWorldTensor;
-	tempAngVel2 = tempAngVel2 - cuboidCenterToCollision.cross(j * pPoint.mContactNormal) * cuboidWorldTensor;
+	tempAngVel1 = tempAngVel1 + cross(sphereCenterToCollision, j * pPoint.mContactNormal) * sphereWorldTensor;
+	tempAngVel2 = tempAngVel2 - cross(cuboidCenterToCollision, j * pPoint.mContactNormal) * cuboidWorldTensor;
 
 	pSphere->setNewPos(tempPos1);
 	pSphere->setNewVel(tempVel1);

@@ -1,4 +1,5 @@
 #include "TranslationNode.h"
+#include <glm/ext/matrix_transform.inl>
 
 TranslationNode::TranslationNode(glm::vec3 pTranslation, TranslationAnimation * pAnimation) :
 	mTranslation(pTranslation), mAnimation(pAnimation)
@@ -16,5 +17,5 @@ glm::mat4 TranslationNode::updateNode(float pDt)
 		mAnimation->callFunction(mTranslation, pDt);
 	}
 
-	return glm::mat4::createTranslation(mTranslation);
+	return translate(glm::mat4(1.0f), mTranslation);
 }

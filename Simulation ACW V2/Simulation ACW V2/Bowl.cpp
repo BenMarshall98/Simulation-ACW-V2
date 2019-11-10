@@ -23,7 +23,7 @@ void Bowl::render(Shader* pShader) const
 	modelMat = modelMat * translation * rotation * scale;
 
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
-	modelMat.useMatrix(modelLocation);
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
 
 	auto * model = Model::createBowl();
 	model->render();

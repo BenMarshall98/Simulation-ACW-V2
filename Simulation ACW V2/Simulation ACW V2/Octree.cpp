@@ -117,10 +117,10 @@ bool Octree::Render()
 		auto view = Game::camera->getViewMatrix();
 
 		auto perspectiveLocation = glGetUniformLocation(shader->getShaderId(), "perspective");
-		perspective.useMatrix(perspectiveLocation);
+		glUniformMatrix4fv(perspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
 
 		auto viewLocation = glGetUniformLocation(shader->getShaderId(), "view");
-		view.useMatrix(viewLocation);
+		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
 		const auto translation = translate(glm::mat4(1.0f), center);
 		const auto scale = glm::scale(glm::mat4(1.0f), size);
@@ -128,7 +128,7 @@ bool Octree::Render()
 		auto modelMat = translation * scale;
 
 		const auto modelLocation = glGetUniformLocation(shader->getShaderId(), "model");
-		modelMat.useMatrix(modelLocation);
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
 		model->render();
 	}
 

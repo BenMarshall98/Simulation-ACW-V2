@@ -23,5 +23,5 @@ void RotationAnimation::keyPressed(char pKey)
 
 void RotationAnimation::callFunction(glm::vec3& pRotationAxis, float& pRotationAngle, float pDt)
 {
-	mFunction(pRotationAxis, pRotationAngle, mAngleSpeed, pDt);
+	mFunction(pRotationAxis, pRotationAngle, glm::radians(mAngleSpeed), pDt);
 }

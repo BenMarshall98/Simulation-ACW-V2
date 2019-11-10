@@ -1,4 +1,6 @@
 #pragma once
+#include "gl.h"
+#define NOMINMAX
 #include "GLFW/glfw3.h"
 #include <map>
 #include "SceneGraphAnimation.h"

@@ -4,7 +4,6 @@
 #include "GLFWWindow.h"
 #include <string>
 #include "Shader.h"
-#include "glm::mat4.h"
 #include "TranslationNode.h"
 #include "RigidBodyNode.h"
 #include "RotationAnimation.h"
@@ -47,25 +46,25 @@ Game::Game()
 	{
 		if (!pDirection)
 		{
-			auto newX = pVector.x() + pDt;
+			auto newX = pVector.x + pDt;
 
 			if (newX > 15.0f)
 			{
 				newX = 15.0f;
 			}
 
-			pVector = glm::vec3(newX, pVector.y(), pVector.z());
+			pVector = glm::vec3(newX, pVector.y, pVector.z);
 		}
 		else
 		{
-			auto newX = pVector.x() - pDt;
+			auto newX = pVector.x - pDt;
 
 			if (newX < 0.0f)
 			{
 				newX = 0.0f;
 			}
 
-			pVector = glm::vec3(newX, pVector.y(), pVector.z());
+			pVector = glm::vec3(newX, pVector.y, pVector.z);
 		}
 	}
 	, '4', '3');
@@ -162,25 +161,25 @@ Game::Game()
 	{
 		if (!pDirection)
 		{
-			float newX = pVector.x() + pDt;
+			float newX = pVector.x + pDt;
 
 			if (newX > 15.0f)
 			{
 				newX = 15.0f;
 			}
 
-			pVector = glm::vec3(newX, pVector.y(), pVector.z());
+			pVector = glm::vec3(newX, pVector.y, pVector.z);
 		}
 		else
 		{
-			float newX = pVector.x() - pDt;
+			float newX = pVector.x - pDt;
 
 			if (newX < 0.0f)
 			{
 				newX = 0.0f;
 			}
 
-			pVector = glm::vec3(newX, pVector.y(), pVector.z());
+			pVector = glm::vec3(newX, pVector.y, pVector.z);
 		}
 	}
 	, '6', '5');
@@ -408,7 +407,7 @@ void Game::simulationLoop()
 
 void Game::calculateObjectPhysics() const
 {
-	sceneGraph->updateSceneGraph(getUpdateDt(), glm::mat4::createIdentity());
+	sceneGraph->updateSceneGraph(getUpdateDt(), glm::mat4(1.0f));
 
 	for (auto octreeRigidBody : octreeBody)
 	{
@@ -611,16 +610,16 @@ void Game::render() const
 {
 	camera->update();
 
-	auto perspective = glm::mat4::createPerspective(45.0f, static_cast<float>(GLFWWindow::instance()->getWidth()) / static_cast<float>(GLFWWindow::instance()->getHeight()), 0.1f, 1000.0f);
+	auto perspective = glm::perspective(45.0f, static_cast<float>(GLFWWindow::instance()->getWidth()) / static_cast<float>(GLFWWindow::instance()->getHeight()), 0.1f, 1000.0f);
 	auto view = camera->getViewMatrix();
 
 	mSphereShader->useShader();
 
 	auto perspectiveLocation = glGetUniformLocation(mSphereShader->getShaderId(), "perspective");
-	perspective.useMatrix(perspectiveLocation);
+	glUniformMatrix4fv(perspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
 
 	auto viewLocation = glGetUniformLocation(mSphereShader->getShaderId(), "view");
-	view.useMatrix(viewLocation);
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
 	for (auto i : octreeBody)
 	{
@@ -630,10 +629,10 @@ void Game::render() const
 	mPlaneShader->useShader();
 
 	perspectiveLocation = glGetUniformLocation(mPlaneShader->getShaderId(), "perspective");
-	perspective.useMatrix(perspectiveLocation);
+	glUniformMatrix4fv(perspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
 
 	viewLocation = glGetUniformLocation(mPlaneShader->getShaderId(), "view");
-	view.useMatrix(viewLocation);
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
 	for (auto i : sceneBody)
 	{

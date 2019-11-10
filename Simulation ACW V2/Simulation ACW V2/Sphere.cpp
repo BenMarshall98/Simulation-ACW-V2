@@ -22,14 +22,14 @@ Sphere::~Sphere()
 
 void Sphere::render(Shader * pShader) const
 {
-	const auto translation = glm::mat4::createTranslation(mRenderPos);
-	const auto scale = glm::mat4::createScale(mSize);
-	const auto rotation = glm::toMat4(mRenderRotation);
+	const auto translation = translate(glm::mat4(1.0f), mRenderPos);
+	const auto scale = glm::scale(glm::mat4(1.0f), mSize);
+	const auto rotation = toMat4(mRenderRotation);
 
 	auto modelMat = translation * scale * rotation;
 
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
-	modelMat.useMatrix(modelLocation);
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
