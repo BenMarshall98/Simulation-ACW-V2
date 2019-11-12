@@ -154,6 +154,11 @@ bool GLFWWindow::windowEvents()
 		Game::addSphere();
 	}
 
+	if (glfwGetKey(mWindow, GLFW_KEY_2) == GLFW_PRESS)
+	{
+		Game::addCube();
+	}
+
 	for (auto it = mKeyListener.begin(); it != mKeyListener.end(); ++it)
 	{
 		if (glfwGetKey(mWindow, it->first) == GLFW_PRESS)

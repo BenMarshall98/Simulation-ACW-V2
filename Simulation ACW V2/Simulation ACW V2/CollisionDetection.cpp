@@ -6,56 +6,87 @@ void CollisionDetection::dynamicCollisionDetection(RigidBody* pRigidBody1, Rigid
 {
 	if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
-		auto * sphere1 = dynamic_cast<Sphere *>(pRigidBody1);
-		auto * sphere2 = dynamic_cast<Sphere *>(pRigidBody2);
-
-		detectCollisionSphereSphere(sphere1, sphere2, pManifold, pLastCollisionTime);
+		detectCollisionSphereSphere(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::PLANE)
 	{
-		auto * sphere = dynamic_cast<Sphere*>(pRigidBody1);
-		auto * plane = dynamic_cast<Plane *>(pRigidBody2);
-
-		detectCollisionSpherePlane(sphere, plane, pManifold, pLastCollisionTime);
+		detectCollisionSpherePlane(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::PLANE && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
-		auto * sphere = dynamic_cast<Sphere*>(pRigidBody2);
-		auto * plane = dynamic_cast<Plane*>(pRigidBody1);
-
-		detectCollisionSpherePlane(sphere, plane, pManifold, pLastCollisionTime);
+		detectCollisionSpherePlane(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::PLANEHOLES)
 	{
-		auto * sphere = dynamic_cast<Sphere *>(pRigidBody1);
-		auto * planeHoles = dynamic_cast<PlaneHoles *>(pRigidBody2);
-
-		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold, pLastCollisionTime);
+		detectCollisionSpherePlaneHoles(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::PLANEHOLES && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
-		auto * sphere = dynamic_cast<Sphere *>(pRigidBody2);
-		auto * planeHoles = dynamic_cast<PlaneHoles *>(pRigidBody1);
-
-		detectCollisionSpherePlaneHoles(sphere, planeHoles, pManifold, pLastCollisionTime);
+		detectCollisionSpherePlaneHoles(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::BOWL)
 	{
-		auto * sphere = dynamic_cast<Sphere *>(pRigidBody1);
-		auto * bowl = dynamic_cast<Bowl *>(pRigidBody2);
-
-		detectCollisionSphereBowl(sphere, bowl, pManifold, pLastCollisionTime);
+		detectCollisionSphereBowl(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::BOWL && pRigidBody2->getObjectType() == ObjectType::SPHERE)
 	{
-		auto * sphere = dynamic_cast<Sphere *>(pRigidBody2);
-		auto * bowl = dynamic_cast<Bowl *>(pRigidBody1);
-
-		detectCollisionSphereBowl(sphere, bowl, pManifold, pLastCollisionTime);
+		detectCollisionSphereBowl(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::CYLINDER)
+	{
+		detectCollisionSphereCylinder(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CYLINDER && pRigidBody2->getObjectType() == ObjectType::SPHERE)
+	{
+		detectCollisionSphereCylinder(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::SPHERE && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionSphereCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::SPHERE)
+	{
+		detectCollisionSphereCuboid(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionCuboidCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::PLANE)
+	{
+		detectCollisionCuboidPlane(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::PLANE && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionCuboidPlane(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::PLANEHOLES)
+	{
+		detectCollisionCuboidPlaneHoles(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::PLANEHOLES && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionCuboidPlaneHoles(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::BOWL)
+	{
+		detectCollisionCuboidBowl(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::BOWL && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionCuboidBowl(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::CYLINDER)
+	{
+		detectCollisionCuboidCylinder(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+	}
+	else if (pRigidBody1->getObjectType() == ObjectType::CYLINDER && pRigidBody2->getObjectType() == ObjectType::CUBOID)
+	{
+		detectCollisionCuboidCylinder(pRigidBody2, pRigidBody1, pManifold, pLastCollisionTime);
 	}
 }
 
-void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* pSphere2, ContactManifold* pManifold, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSphereSphere(RigidBody * pSphere1, RigidBody * pSphere2, ContactManifold* pManifold, const float pLastCollisionTime)
 {
 	glm::vec3 sphere1Pos;
 	glm::vec3 sphere2Pos;
@@ -156,7 +187,7 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 	}
 }
 
-void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl, ContactManifold* pManifold, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSphereBowl(RigidBody * pSphere, RigidBody * pBowl, ContactManifold* pManifold, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -247,7 +278,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 	pManifold->add(manPoint);
 }
 
-void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPlane, ContactManifold* pManifold, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBody * pPlane, ContactManifold* pManifold, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -506,7 +537,7 @@ void CollisionDetection::detectCollisionSpherePlane(Sphere* pSphere, Plane* pPla
 	}
 }
 
-void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneHoles* pPlaneHoles, ContactManifold* pManifold, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, RigidBody * pPlaneHoles, ContactManifold* pManifold, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -900,7 +931,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(Sphere* pSphere, PlaneH
 
 //http://www.peroxide.dk/papers/collision/collision.pdf
 
-bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, const glm::vec3 pLineEnd1, const glm::vec3 pLineEnd2, const glm::vec3 pLineVelocity, float& pTime, const float pLastCollisionTime)
+bool CollisionDetection::detectCollisionSphereLine(RigidBody * pSphere, const glm::vec3 pLineEnd1, const glm::vec3 pLineEnd2, const glm::vec3 pLineVelocity, float& pTime, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -967,7 +998,7 @@ bool CollisionDetection::detectCollisionSphereLine(Sphere* pSphere, const glm::v
 	return true;
 }
 
-bool CollisionDetection::detectCollisionSphereVertex(Sphere* pSphere, glm::vec3 pVertex, glm::vec3 pVertexVelocity, float& pTime, const float pLastCollisionTime)
+bool CollisionDetection::detectCollisionSphereVertex(RigidBody * pSphere, glm::vec3 pVertex, glm::vec3 pVertexVelocity, float& pTime, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -1016,7 +1047,7 @@ if (pTime < 0.0f || pTime > 1.0f)
 return true;
 }
 
-bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, glm::vec3 pVertex1, glm::vec3 pVertex2, glm::vec3 pVertex3, glm::vec3 pTriangleVelocity, const float pLastCollisionTime)
+bool CollisionDetection::detectCollisionSphereTriangle(RigidBody * pSphere, glm::vec3 pVertex1, glm::vec3 pVertex2, glm::vec3 pVertex3, glm::vec3 pTriangleVelocity, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -1101,7 +1132,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(Sphere* pSphere, glm::vec
 	return true;
 }
 
-void CollisionDetection::detectCollisionSphereCuboid(Sphere * pSphere, Cuboid * pCuboid, ContactManifold *, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidBody * pCuboid, ContactManifold *, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -1548,4 +1579,39 @@ bool CollisionDetection::detectCollisionCuboidCuboidStep(glm::vec3 pCuboid1Cente
 	}
 
 	return true;
+}
+
+float CollisionDetection::calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, glm::vec3 pCuboidCenter, glm::vec3 pCuboidXAxis, glm::vec3 pCuboidYAxis, glm::vec3 pCuboidZAxis, glm::vec3 pCuboidSize, bool& pInside, glm::vec3& pCollisionPoint)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidBody* pCuboid2, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBody* pPlane, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, RigidBody* pPlaneHoles, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionCuboidBowl(RigidBody* pCuboid, RigidBody* pBowl, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionCuboidCylinder(RigidBody* pSphere, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
+}
+
+void CollisionDetection::detectCollisionSphereCylinder(RigidBody* pSphere, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
+{
+	//TODO: Implement
 }
