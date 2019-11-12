@@ -31,6 +31,7 @@ class Game
 	static bool mReset;
 	static bool mPause;
 	static bool mAddSphere;
+	static bool mAddCube;
 	static float mTimeScale;
 	static float mFriction;
 	static float mSphereElasticity;
@@ -146,5 +147,10 @@ public:
 	static void addSphere()
 	{
 		mAddSphere = true;
+	}
+
+	static void addCube()
+	{
+		mAddCube = true;
 	}
 };

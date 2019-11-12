@@ -24,6 +24,7 @@ float Game::mSphereSize = 0.5f;
 bool Game::mReset = false;
 bool Game::mPause = false;
 bool Game::mAddSphere = false;
+bool Game::mAddCube = false;
 
 Camera * Game::mCamera = new Camera(glm::vec3(0, 25, 50), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
 
@@ -286,12 +287,16 @@ void Game::run()
 	auto lastTime = static_cast<float>(glfwGetTime());
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		static auto once = true;
-		if (mAddSphere && once)
+		if (mAddSphere)
 		{
-			mHoldingContainer->addRigidBody();
+			mHoldingContainer->addSphere();
 			mAddSphere = false;
-			once = false;
+		}
+
+		if (mAddCube)
+		{
+			mHoldingContainer->addCube();
+			mAddCube = false;
 		}
 
 		swap();

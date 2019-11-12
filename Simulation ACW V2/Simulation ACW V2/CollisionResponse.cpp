@@ -307,7 +307,16 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	const auto newPlaneMat = pPlaneHoles->getNewMatrix();
 	const auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlaneHoles->getPos(), 1.0f));
 
-	const auto tempPlaneVel = (newCenter - center) / changeTime;
+	glm::vec3 tempPlaneVel;
+
+	if (changeTime > 0.0f)
+	{
+		tempPlaneVel = (newCenter - center) / changeTime;
+	}
+	else
+	{
+		tempPlaneVel = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
 	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);

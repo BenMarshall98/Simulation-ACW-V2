@@ -144,9 +144,9 @@ void CollisionDetection::detectCollisionSphereSphere(Sphere* pSphere1, Sphere* p
 		ManifoldPoint manPoint = {
 			pSphere1,
 			pSphere2,
-			contactNormal,
 			contactPoint1,
 			contactPoint2,
+			contactNormal,
 			pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 			0.0f,
 			CollisionType::COLLISION,
@@ -186,7 +186,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 
 	if (c >= 0.0f)
 	{
-		const auto contactNormal = normalize(spherePos - center);
+		const auto contactNormal = normalize(center - spherePos);
 		const auto contactPoint = spherePos - contactNormal * pSphere->getSize().x;
 		
 		ManifoldPoint manPoint = {
@@ -196,7 +196,7 @@ void CollisionDetection::detectCollisionSphereBowl(Sphere* pSphere, Bowl* pBowl,
 			contactPoint,
 			contactNormal,
 			pLastCollisionTime,
-			(spherePos - center).length() - radius,
+			sphereRadius - length(spherePos - contactPoint),
 			CollisionType::PENETRATION,
 		};
 		

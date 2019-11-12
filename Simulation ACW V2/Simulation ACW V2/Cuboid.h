@@ -5,6 +5,7 @@
 
 class Cuboid final : public RigidBody
 {
+public:
 	Cuboid(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity);
 	~Cuboid();
 	

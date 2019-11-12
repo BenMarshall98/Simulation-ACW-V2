@@ -1,9 +1,10 @@
 #include "HoldingContainer.h"
 #include "Sphere.h"
 #include "Game.h"
+#include "Cuboid.h"
 
 HoldingContainer::HoldingContainer(Octree * pOctree, const glm::vec3 pLocation, const glm::vec3 pSize) :
-	mOctree(pOctree), mLocation(pLocation), mSize(pSize), mOverflow(0)
+	mOctree(pOctree), mLocation(pLocation), mSize(pSize), mSphereOverflow(0), mCubeOverflow(0)
 {
 	auto location = glm::vec3(pLocation.x, pLocation.y - pSize.y * 2, pLocation.z);
 	const auto size = glm::vec3(1, 1, 1);
@@ -33,7 +34,7 @@ HoldingContainer::~HoldingContainer()
 {
 }
 
-void HoldingContainer::addRigidBody()
+void HoldingContainer::addSphere()
 {
 	for (auto i = 0u; i < mHoldingCells.size(); i++)
 	{
@@ -50,8 +51,29 @@ void HoldingContainer::addRigidBody()
 		}
 	}
 
-	mOverflow++;
+	mSphereOverflow++;
 }
+
+void HoldingContainer::addCube()
+{
+	for (auto i = 0u; i < mHoldingCells.size(); i++)
+	{
+		if (mHoldingCells[i]->getNumberRigidBody() == 0)
+		{
+			const auto velocity = glm::vec3(0, 0, 0);
+			const auto size = Game::getSphereSize();
+			const auto cube = new Cuboid(glm::vec3(size, size, size), 0.02, mHoldingCells[i]->getLocation(),
+				glm::vec3(0, 1, 1), velocity);
+
+			mHoldingCells[i]->addRigidBody(cube);
+			mOctree->addRigidBody(cube);
+			return;
+		}
+	}
+
+	mCubeOverflow++;
+}
+
 
 void HoldingContainer::update()
 {
@@ -84,7 +106,7 @@ void HoldingContainer::update()
 		toReassign.shrink_to_fit();
 	}
 
-	for (auto i = 0; i < mOverflow; i++)
+	for (auto i = 0; i < mSphereOverflow; i++)
 	{
 		for (auto& holdingCell : mHoldingCells)
 		{
@@ -98,7 +120,29 @@ void HoldingContainer::update()
 				holdingCell->addRigidBody(sphere);
 				mOctree->addRigidBody(sphere);
 
-				mOverflow--;
+				mSphereOverflow--;
+				i--;
+				break;
+			}
+		}
+	}
+
+	for (auto i = 0; i < mCubeOverflow; i++)
+	{
+		for (auto& holdingCell : mHoldingCells)
+		{
+			if (holdingCell->getNumberRigidBody() == 0)
+			{
+				//TODO: Look at random velocity
+				const auto velocity = glm::vec3(0, 0, 0);
+				const auto size = Game::getSphereSize();
+				const auto sphere = new Cuboid(glm::vec3(size, size, size), 0.02, holdingCell->getLocation(),
+					glm::vec3(0, 1, 1), velocity);
+
+				holdingCell->addRigidBody(sphere);
+				mOctree->addRigidBody(sphere);
+
+				mCubeOverflow--;
 				i--;
 				break;
 			}

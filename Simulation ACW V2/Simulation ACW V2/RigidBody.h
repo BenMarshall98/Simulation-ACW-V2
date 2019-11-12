@@ -38,7 +38,10 @@ class RigidBody
 {
 public:
 	RigidBody(glm::vec3 pSize, float pMass, glm::vec3 pPos, glm::vec3 pAngularVelocity, glm::vec3 pVelocity, ObjectType pType,  glm::mat3 pImpulseTensor);
-	virtual ~RigidBody() = default;
+	virtual ~RigidBody()
+	{
+		int i = 0;
+	}
 
 	RigidBody(const RigidBody &) = delete;
 	RigidBody(RigidBody &&) = delete;

@@ -9,14 +9,16 @@ class HoldingContainer
 	Octree * mOctree;
 	glm::vec3 mLocation;
 	glm::vec3 mSize;
-	int mOverflow;
+	int mSphereOverflow;
+	int mCubeOverflow;
 	std::vector<HoldingCell *> mHoldingCells;
 
 public:
 	HoldingContainer(Octree * pOctree, glm::vec3 pLocation, glm::vec3 pSize);
 	~HoldingContainer();
 
-	void addRigidBody();
+	void addSphere();
+	void addCube();
 
 	void update();
 };
