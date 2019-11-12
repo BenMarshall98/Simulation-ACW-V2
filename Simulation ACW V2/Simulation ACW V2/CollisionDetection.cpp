@@ -1584,6 +1584,7 @@ bool CollisionDetection::detectCollisionCuboidCuboidStep(glm::vec3 pCuboid1Cente
 float CollisionDetection::calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, glm::vec3 pCuboidCenter, glm::vec3 pCuboidXAxis, glm::vec3 pCuboidYAxis, glm::vec3 pCuboidZAxis, glm::vec3 pCuboidSize, bool& pInside, glm::vec3& pCollisionPoint)
 {
 	//TODO: Implement
+	return 0.0f;
 }
 
 void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidBody* pCuboid2, ContactManifold* pManifold, float pLastCollisionTime)
@@ -1594,6 +1595,49 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBody* pPlane, ContactManifold* pManifold, float pLastCollisionTime)
 {
 	//TODO: Implement
+	glm::vec3 cuboidPos;
+
+	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		const auto interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+
+		cuboidPos = pCuboid->getPos() + interValue * (pCuboid->getNewPos() - pCuboid->getPos());
+	}
+	else
+	{
+		cuboidPos = pCuboid->getPos();
+	}
+
+	auto planeMat = pPlane->getMatrix();
+
+	auto planeCenter = glm::vec3(planeMat * glm::vec4(0, 0, 0, 1.0f));
+	auto planeNormal = glm::vec3(planeMat * glm::vec4(0, 1, 0, 1.0f));
+	auto planeTangent = glm::vec3(planeMat * glm::vec4(1, 0, 0, 1.0f));
+	auto planeBiTangent = glm::vec3(planeMat * glm::vec4(0, 0, 1, 1.0f));
+
+	planeNormal = normalize(planeNormal - planeCenter);
+	planeTangent = normalize(planeTangent - planeCenter);
+	planeBiTangent = normalize(planeBiTangent - planeCenter);
+
+	planeCenter = glm::vec3(planeMat * glm::vec4(pPlane->getPos(), 1.0f));
+
+	auto newPlaneMat = pPlane->getNewMatrix();
+
+	auto newCenter = glm::vec3(newPlaneMat * glm::vec4(pPlane->getPos(), 1.0f));
+
+	auto planeVelocity = newCenter - planeCenter;
+
+	auto timeStart = pLastCollisionTime;
+	auto timeEnd = 1.0f;
+	auto firstTime = true;
+	
+	//while (true)
+	{
+		//
+		const auto interValue = (timeStart - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+		const auto cuboidOrr = pCuboid->getOrientation() + interValue * (pCuboid->getNewOrientation() - pCuboid->getOrientation());
+		const auto cuboidOrrMat = toMat4(cuboidOrr);
+	}
 }
 
 void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, RigidBody* pPlaneHoles, ContactManifold* pManifold, float pLastCollisionTime)

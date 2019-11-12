@@ -23,5 +23,8 @@ private:
 	static void dynamicCollisionResponse(ManifoldPoint& pPoint, glm::vec3 tempPos1, glm::vec3& tempVel1, glm::vec3& tempAngVel1, const glm::mat3 tempOrrMat1,
 		glm::vec3 tempPos2, glm::vec3 & tempVel2, glm::vec3& tempAngVel2, const glm::mat3 tempOrrMat2,
 		glm::mat3 inverseImpulseTensor1, glm::mat3 inverseImpulseTensor2, float inverseMass1, float inverseMass2);
+
+	static void staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3 & tempVel, glm::vec3& tempAngVel, const glm::mat3 tempOrrMat, const glm::vec3 tempStaticVel,
+		const glm::vec3 TigidBodyCenterToCollision, const glm::vec3 tempRigidBodyVel, const glm::mat3 inverseImpulseTensor, const float inverseMass);
 };
 
