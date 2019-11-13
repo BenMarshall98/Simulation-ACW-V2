@@ -1411,7 +1411,7 @@ bool CollisionDetection::detectCollisionCuboidCuboidStep(glm::vec3 pCuboid1Cente
 	{
 		for (auto j = 0u; j < 3; j++)
 		{
-			absRot[i][j] = abs(rot[i][j]) + 0.00001f;
+			absRot[i][j] = abs(rot[i][j]) + 0.001f;
 		}
 	}
 
@@ -1611,6 +1611,172 @@ float CollisionDetection::calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, 
 void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidBody* pCuboid2, ContactManifold* pManifold, float pLastCollisionTime)
 {
 	//TODO: Implement
+	glm::vec3 cuboid1Pos;
+
+	if (pCuboid1->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		const auto interValue = (pLastCollisionTime - pCuboid1->getCurrentUpdateTime()) / (1.0f - pCuboid1->getCurrentUpdateTime());
+		cuboid1Pos = pCuboid1->getPos() + interValue * (pCuboid1->getNewPos() - pCuboid1->getPos());
+	}
+	else
+	{
+		cuboid1Pos = pCuboid1->getPos();
+	}
+
+	glm::vec3 cuboid2Pos;
+
+	if (pCuboid2->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		const auto interValue = (pLastCollisionTime - pCuboid2->getCurrentUpdateTime()) / (1.0f - pCuboid2->getCurrentUpdateTime());
+		cuboid2Pos = pCuboid2->getPos() + interValue * (pCuboid2->getNewPos() - pCuboid2->getPos());
+	}
+	else
+	{
+		cuboid2Pos = pCuboid2->getPos();
+	}
+
+	auto timeStart = pLastCollisionTime;
+	auto currentTime = timeStart;
+	auto timeEnd = 1.0f;
+	auto firstTime = true;
+
+	const auto cuboid1Size = pCuboid1->getSize();
+	const auto cuboid2Size = pCuboid2->getSize();
+
+	const auto cuboid1Velocity = pCuboid1->getNewPos() - cuboid1Pos;
+	const auto cuboid2Velocity = pCuboid2->getNewPos() - cuboid2Pos;
+
+	if (dot(cuboid1Velocity, cuboid2Velocity) > 0.0f)
+	{
+		//NOTE: Moving awway so dont collide
+		//TODO: check
+		return;
+	}
+
+	//while (true)
+	{
+		{
+			auto interValue = (currentTime - pCuboid1->getCurrentUpdateTime()) / (1.0f - pCuboid1->getCurrentUpdateTime());
+			const auto cuboid1Orr = slerp(pCuboid1->getOrientation(), pCuboid1->getNewOrientation(), interValue);
+			const auto cuboid1OrrMat = toMat4(cuboid1Orr);
+
+			const auto cuboid1Normal = glm::vec3(cuboid1OrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboid1Tangent = glm::vec3(cuboid1OrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboid1BiTangent = glm::vec3(cuboid1OrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboid1Pos = mix(cuboid1Pos, pCuboid1->getNewPos(), interValue);
+
+			const auto tempCuboid1Axis = std::vector<glm::vec3> {
+				cuboid1Normal, cuboid1Tangent, cuboid1BiTangent
+			};
+			
+			interValue = (currentTime - pCuboid2->getCurrentUpdateTime()) / (1.0f - pCuboid2->getCurrentUpdateTime());
+			const auto cuboid2Orr = slerp(pCuboid2->getOrientation(), pCuboid2->getNewOrientation(), interValue);
+			const auto cuboid2OrrMat = toMat4(cuboid2Orr);
+			
+			const auto cuboid2Normal = glm::vec3(cuboid2OrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboid2Tangent = glm::vec3(cuboid2OrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboid2BiTangnet = glm::vec3(cuboid2OrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboid2Pos = mix(cuboid2Pos, pCuboid2->getNewPos(), interValue);
+
+			const auto tempCuboid2Axis = std::vector<glm::vec3> {
+				cuboid2Normal, cuboid2Tangent, cuboid2BiTangnet
+			};
+
+			if (detectCollisionCuboidCuboidStep(tempCuboid1Pos, tempCuboid1Axis, cuboid1Size,
+				tempCuboid2Pos, tempCuboid2Axis, cuboid2Size))
+			{
+				if (firstTime)
+				{
+					const auto cuboidPoints = std::vector<glm::vec3>{
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+					};
+
+					for (auto point : cuboidPoints)
+					{
+						auto inside = false;
+						auto collisionPoint = glm::vec3(0.0);
+						const auto depth = calculateCuboidCuboidCollisionDepth(point, tempCuboid2Pos, tempCuboid2Axis, cuboid2Pos, inside, collisionPoint);
+
+						if (inside)
+						{
+							ManifoldPoint manPoint = {
+								pCuboid1,
+								pCuboid2,
+								collisionPoint,
+								collisionPoint,
+								calculateCuboidCollisionNormal(tempCuboid2Pos, cuboid2Normal, cuboid2Tangent, cuboid2Normal, cuboid2Size, point),
+								currentTime,
+								depth,
+								CollisionType::PENETRATION
+							};
+
+							pManifold->add(manPoint);
+							return;
+						}
+					}
+				}
+				else
+				{
+					timeEnd = currentTime;
+				}
+			}
+			else if (!firstTime)
+			{
+				//TODO: Logic
+
+				timeStart = currentTime;
+			}
+		}
+
+		if (firstTime)
+		{
+			auto interValue = (timeEnd - pCuboid1->getCurrentUpdateTime()) / (1.0f - pCuboid1->getCurrentUpdateTime());
+			const auto cuboid1Orr = slerp(pCuboid1->getOrientation(), pCuboid1->getNewOrientation(), interValue);
+			const auto cuboid1OrrMat = toMat4(cuboid1Orr);
+
+			const auto cuboid1Normal = glm::vec3(cuboid1OrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboid1Tangent = glm::vec3(cuboid1OrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboid1BiTangent = glm::vec3(cuboid1OrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboid1Pos = mix(cuboid1Pos, pCuboid1->getNewPos(), interValue);
+
+			const auto tempCuboid1Axis = std::vector<glm::vec3>{
+				cuboid1Normal, cuboid1Tangent, cuboid1BiTangent
+			};
+			
+			interValue = (timeEnd - pCuboid2->getCurrentUpdateTime()) / (1.0f - pCuboid2->getCurrentUpdateTime());
+			const auto cuboid2Orr = slerp(pCuboid2->getOrientation(), pCuboid2->getNewOrientation(), interValue);
+			const auto cuboid2OrrMat = toMat4(cuboid2Orr);
+
+			const auto cuboid2Normal = glm::vec3(cuboid2OrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboid2Tangent = glm::vec3(cuboid2OrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboid2BiTangent = glm::vec3(cuboid2OrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboid2Pos = mix(cuboid2Pos, pCuboid2->getNewPos(), interValue);
+
+			const auto tempCuboid2Axis = std::vector<glm::vec3>{
+				cuboid2Normal, cuboid2Tangent, cuboid2BiTangent
+			};
+
+			if (!detectCollisionCuboidCuboidStep(tempCuboid1Pos, tempCuboid1Axis, cuboid1Size,
+				tempCuboid2Pos, tempCuboid2Axis, cuboid2Size))
+			{
+				return;
+			}
+		}
+
+		currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+		firstTime = false;
+	}
 }
 
 void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBody* pPlane, ContactManifold* pManifold, float pLastCollisionTime)
@@ -1666,11 +1832,17 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 		return;
 	}
 
+	int counter = 0;
+
 	while (true)
 	{
+		if (counter > 20)
+		{
+			int i = 0;
+		}
 		{
 			const auto interValue = (currentTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
-			const auto cuboidOrr = pCuboid->getOrientation() + interValue * (pCuboid->getNewOrientation() - pCuboid->getOrientation());
+			const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
 			const auto cuboidOrrMat = toMat4(cuboidOrr);
 
 			const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
@@ -1773,7 +1945,7 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 		if (firstTime)
 		{
 			const auto interValue = (timeEnd - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
-			const auto cuboidOrr = pCuboid->getOrientation() + interValue * (pCuboid->getNewOrientation() - pCuboid->getOrientation());
+			const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
 			const auto cuboidOrrMat = toMat4(cuboidOrr);
 
 			const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
@@ -1796,6 +1968,7 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 		currentTime = glm::mix(timeStart, timeEnd, 0.5f);
 		firstTime = false;
+		counter++;
 	}
 }
 

@@ -298,7 +298,7 @@ void Game::run()
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
-			once = false;
+			once = true;
 		}
 
 		swap();
