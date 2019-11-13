@@ -28,7 +28,8 @@ private:
 	static bool detectCollisionSphereTriangle(RigidBody * pSphere, glm::vec3 pVertex1, glm::vec3 pVertex2, glm::vec3 pVertex3, glm::vec3 pTriangleVelocity, float pLastCollisionTime);
 	static bool detectCollisionSphereCuboidStep(glm::vec3 pSphereCenter, float pSphereRadius, glm::vec3 pCuboidCenter, glm::vec3 pCuboidXAxis, glm::vec3 pCuboidYAxis, glm::vec3 pCuboidZAxis, glm::vec3 pCuboidSize, glm::vec3 & pPoint);
 	static glm::vec3 calculateCuboidCollisionNormal(glm::vec3 pCuboidCenter, glm::vec3 pCuboidXAxis, glm::vec3 pCuboidYAxis, glm::vec3 pCuboidZAxis, glm::vec3 pCuboidSize, glm::vec3 pPoint);
-	static bool detectCollisionCuboidCuboidStep(glm::vec3 pCuboid1Center, glm::vec3 pCuboidXAxis1, glm::vec3 pCuboidYAxis1, glm::vec3 pCuboidZAxis1, glm::vec3 pCuboidSize1, glm::vec3 pCuboid2Center, glm::vec3 pCuboidXAxis2, glm::vec3 pCuboidYAxis2, glm::vec3 pCuboidZAxis2, glm::vec3 pCuboidSize2);
-	static float calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, glm::vec3 pCuboidCenter, glm::vec3 pCuboidXAxis, glm::vec3 pCuboidYAxis, glm::vec3 pCuboidZAxis, glm::vec3 pCuboidSize, bool & pInside, glm::vec3 & pCollisionPoint);
+	static bool detectCollisionCuboidCuboidStep(glm::vec3 pCuboid1Center, std::vector<glm::vec3> pCuboidAxis1, glm::vec3 pCuboidSize1, glm::vec3 pCuboid2Center, std::vector<glm::vec3> pCuboidAxis2, glm::vec3 pCuboidSize2);
+	static float calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, glm::vec3 pCuboidCenter, std::vector<glm::vec3> pCuboidAxis, glm::vec3 pCuboidSize, bool & pInside, glm::vec3 & pCollisionPoint);
+	static bool calculateCuboidPointPlaneCollision(glm::vec3 pCuboidCenter, glm::vec3 pCuboidPoint, glm::vec3 pPlaneCenter, glm::vec3 pPlaneNormal);
 };
 

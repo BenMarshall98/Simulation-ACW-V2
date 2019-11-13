@@ -462,7 +462,7 @@ void CollisionResponse::respondCollisionCuboidPlane(ManifoldPoint & pPoint, Rigi
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto planeMat = pPlane->getMatrix();
@@ -597,5 +597,5 @@ void CollisionResponse::staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3
 	const auto j = -(1.0f + 0.8f) * relVel / (inverseMass + impulseMag);
 
 	tempVel = tempVel + j * inverseMass * pPoint.mContactNormal;
-	tempAngVel = tempAngVel + cross(rigidBodyCenterToCollision, j * pPoint.mContactNormal) * worldTensor;
+	tempAngVel = tempAngVel + worldTensor * cross(rigidBodyCenterToCollision, j * pPoint.mContactNormal);
 }

@@ -293,10 +293,12 @@ void Game::run()
 			mAddSphere = false;
 		}
 
-		if (mAddCube)
+		static bool once = true;
+		if (mAddCube && once)
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
+			once = false;
 		}
 
 		swap();
@@ -326,6 +328,8 @@ void Game::run()
 		const auto now = static_cast<float>(glfwGetTime());
 
 		mDt = now - lastTime;
+		//TODO: Remove
+		mDt = (1.0f / 60.0f);
 
 		OutputDebugString((std::to_string(mDt) + "\n").c_str());
 		lastTime = now;
@@ -456,8 +460,6 @@ void Game::dynamicCollisionResponse() const
 		
 		CollisionResponse::dynamicCollisionResponse(point, moved1, moved2);
 
-		mManifold->remove(0);
-
 		const auto timeLeft = getUpdateDt() - getUpdateDt() * lastCollisionTime;
 
 		auto rigidBody1 = point.mContactId1;
@@ -476,6 +478,8 @@ void Game::dynamicCollisionResponse() const
 			rigidBody2->update();
 			rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
 		}
+
+		mManifold->remove(0);
 		//continue;
 
 		//float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);

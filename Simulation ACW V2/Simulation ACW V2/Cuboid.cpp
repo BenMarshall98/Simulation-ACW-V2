@@ -7,9 +7,9 @@
 
 Cuboid::Cuboid(const glm::vec3 pSize, const float pMass, const glm::vec3 pPos, const glm::vec3 pAngularVelocity, const glm::vec3 pVelocity) :
 	RigidBody(pSize, pMass, pPos, pAngularVelocity, pVelocity, ObjectType::CUBOID,
-	glm::mat3(0, 0, 0,
-	0, 0, 0,
-	0, 0, 0))
+	glm::mat3(1.0f / 6.0f * pMass * (2.0f * pSize.x) * (2.0f * pSize.x), 0.0f, 0.0f,
+	0.0f, 1.0f / 6.0f * pMass * (2.0f * pSize.x) * (2.0f * pSize.x), 0.0f,
+	0.0f, 0.0f, 1.0f / 6.0f * pMass * (2.0f * pSize.x) * (2.0f * pSize.x)))
 {
 	mTexture = TextureLoader::loadBmp("checker.bmp");
 }
