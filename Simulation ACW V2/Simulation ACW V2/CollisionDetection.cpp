@@ -1132,7 +1132,7 @@ bool CollisionDetection::detectCollisionSphereTriangle(RigidBody * pSphere, glm:
 	return true;
 }
 
-void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidBody * pCuboid, ContactManifold *, const float pLastCollisionTime)
+void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidBody * pCuboid, ContactManifold * pManifold, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
 
@@ -1148,40 +1148,140 @@ void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidB
 	}
 
 	glm::vec3 cuboidPos;
-	glm::quat cuboidOrientation;
 
 	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
 	{
 		const auto interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
 
 		cuboidPos = mix(pCuboid->getPos(), pCuboid->getNewPos(), interValue);
-		cuboidOrientation = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
 	}
 	else
 	{
 		cuboidPos = pCuboid->getPos();
-		cuboidOrientation = pCuboid->getOrientation();
 	}
 
 	const auto sphereRadius = pSphere->getSize().x;
 	const auto cuboidSize = pCuboid->getSize();
 
-	const auto rotation = toMat4(cuboidOrientation);
+	const auto cuboidVelocity = pCuboid->getNewPos() - cuboidPos;
+	const auto sphereVelocity = pSphere->getNewPos() - spherePos;
 
-	const auto cuboidXAxis = glm::vec3(rotation * glm::vec4(1, 0, 0, 1.0f));
-	const auto cuboidYAxis = glm::vec3(rotation * glm::vec4(0, 1, 0, 1.0f));
-	const auto cuboidZAxis = glm::vec3(rotation * glm::vec4(0, 0, 1, 1.0f));
-
-	glm::vec3 closestPoint;
-	if (detectCollisionSphereCuboidStep(spherePos, sphereRadius, cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint))
+	if (dot(cuboidVelocity, sphereVelocity) > 0.0f)
 	{
-		ManifoldPoint manPoint;
-		manPoint.mContactId1 = pSphere;
-		manPoint.mContactId2 = pCuboid;
-		manPoint.mContactNormal = normalize(calculateCuboidCollisionNormal(cuboidPos, cuboidXAxis, cuboidYAxis, cuboidZAxis, cuboidSize, closestPoint));
-		manPoint.mCollisionDepth = sphereRadius - (spherePos - closestPoint).length();
-		manPoint.mContactPoint1 = spherePos + sphereRadius * (closestPoint - spherePos);
-		manPoint.mContactPoint2 = closestPoint;
+		//Moving away so don't collide
+		return;
+	}
+
+	auto timeStart = pLastCollisionTime;
+	auto currentTime = timeStart;
+	auto timeEnd = 1.0f;
+	auto firstTime = true;
+
+	while (true)
+	{
+		if (firstTime)
+		{
+			//Time = 0
+			{
+				const auto interValue = (currentTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+				const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+				const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+				const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+				const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+				const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+				const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+				const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+				glm::vec3 collisionPoint;
+				
+				if (detectCollisionSphereCuboidStep(tempSpherePos, sphereRadius, tempCuboidPos, cuboidNormal, cuboidTangent, cuboidBiTangent, pCuboid->getSize(), collisionPoint))
+				{
+					const auto dist = sphereRadius - length(tempSpherePos - collisionPoint);
+
+					ManifoldPoint manPoint = {
+						pSphere,
+						pCuboid,
+						collisionPoint,
+						collisionPoint,
+						normalize(calculateCuboidCollisionNormal(tempCuboidPos, cuboidNormal, cuboidTangent, cuboidBiTangent, cuboidSize, collisionPoint)),
+						0.0f,
+						dist,
+						CollisionType::PENETRATION
+					};
+				}
+			}
+
+			//Time = 1
+			{
+				const auto interValue = (timeEnd - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+				const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+				const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+				const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+				const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+				const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+				const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+				const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+				glm::vec3 collisionPoint;
+
+				if (!detectCollisionSphereCuboidStep(tempSpherePos, sphereRadius, tempCuboidPos, cuboidNormal, cuboidTangent, cuboidBiTangent, pCuboid->getSize(), collisionPoint))
+				{
+					return;
+				}
+
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+				firstTime = false;
+			}
+		}
+		else //Not First Time
+		{
+			const auto interValue = (currentTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+			const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+			const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+			const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+			const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+			glm::vec3 collisionPoint;
+
+			if (detectCollisionSphereCuboidStep(tempSpherePos, sphereRadius, tempCuboidPos, cuboidNormal, cuboidTangent, cuboidBiTangent, pCuboid->getSize(), collisionPoint))
+			{
+				timeEnd = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+			else
+			{
+				const auto dist = length(tempSpherePos - collisionPoint) - sphereRadius;
+
+				if (dist < 0.0005f)
+				{
+					ManifoldPoint manPoint = {
+						pSphere,
+						pCuboid,
+						collisionPoint,
+						collisionPoint,
+						normalize(calculateCuboidCollisionNormal(tempCuboidPos, cuboidNormal, cuboidTangent, cuboidBiTangent, cuboidSize, collisionPoint)),
+						currentTime,
+						0.0f,
+						CollisionType::COLLISION
+					};
+
+					pManifold->add(manPoint);
+					return;
+				}
+
+				timeStart = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+		}
 	}
 }
 
@@ -1242,7 +1342,9 @@ bool CollisionDetection::detectCollisionSphereCuboidStep(const glm::vec3 pSphere
 
 	const auto dist = pPoint - pSphereCenter;
 
-	return dot(dist, dist) <= pSphereRadius * pSphereRadius;
+	const auto dis = length(dist);
+
+	return dis <= pSphereRadius;
 }
 
 glm::vec3 CollisionDetection::calculateCuboidCollisionNormal(const glm::vec3 pCuboidCenter, const glm::vec3 pCuboidXAxis, const glm::vec3 pCuboidYAxis, const glm::vec3 pCuboidZAxis, const glm::vec3 pCuboidSize, const glm::vec3 pPoint)
@@ -1821,7 +1923,6 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 
 void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBody* pPlane, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	//TODO: Implement
 	glm::vec3 cuboidPos;
 
 	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
@@ -1867,8 +1968,7 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 	if (dot(planeNormal, cuboidVelocity) > 0.0f)
 	{
-		//NOTE: Moving away so dont collide
-		//TODO: check
+		//Moving away so dont collide
 		return;
 	}
 
@@ -2235,14 +2335,14 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 					if (depth < 0.0005f)
 					{
 						ManifoldPoint manPoint = {
-						pCuboid,
-						pPlane,
-						collisionPoint,
-						collisionPoint,
-						planeNormal,
-						currentTime,
-						0.0f,
-						CollisionType::COLLISION
+							pCuboid,
+							pPlane,
+							collisionPoint,
+							collisionPoint,
+							planeNormal,
+							currentTime,
+							0.0f,
+							CollisionType::COLLISION
 						};
 
 						pManifold->add(manPoint);
