@@ -328,8 +328,6 @@ void Game::run()
 		const auto now = static_cast<float>(glfwGetTime());
 
 		mDt = now - lastTime;
-		//TODO: Remove
-		mDt = (1.0f / 60.0f);
 
 		OutputDebugString((std::to_string(mDt) + "\n").c_str());
 		lastTime = now;
