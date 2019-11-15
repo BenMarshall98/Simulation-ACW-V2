@@ -294,11 +294,23 @@ void Game::run()
 		}
 
 		static bool once = true;
+		static int counter = 0;
 		if (mAddCube && once)
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
+			once = false;
+		}
+
+		if(!once)
+		{
+			counter++;
+		}
+
+		if (counter > 100)
+		{
 			once = true;
+			counter = 0;
 		}
 
 		swap();
@@ -328,6 +340,8 @@ void Game::run()
 		const auto now = static_cast<float>(glfwGetTime());
 
 		mDt = now - lastTime;
+
+		mDt = (1.0f / 60.0f);
 
 		OutputDebugString((std::to_string(mDt) + "\n").c_str());
 		lastTime = now;
