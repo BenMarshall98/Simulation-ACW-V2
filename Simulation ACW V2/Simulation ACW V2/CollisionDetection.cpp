@@ -2913,6 +2913,9 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 														depth,
 														CollisionType::PENETRATION
 													};
+
+													pManifold->add(manPoint);
+													return;
 												}
 											}
 										}
@@ -3078,6 +3081,79 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 					{
 						//TODO: Deal with case that point is within holes
 						ret = false;
+
+						auto dotX = dot(point - tempPlanePos, planeTangent);
+						auto dotY = dot(point - tempPlanePos, planeBiTangent);
+
+						std::vector<glm::vec3> centers =
+						{
+							-3.0f * planeTangent,
+							-3.0f * planeTangent + 3.0f * planeBiTangent,
+							3.0f * planeBiTangent,
+							3.0f * planeTangent + 3.0f * planeBiTangent,
+							3.0f * planeTangent,
+							3.0f * planeTangent + -3.0f * planeBiTangent,
+							-3.0f * planeBiTangent,
+							-3.0f * planeTangent + -3.0f * planeBiTangent
+						};
+
+						for (auto center : centers)
+						{
+							if (dotX <= center.x + 1 && dotX >= center.x - 1 &&
+								dotY <= center.z + 1 && dotY >= center.z - 1)
+							{
+								auto segments = 20;
+								const auto angle = static_cast<float>(M_PI * 2) / segments;
+
+								for (int j = 0; j < segments; j++)
+								{
+									auto tempCenter = tempPlanePos + center;
+									auto tempVertex1 = tempCenter + cos(j * angle) * planeTangent + sin(j * angle) * planeBiTangent;
+									auto tempVertex2 = tempCenter + cos((j + 1) * angle) * planeTangent + sin((j + 1) * angle) * planeBiTangent;
+
+									if (detectCollisionLineTriangle(tempCuboidPos, point, tempCenter, tempVertex1, tempVertex2))
+									{
+										ret = true;
+										
+										const auto cuboidPairs = std::vector<glm::ivec2>{
+											glm::ivec2(0, 1),
+											glm::ivec2(0, 2),
+											glm::ivec2(0, 4),
+											glm::ivec2(3, 1),
+											glm::ivec2(3, 2),
+											glm::ivec2(3, 7),
+											glm::ivec2(5, 1),
+											glm::ivec2(5, 4),
+											glm::ivec2(5, 7),
+											glm::ivec2(6, 2),
+											glm::ivec2(6, 7),
+											glm::ivec2(6, 4)
+										};
+
+										for (auto pair : cuboidPairs)
+										{
+											if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+											{
+												bool insideHole = false;
+
+												for (int k = 0; k < segments; k++)
+												{
+													auto tempTriVertex1 = tempCenter + cos(k * angle) * planeTangent + sin(k * angle) * planeBiTangent;
+													auto tempTriVertex2 = tempCenter + cos((k + 1) * angle) * planeTangent + sin((k + 1) * angle) * planeBiTangent;
+
+													insideHole |= detectCollisionLineTriangle(cuboidPoints[pair.x], cuboidPoints[pair.y], tempCenter, tempTriVertex1, tempTriVertex2);
+												}
+
+												if (!insideHole)
+												{
+													ret = false;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 						break;
 					}
 				}
@@ -3180,6 +3256,80 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 				{
 					//TODO: Deal with case that point is with holes
 					collision = true;
+
+					auto dotX = dot(point - tempPlanePos, planeTangent);
+					auto dotY = dot(point - tempPlanePos, planeBiTangent);
+
+					std::vector<glm::vec3> centers =
+					{
+						-3.0f * planeTangent,
+						-3.0f * planeTangent + 3.0f * planeBiTangent,
+						3.0f * planeBiTangent,
+						3.0f * planeTangent + 3.0f * planeBiTangent,
+						3.0f * planeTangent,
+						3.0f * planeTangent + -3.0f * planeBiTangent,
+						-3.0f * planeBiTangent,
+						-3.0f * planeTangent + -3.0f * planeBiTangent
+					};
+
+					for (auto center : centers)
+					{
+						if (dotX <= center.x + 1 && dotX >= center.x - 1 &&
+							dotY <= center.z + 1 && dotY >= center.z - 1)
+						{
+							auto segments = 20;
+							const auto angle = static_cast<float>(M_PI * 2) / segments;
+
+							for (int j = 0; j < segments; j++)
+							{
+								auto tempCenter = tempPlanePos + center;
+								auto tempVertex1 = tempCenter + cos(j * angle) * planeTangent + sin(j * angle) * planeBiTangent;
+								auto tempVertex2 = tempCenter + cos((j + 1) * angle) * planeTangent + sin((j + 1) * angle) * planeBiTangent;
+
+								if (detectCollisionLineTriangle(tempCuboidPos, point, tempCenter, tempVertex1, tempVertex2))
+								{
+									collision = false;
+
+									const auto cuboidPairs = std::vector<glm::ivec2>{
+										glm::ivec2(0, 1),
+										glm::ivec2(0, 2),
+										glm::ivec2(0, 4),
+										glm::ivec2(3, 1),
+										glm::ivec2(3, 2),
+										glm::ivec2(3, 7),
+										glm::ivec2(5, 1),
+										glm::ivec2(5, 4),
+										glm::ivec2(5, 7),
+										glm::ivec2(6, 2),
+										glm::ivec2(6, 7),
+										glm::ivec2(6, 4)
+									};
+
+									for (auto pair : cuboidPairs)
+									{
+										if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+										{
+											bool insideHole = false;
+
+											for (int k = 0; k < segments; k++)
+											{
+												auto tempTriVertex1 = tempCenter + cos(k * angle) * planeTangent + sin(k * angle) * planeBiTangent;
+												auto tempTriVertex2 = tempCenter + cos((k + 1) * angle) * planeTangent + sin((k + 1) * angle) * planeBiTangent;
+
+												insideHole |= detectCollisionLineTriangle(cuboidPoints[pair.x], cuboidPoints[pair.y], tempCenter, tempTriVertex1, tempTriVertex2);
+											}
+
+											if (!insideHole)
+											{
+												collision = true;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
 					break;
 				}
 			}
@@ -3245,27 +3395,132 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 			{
 				for (auto point : cuboidPoints)
 				{
-					//TODO: Deal with case that point is within hole
-					auto inside = false;
-					auto collisionPoint = glm::vec3(0.0);
-					const auto depth = calculateCuboidCuboidCollisionDepth(point, tempPlanePos, planeAxis, planeSize, inside, collisionPoint);
-
-					if (depth < 0.0005f)
+					glm::vec3 temp;
+					if (calculateCuboidPointPlaneCollision(tempCuboidPos, point, tempPlanePos, planeAxis, planeSize, temp))
 					{
-						ManifoldPoint manPoint = {
-							pCuboid,
-							pPlaneHoles,
-							collisionPoint,
-							collisionPoint,
-							planeNormal,
-							currentTime,
-							0.0f,
-							CollisionType::COLLISION
+						auto dotX = dot(point - tempPlanePos, planeTangent);
+						auto dotY = dot(point - tempPlanePos, planeBiTangent);
+
+						//TODO: Deal with case that point is within hole
+						std::vector<glm::vec3> centers =
+						{
+							-3.0f * planeTangent,
+							-3.0f * planeTangent + 3.0f * planeBiTangent,
+							3.0f * planeBiTangent,
+							3.0f * planeTangent + 3.0f * planeBiTangent,
+							3.0f * planeTangent,
+							3.0f * planeTangent + -3.0f * planeBiTangent,
+							-3.0f * planeBiTangent,
+							-3.0f * planeTangent + -3.0f * planeBiTangent
 						};
 
-						pManifold->add(manPoint);
-						return;
-					}
+						bool collision = true;
+
+						for (auto center : centers)
+						{
+							if (dotX <= center.x + 1 && dotX >= center.x - 1 &&
+								dotY <= center.z + 1 && dotY >= center.z - 1)
+							{
+								auto segments = 20;
+								const auto angle = static_cast<float>(M_PI * 2) / segments;
+
+								for (int j = 0; j < segments; j++)
+								{
+									auto tempCenter = tempPlanePos + center;
+									auto tempVertex1 = tempCenter + cos(j * angle) * planeTangent + sin(j * angle) * planeBiTangent;
+									auto tempVertex2 = tempCenter + cos((j + 1) * angle) * planeTangent + sin((j + 1) * angle) * planeBiTangent;
+
+									if (detectCollisionLineTriangle(tempCuboidPos, point, tempCenter, tempVertex1, tempVertex2))
+									{
+										collision = false;
+
+										const auto cuboidPairs = std::vector<glm::ivec2>{
+											glm::ivec2(0, 1),
+											glm::ivec2(0, 2),
+											glm::ivec2(0, 4),
+											glm::ivec2(3, 1),
+											glm::ivec2(3, 2),
+											glm::ivec2(3, 7),
+											glm::ivec2(5, 1),
+											glm::ivec2(5, 4),
+											glm::ivec2(5, 7),
+											glm::ivec2(6, 2),
+											glm::ivec2(6, 7),
+											glm::ivec2(6, 4)
+										};
+
+										for (auto pair : cuboidPairs)
+										{
+											if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+											{
+												glm::vec3 collisionPoint1;
+												glm::vec3 collisionPoint2;
+												float depth = 100.0f;
+
+												for (int k = 0; k < segments; k++)
+												{
+													auto tempTriVertex1 = tempCenter + cos(k * angle) * planeTangent + sin(k * angle) * planeBiTangent;
+													auto tempTriVertex2 = tempCenter + cos((k + 1) * angle) * planeTangent + sin((k + 1) * angle) * planeBiTangent;
+
+													glm::vec3 closestPoint;
+													glm::vec3 temp;
+													float dist = calculateClosestPointBetweenLines(tempTriVertex1, tempTriVertex2, cuboidPoints[pair.x], cuboidPoints[pair.y], closestPoint, temp);
+
+													if (dist < depth)
+													{
+														depth = dist;
+														collisionPoint1 = closestPoint;
+														collisionPoint2 = temp;
+													}
+												}
+
+												if (depth < 0.0005f)
+												{
+													ManifoldPoint manPoint = {
+														pCuboid,
+														pPlaneHoles,
+														collisionPoint1,
+														collisionPoint1,
+														normalize(collisionPoint2 - collisionPoint1),
+														0.0f,
+														depth,
+														CollisionType::PENETRATION
+													};
+													
+													pManifold->add(manPoint);
+													return;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+
+						if (collision)
+						{
+							auto inside = false;
+							auto collisionPoint = glm::vec3(0.0);
+							const auto depth = calculateCuboidCuboidCollisionDepth(point, tempPlanePos, planeAxis, planeSize, inside, collisionPoint);
+
+							if (depth < 0.0005f)
+							{
+								ManifoldPoint manPoint = {
+									pCuboid,
+									pPlaneHoles,
+									collisionPoint,
+									collisionPoint,
+									planeNormal,
+									currentTime,
+									0.0f,
+									CollisionType::COLLISION
+								};
+
+								pManifold->add(manPoint);
+								return;
+							}
+						}
+					}	
 				}
 
 				const auto cuboidPairs = std::vector<glm::ivec2>{
