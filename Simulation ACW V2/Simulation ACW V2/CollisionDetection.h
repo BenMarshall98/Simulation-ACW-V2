@@ -32,5 +32,6 @@ private:
 	static float calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, glm::vec3 pCuboidCenter, std::vector<glm::vec3> pCuboidAxis, glm::vec3 pCuboidSize, bool & pInside, glm::vec3 & pCollisionPoint);
 	static bool calculateCuboidPointPlaneCollision(glm::vec3 pCuboidCenter, glm::vec3 pCuboidPoint, glm::vec3 pPlaneCenter, std::vector<glm::vec3> pPlaneAxis, glm::vec3 pPlaneSize, glm::vec3 & pCollisionPoint);
 	static float calculateClosestPointBetweenLines(glm::vec3 pLine1Start, glm::vec3 pLine1End, glm::vec3 pLine2Start, glm::vec3 pLine2End, glm::vec3 & pLine1Point, glm::vec3 & pLine2Point);
+	static bool detectCollisionSphereCylinderStep(glm::vec3 pCylinderCenter, glm::vec3 pCylinderEndPoint1, glm::vec3 pCylinderEndPoint2, float pCylinderRadius, float pCylinderHeight, glm::vec3 pSpherePos, float pSphereRadius, float & distance, glm::vec3 & pCollisionPoint);
 };
 

@@ -1,5 +1,6 @@
 #include "CollisionResponse.h"
 #include "Game.h"
+#include <corecrt_math_defines.h>
 
 //https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
 //http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.6905&rep=rep1&type=pdf
@@ -551,9 +552,81 @@ void CollisionResponse::respondCollisionCuboidCylinder(ManifoldPoint& pPoint, Ri
 	//TODO: Implement
 }
 
-void CollisionResponse::respondCollisionSphereCylinder(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody* pCylinder, bool& moved1, bool& moved2)
+void CollisionResponse::respondCollisionSphereCylinder(ManifoldPoint& pPoint, RigidBody* pSphere, RigidBody* pCylinder, bool& pMoved1, bool& pMoved2)
 {
-	//TODO: Implement
+	const auto changeTime = pPoint.mTime - pSphere->getCurrentUpdateTime();
+
+	auto tempPos = mix(pSphere->getPos(), pSphere->getNewPos(), changeTime);
+	auto tempVel = mix(pSphere->getVel(), pSphere->getNewVel(), changeTime);
+	auto tempAngVel = mix(pSphere->getAngularVelocity(), pSphere->getNewAngularVelocity(), changeTime);
+	const auto tempOrr = slerp(pSphere->getOrientation(), pSphere->getNewOrientation(), changeTime);
+	const auto tempOrrMat = toMat3(tempOrr);
+
+	if (pPoint.mCollisionType == CollisionType::PENETRATION)
+	{
+		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
+	}
+
+	glm::vec3 cylinderVel;
+	const auto cylinderHeight = pCylinder->getSize().y * 0.5f;
+	const auto cylinderRadius = pCylinder->getSize().x * 0.5f;
+
+	{
+		const auto cylinderMat1 = pCylinder->getMatrix();
+		const auto cylinderMat2 = pCylinder->getNewMatrix();
+
+		auto cylinderCenter1 = glm::vec3(cylinderMat1 * glm::vec4(0, 0, 0, 1.0f));
+		auto cylinderNormal1 = glm::vec3(cylinderMat1 * glm::vec4(0, 1, 0, 1.0f));
+
+		cylinderNormal1 = normalize(cylinderNormal1 - cylinderCenter1);
+
+		auto cylinder1Point1 = cylinderCenter1 + cylinderNormal1 * cylinderHeight;
+		auto cylinder1Point2 = cylinderCenter1 - cylinderNormal1 * cylinderHeight;
+
+		auto cylinderCenter2 = glm::vec3(cylinderMat2 * glm::vec4(0, 0, 0, 1.0f));
+		auto cylinderNormal2 = glm::vec3(cylinderMat2 * glm::vec4(0, 1, 0, 1.0f));
+
+		cylinderNormal2 = normalize(cylinderNormal2 - cylinderCenter2);
+
+		auto cylinder2Point1 = cylinderCenter2 + cylinderNormal2 * cylinderHeight;
+		auto cylinder2Point2 = cylinderCenter2 - cylinderNormal2 * cylinderHeight;
+
+		auto cylinderEndPoint1 = (cylinder1Point2 + cylinder2Point2) / 2.0f;
+
+		if (cylinder1Point1 == cylinder2Point1 && cylinder1Point2 == cylinder2Point2)
+		{
+			cylinderVel = glm::vec3(0, 0, 0);
+		}
+		else
+		{
+			auto angle1 = glm::atan(cylinder1Point1.x, cylinder1Point1.z);
+			auto angle2 = glm::atan(cylinder2Point1.x, cylinder2Point1.z);
+
+			if(angle2 < angle1)
+			{
+				angle2 += 2.0f * M_PI;
+			}
+
+			auto speed = (angle2 - angle1) / Game::getUpdateDt();
+
+			cylinderVel = cross(pPoint.mContactPoint2 - cylinderEndPoint1, glm::vec3(0, speed, 0));
+		}
+	}
+
+	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
+	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+
+	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
+		cylinderVel, sphereCenterToCollision, tempSphereVel,
+		pSphere->getInverseImpulseTenser(), 1.0f / pSphere->getMass());
+
+	pSphere->setNewPos(tempPos);
+	pSphere->setNewVel(tempVel);
+	pSphere->setNewOrientation(tempOrr);
+	pSphere->setNewAngularVel(tempAngVel);
+
+	pMoved1 = true;
+	pMoved2 = false;
 }
 
 void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, glm::vec3 tempPos1, glm::vec3& tempVel1, glm::vec3& tempAngVel1, const glm::mat3 tempOrrMat1,

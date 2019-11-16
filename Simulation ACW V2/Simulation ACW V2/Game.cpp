@@ -93,14 +93,14 @@ Game::Game()
 
 	propellerRotationWithAnimation->addChild(propellerCentreTranslation);
 
-	auto cylinder = new Cylinder(glm::vec3(1, 1, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
+	auto cylinder = new Cylinder(glm::vec3(1, 6, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
 
 	const auto propellerCentreNode = new RigidBodyNode(cylinder);
 
 	propellerCentreTranslation->addChild(propellerCentreNode);
 	mSceneBody.push_back(cylinder);
 
-	auto propellerBladeTranslation = new TranslationNode(glm::vec3(0, 6, 0));
+	auto propellerBladeTranslation = new TranslationNode(glm::vec3(0, 5.0f, 0));
 
 	propellerRotationWithAnimation->addChild(propellerBladeTranslation);
 
@@ -116,7 +116,7 @@ Game::Game()
 
 	propellerBlade1Rotation->addChild(propellerBlade1Translation);
 
-	cylinder = new Cylinder(glm::vec3(1, 1, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),  glm::vec3(0, 0, 0));
+	cylinder = new Cylinder(glm::vec3(0.5f, 3, 0.5f), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),  glm::vec3(0, 0, 0));
 
 	const auto propellerBlade1Node = new RigidBodyNode(cylinder);
 
@@ -131,7 +131,7 @@ Game::Game()
 
 	propellerBlade2Rotation->addChild(propellerBlade2Translation);
 
-	cylinder = new Cylinder(glm::vec3(1, 1, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
+	cylinder = new Cylinder(glm::vec3(0.5f, 3, 0.5f), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
 
 	const auto propellerBlade2Node = new RigidBodyNode(cylinder);
 
@@ -146,7 +146,7 @@ Game::Game()
 
 	propellerBlade3Rotation->addChild(propellerBlade3Translation);
 
-	cylinder = new Cylinder(glm::vec3(1, 1, 1), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
+	cylinder = new Cylinder(glm::vec3(0.5f, 3, 0.5f), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
 
 	const auto propellerBlade3Node = new RigidBodyNode(cylinder);
 

@@ -2718,7 +2718,213 @@ void CollisionDetection::detectCollisionCuboidCylinder(RigidBody* pSphere, Rigid
 
 void CollisionDetection::detectCollisionSphereCylinder(RigidBody* pSphere, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	//TODO: Implement
+	glm::vec3 spherePos;
+
+	if (pSphere->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		const auto interValue = (pLastCollisionTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+
+		spherePos = mix(pSphere->getPos(), pSphere->getNewPos(), interValue);
+	}
+	else
+	{
+		spherePos = pSphere->getPos();
+	}
+
+	const auto sphereRadius = pSphere->getSize().x;
+
+	//TODO: Double check
+	const auto cylinderHeight = pCylinder->getSize().y * 0.5f;
+	const auto cylinderRadius = pCylinder->getSize().x * 0.5f;
+
+	bool rotate = true;
+	
+	glm::vec3 cylinderEndPoint1;
+
+	glm::quat cylinderRotationStart;
+	glm::quat cylinderRotationEnd;
+
+	{
+		const auto cylinderMat1 = pCylinder->getMatrix();
+		const auto cylinderMat2 = pCylinder->getNewMatrix();
+
+		auto cylinderCenter1 = glm::vec3(cylinderMat1 * glm::vec4(0, 0, 0, 1.0f));
+		auto cylinderNormal1 = glm::vec3(cylinderMat1 * glm::vec4(0, 1, 0, 1.0f));
+
+		cylinderNormal1 = normalize(cylinderNormal1 - cylinderCenter1);
+
+		auto cylinder1Point1 = cylinderCenter1 + cylinderNormal1 * cylinderHeight;
+		auto cylinder1Point2 = cylinderCenter1 - cylinderNormal1 * cylinderHeight;
+
+		auto cylinderCenter2 = glm::vec3(cylinderMat2 * glm::vec4(0, 0, 0, 1.0f));
+		auto cylinderNormal2 = glm::vec3(cylinderMat2 * glm::vec4(0, 1, 0, 1.0f));
+
+		cylinderNormal2 = normalize(cylinderNormal2 - cylinderCenter2);
+
+		auto cylinder2Point1 = cylinderCenter2 + cylinderNormal2 * cylinderHeight;
+		auto cylinder2Point2 = cylinderCenter2 - cylinderNormal2 * cylinderHeight;
+
+		cylinderEndPoint1 = (cylinder1Point2 + cylinder2Point2) / 2.0f;
+
+		if (cylinder1Point1 == cylinder2Point1 && cylinder1Point2 == cylinder2Point2)
+		{
+			rotate = false;
+		}
+		else
+		{
+			cylinderRotationStart = angleAxis(glm::atan(cylinder1Point1.x, cylinder1Point1.z), glm::vec3(0, 1, 0));
+			cylinderRotationEnd = angleAxis(glm::atan(cylinder2Point1.x, cylinder2Point1.z), glm::vec3(0, 1, 0));
+		}
+	}
+	
+	auto timeStart = pLastCollisionTime;
+	auto currentTime = timeStart;
+	auto timeEnd = 1.0f;
+	auto firstTime = true;
+
+	while (true)
+	{
+		if (firstTime)
+		{
+			//Time = 0
+			{
+				glm::vec3 cylinderEndPoint2;
+
+				if (rotate)
+				{
+					const auto interValue = (currentTime - pCylinder->getCurrentUpdateTime()) / (1.0f - pCylinder->getCurrentUpdateTime());
+					const auto cylinderOrr = slerp(cylinderRotationStart, cylinderRotationEnd, interValue);
+					const auto cylinderOrrMat = toMat4(cylinderOrr);
+
+					const auto cylinderNormal = glm::vec3(cylinderOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+					cylinderEndPoint2 = cylinderEndPoint1 + cylinderNormal * cylinderHeight * 2.0f;
+				}
+				else
+				{
+					cylinderEndPoint2 = cylinderEndPoint1 + glm::vec3(0, 1, 0) * cylinderHeight * 2.0f;
+				}
+
+				const auto cylinderCenter = (cylinderEndPoint1 + cylinderEndPoint2) / 2.0f;
+
+				const auto interValue = (currentTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+				const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+				glm::vec3 collisionPoint;
+				float depth;
+
+				if (detectCollisionSphereCylinderStep(cylinderCenter, cylinderEndPoint1, cylinderEndPoint2, cylinderRadius, cylinderHeight, tempSpherePos, sphereRadius, depth, collisionPoint))
+				{
+					ManifoldPoint manPoint = {
+						pSphere,
+						pCylinder,
+						collisionPoint,
+						collisionPoint,
+						normalize(tempSpherePos - collisionPoint),
+						0.0f,
+						sphereRadius - depth,
+						CollisionType::PENETRATION
+					};
+
+					pManifold->add(manPoint);
+					return;
+				}
+			}
+
+			//Time = 1
+			{
+				glm::vec3 cylinderEndPoint2;
+
+				if (rotate)
+				{
+					const auto interValue = (timeEnd - pCylinder->getCurrentUpdateTime()) / (1.0f - pCylinder->getCurrentUpdateTime());
+					const auto cylinderOrr = slerp(cylinderRotationStart, cylinderRotationEnd, interValue);
+					const auto cylinderOrrMat = toMat4(cylinderOrr);
+
+					const auto cylinderNormal = glm::vec3(cylinderOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+					cylinderEndPoint2 = cylinderEndPoint1 + cylinderNormal * cylinderHeight * 2.0f;
+				}
+				else
+				{
+					cylinderEndPoint2 = cylinderEndPoint1 + glm::vec3(0, 1, 0) * cylinderHeight * 2.0f;
+				}
+
+				const auto cylinderCenter = (cylinderEndPoint1 + cylinderEndPoint2) / 2.0f;
+
+				const auto interValue = (timeEnd - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+				const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+				glm::vec3 collisionPoint;
+				float depth;
+
+				if (!detectCollisionSphereCylinderStep(cylinderCenter, cylinderEndPoint1, cylinderEndPoint2, cylinderRadius, cylinderHeight, tempSpherePos, sphereRadius, depth, collisionPoint))
+				{
+					return;
+				}
+
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+				firstTime = false;
+			}
+		}
+		else //Not First Time
+		{
+			glm::vec3 cylinderEndPoint2;
+
+			if (rotate)
+			{
+				const auto interValue = (currentTime - pCylinder->getCurrentUpdateTime()) / (1.0f - pCylinder->getCurrentUpdateTime());
+				const auto cylinderOrr = slerp(cylinderRotationStart, cylinderRotationEnd, interValue);
+				const auto cylinderOrrMat = toMat4(cylinderOrr);
+
+				const auto cylinderNormal = glm::vec3(cylinderOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+				cylinderEndPoint2 = cylinderEndPoint1 + cylinderNormal * cylinderHeight * 2.0f;
+			}
+			else
+			{
+				cylinderEndPoint2 = cylinderEndPoint1 + glm::vec3(0, 1, 0) * cylinderHeight * 2.0f;
+			}
+
+			const auto cylinderCenter = (cylinderEndPoint1 + cylinderEndPoint2) / 2.0f;
+
+			const auto interValue = (currentTime - pSphere->getCurrentUpdateTime()) / (1.0f - pSphere->getCurrentUpdateTime());
+			const auto tempSpherePos = mix(spherePos, pSphere->getNewPos(), interValue);
+
+			glm::vec3 collisionPoint;
+			float depth;
+
+			if (detectCollisionSphereCylinderStep(cylinderCenter, cylinderEndPoint1, cylinderEndPoint2, cylinderRadius, cylinderHeight, tempSpherePos, sphereRadius, depth, collisionPoint))
+			{
+				timeEnd = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+			else
+			{
+				const auto dist = length(tempSpherePos - collisionPoint) - sphereRadius;
+
+				if (dist < 0.0005f)
+				{
+					ManifoldPoint manPoint = {
+						pSphere,
+						pCylinder,
+						collisionPoint,
+						collisionPoint,
+						normalize(tempSpherePos - collisionPoint),
+						currentTime,
+						0.0f,
+						CollisionType::COLLISION
+					};
+
+					pManifold->add(manPoint);
+					return;
+				}
+
+				timeStart = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+		}
+	}
 }
 
 bool CollisionDetection::calculateCuboidPointPlaneCollision(glm::vec3 pCuboidCenter, glm::vec3 pCuboidPoint, glm::vec3 pPlaneCenter, std::vector<glm::vec3> pPlaneAxis, glm::vec3 pPlaneSize, glm::vec3 & pCollisionPoint)
@@ -2764,35 +2970,126 @@ float CollisionDetection::calculateClosestPointBetweenLines(glm::vec3 pLine1Star
 	const auto a = dot(d1, d1);
 	const auto e = dot(d2, d2);
 	const auto f = dot(d2, r);
-	const auto c = dot(d1, r);
-	const auto b = dot(d1, d2);
 
-	const auto denom = a * e - b * b;
-
-	if (denom != 0.0f)
+	if (a == 0.0f && e == 0.0f)
 	{
-		s = glm::clamp((b * f - c * e) / denom, 0.0f, 1.0f);
+		s = 0.0f;
+		t = 0.0f;
+		pLine1Point = pLine1Start;
+		pLine2Point = pLine2Start;
+		return length(pLine1Point - pLine2Point);
+	}
+
+	if (a == 0.0f)
+	{
+		s = 0.0f;
+		t = f / e;
+		t = glm::clamp(t, 0.0f, 1.0f);
 	}
 	else
 	{
-		s = 0.0f;
-	}
+		const auto c = dot(d1, r);
 
-	t = (b * s + f) / e;
+		if (e == 0.0f)
+		{
+			t = 0.0f;
+			s = glm::clamp(-c / a, 0.0f, 1.0f);
+		}
+		else
+		{
+			const auto b = dot(d1, d2);
 
-	if (t < 0.0f)
-	{
-		t = 0.0f;
-		s = glm::clamp(-c / a, 0.0f, 1.0f);
-	}
-	else if (t > 1.0f)
-	{
-		t = 1.0f;
-		s = glm::clamp((b - c) / a, 0.0f, 1.0f);
+			const auto denom = a * e - b * b;
+
+			if (denom != 0.0f)
+			{
+				s = glm::clamp((b * f - c * e) / denom, 0.0f, 1.0f);
+			}
+			else
+			{
+				s = 0.0f;
+			}
+
+			t = (b * s + f) / e;
+
+			if (t < 0.0f)
+			{
+				t = 0.0f;
+				s = glm::clamp(-c / a, 0.0f, 1.0f);
+			}
+			else if (t > 1.0f)
+			{
+				t = 1.0f;
+				s = glm::clamp((b - c) / a, 0.0f, 1.0f);
+			}
+		}
 	}
 
 	pLine1Point = pLine1Start + d1 * s;
 	pLine2Point = pLine2Start + d2 * t;
 	
 	return length(pLine1Point - pLine2Point);
+}
+
+//https://www10.cs.fau.de/publications/theses/2010/Suenkel_BT_2010.pdf
+
+bool CollisionDetection::detectCollisionSphereCylinderStep(glm::vec3 pCylinderCenter, glm::vec3 pCylinderEndPoint1, glm::vec3 pCylinderEndPoint2, float pCylinderRadius, float pCylinderHeight, glm::vec3 pSpherePos, float pSphereRadius, float & distance, glm::vec3 & pCollisionPoint)
+{
+	const auto cylinderNormal = normalize(pCylinderEndPoint1 - pCylinderEndPoint2);
+
+	const auto proj = dot(cylinderNormal, pSpherePos - pCylinderCenter);
+
+	if (proj > pCylinderHeight)
+	{
+		//Pass End Point 1
+
+		const auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint1), cylinderNormal);
+
+		const auto lineStart = pCylinderEndPoint1 + endCapVector * pCylinderRadius;
+		const auto lineEnd = pCylinderEndPoint1 - endCapVector * pCylinderRadius;
+
+		glm::vec3 temp;
+
+		calculateClosestPointBetweenLines(lineStart, lineEnd, pSpherePos, pSpherePos, pCollisionPoint, temp);
+
+		distance = length(pCollisionPoint - pSpherePos);
+
+		if (distance < 1.0f)
+		{
+			int i = 0;
+		}
+
+		return distance < pSphereRadius;
+	}
+	if (proj < -pCylinderHeight)
+	{
+		//Pass End Point 2
+
+		const auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint2), cylinderNormal);
+
+		const auto lineStart = pCylinderEndPoint2 + endCapVector * pCylinderRadius;
+		const auto lineEnd = pCylinderEndPoint2 - endCapVector * pCylinderRadius;
+
+		glm::vec3 temp;
+
+		calculateClosestPointBetweenLines(lineStart, lineEnd, pSpherePos, pSpherePos, pCollisionPoint, temp);
+
+		distance = length(pCollisionPoint - pSpherePos);
+
+		if (distance < 1.0f)
+		{
+			int i = 0;
+		}
+		
+		return distance < pSphereRadius;
+	}
+	
+	//With Cylinder End Points
+	glm::vec3 temp;
+	
+	calculateClosestPointBetweenLines(pCylinderEndPoint1, pCylinderEndPoint2, pSpherePos, pSpherePos, pCollisionPoint, temp);
+
+	distance = length(pCollisionPoint - pSpherePos);
+
+	return distance < pCylinderRadius + pSphereRadius;
 }
