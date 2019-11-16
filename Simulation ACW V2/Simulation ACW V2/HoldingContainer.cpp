@@ -63,7 +63,7 @@ void HoldingContainer::addCube()
 			const auto velocity = glm::vec3(0, 0, 0);
 			const auto size = Game::getSphereSize();
 			const auto cube = new Cuboid(glm::vec3(size, size, size), 0.02, mHoldingCells[i]->getLocation(),
-				glm::vec3(0, 1, 1), velocity);
+				glm::vec3(0, 0.01, 0.01), velocity);
 
 			mHoldingCells[i]->addRigidBody(cube);
 			mOctree->addRigidBody(cube);
@@ -137,7 +137,7 @@ void HoldingContainer::update()
 				const auto velocity = glm::vec3(0, 0, 0);
 				const auto size = Game::getSphereSize();
 				const auto sphere = new Cuboid(glm::vec3(size, size, size), 0.02, holdingCell->getLocation(),
-					glm::vec3(0, 1, 1), velocity);
+					glm::vec3(0, 0.01, 0.01), velocity);
 
 				holdingCell->addRigidBody(sphere);
 				mOctree->addRigidBody(sphere);
