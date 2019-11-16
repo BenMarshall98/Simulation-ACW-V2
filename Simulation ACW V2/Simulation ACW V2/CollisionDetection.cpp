@@ -2781,7 +2781,8 @@ void CollisionDetection::detectCollisionSphereCylinder(RigidBody* pSphere, Rigid
 	auto currentTime = timeStart;
 	auto timeEnd = 1.0f;
 	auto firstTime = true;
-
+	auto dista = 10.0f;
+	
 	while (true)
 	{
 		if (firstTime)
@@ -2901,9 +2902,29 @@ void CollisionDetection::detectCollisionSphereCylinder(RigidBody* pSphere, Rigid
 			}
 			else
 			{
-				const auto dist = length(tempSpherePos - collisionPoint) - sphereRadius;
+				//top
+				auto dist = length(tempSpherePos - collisionPoint) - sphereRadius;
 
-				if (dist < 0.0005f)
+				if (abs(dist) < 0.05f)
+				{
+					ManifoldPoint manPoint = {
+						pSphere,
+						pCylinder,
+						collisionPoint,
+						collisionPoint,
+						normalize(tempSpherePos - collisionPoint),
+						currentTime,
+						0.0f,
+						CollisionType::COLLISION
+					};
+
+					pManifold->add(manPoint);
+					return;
+				}
+
+				dist = dist - cylinderRadius;
+
+				if (abs(dist) < 0.05f)
 				{
 					ManifoldPoint manPoint = {
 						pSphere,
@@ -3043,7 +3064,12 @@ bool CollisionDetection::detectCollisionSphereCylinderStep(glm::vec3 pCylinderCe
 	{
 		//Pass End Point 1
 
-		const auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint1), cylinderNormal);
+		auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint1), cylinderNormal);
+
+		if (length(endCapVector) != 0)
+		{
+			endCapVector = normalize(endCapVector);
+		}
 
 		const auto lineStart = pCylinderEndPoint1 + endCapVector * pCylinderRadius;
 		const auto lineEnd = pCylinderEndPoint1 - endCapVector * pCylinderRadius;
@@ -3065,7 +3091,12 @@ bool CollisionDetection::detectCollisionSphereCylinderStep(glm::vec3 pCylinderCe
 	{
 		//Pass End Point 2
 
-		const auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint2), cylinderNormal);
+		auto endCapVector = cross(cross(cylinderNormal, pSpherePos - pCylinderEndPoint2), cylinderNormal);
+
+		if (length(endCapVector) != 0)
+		{
+			endCapVector = normalize(endCapVector);
+		}
 
 		const auto lineStart = pCylinderEndPoint2 + endCapVector * pCylinderRadius;
 		const auto lineEnd = pCylinderEndPoint2 - endCapVector * pCylinderRadius;
