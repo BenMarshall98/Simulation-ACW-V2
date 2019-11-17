@@ -6,6 +6,8 @@
 HoldingContainer::HoldingContainer(Octree * pOctree, const glm::vec3 pLocation, const glm::vec3 pSize) :
 	mOctree(pOctree), mLocation(pLocation), mSize(pSize), mSphereOverflow(0), mCubeOverflow(0)
 {
+	mNumber = std::uniform_real_distribution<float>(0.0f, 1.0f);
+	
 	auto location = glm::vec3(pLocation.x, pLocation.y - pSize.y * 2, pLocation.z);
 	const auto size = glm::vec3(1, 1, 1);
 
@@ -40,10 +42,14 @@ void HoldingContainer::addSphere()
 	{
 		if (mHoldingCells[i]->getNumberRigidBody() == 0)
 		{
-			//TODO: Look at random velocity
-			const auto velocity = glm::vec3(0, 0, 0);
+			const auto color = glm::vec3(mNumber(mEngine), mNumber(mEngine), mNumber(mEngine));
+			const auto velocity = glm::vec3(mNumber(mEngine), 0, mNumber(mEngine));
+			auto angularVelocity = glm::vec3(mNumber(mEngine), mNumber(mEngine), mNumber(mEngine));
+
+			angularVelocity /= 100.0f;
+			
 			const auto sphere = new Sphere(Game::getSphereSize(), 0.02, mHoldingCells[i]->getLocation(),
-				glm::vec3(0, 1, 1), velocity);
+				angularVelocity, velocity, color);
 
 			mHoldingCells[i]->addRigidBody(sphere);
 			mOctree->addRigidBody(sphere);
@@ -61,7 +67,7 @@ void HoldingContainer::addCube()
 		if (mHoldingCells[i]->getNumberRigidBody() == 0)
 		{
 			const auto velocity = glm::vec3(0, 0, 0);
-			const auto size = Game::getSphereSize();
+			const auto size = 0.25f;
 			const auto cube = new Cuboid(glm::vec3(size, size, size), 0.02, mHoldingCells[i]->getLocation(),
 				glm::vec3(0, 0.01, 0.01), velocity);
 
@@ -112,10 +118,15 @@ void HoldingContainer::update()
 		{
 			if (holdingCell->getNumberRigidBody() == 0)
 			{
+				const auto color = glm::vec3(mNumber(mEngine), mNumber(mEngine), mNumber(mEngine));
+				const auto velocity = glm::vec3(mNumber(mEngine), 0, mNumber(mEngine));
+				auto angularVelocity = glm::vec3(mNumber(mEngine), mNumber(mEngine), mNumber(mEngine));
+
+				angularVelocity /= 100.f;
+				
 				//TODO: Look at random velocity
-				const auto velocity = glm::vec3(0, 0, 0);
 				const auto sphere = new Sphere(Game::getSphereSize(), 0.02, holdingCell->getLocation(),
-					glm::vec3(0, 1, 1), velocity);
+					angularVelocity, velocity, color);
 
 				holdingCell->addRigidBody(sphere);
 				mOctree->addRigidBody(sphere);

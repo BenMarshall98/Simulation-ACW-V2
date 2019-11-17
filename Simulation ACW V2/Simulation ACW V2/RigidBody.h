@@ -48,9 +48,9 @@ public:
 	RigidBody & operator= (const RigidBody &) = delete;
 	RigidBody & operator= (RigidBody &&) = delete;
 
-	static Derivative evaluate(const State & initial, float time, float dt, const Derivative & derivative);
-	static glm::vec3 acceleration(const State& state, float time);
-	static void integrate(State & state, float time, float dt);
+	Derivative evaluate(const State & initial, float time, float dt, const Derivative & derivative);
+	glm::vec3 acceleration(const State& state, float time);
+	void integrate(State & state, float time, float dt);
 	void calculatePhysics(float pDt, float pCurrentUpdateTime);
 	void update();
 	void updateRender();
@@ -115,7 +115,6 @@ protected:
 	float mMass;
 	float mLastUpdateTime;
 	int mObjectId;
-	GLuint mTexture;
 	Shader * mShader;
 	Model * mModel;
 	

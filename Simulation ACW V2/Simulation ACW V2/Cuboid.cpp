@@ -11,16 +11,15 @@ Cuboid::Cuboid(const glm::vec3 pSize, const float pMass, const glm::vec3 pPos, c
 	0.0f, 1.0f / 6.0f * pMass * (2.0f * pSize.x) * (2.0f * pSize.x), 0.0f,
 	0.0f, 0.0f, 1.0f / 6.0f * pMass * (2.0f * pSize.x) * (2.0f * pSize.x)))
 {
-	mTexture = TextureLoader::loadBmp("checker.bmp");
 }
 
 Cuboid::~Cuboid()
 {
-	glDeleteTextures(1, &mTexture);
 }
 
 void Cuboid::render(Shader * pShader) const
 {
+	static auto mTexture = TextureLoader::loadBmp("checker.bmp");
 	const auto translation = translate(glm::mat4(1.0f), mRenderPos);
 	const auto scale = glm::scale(glm::mat4(1.0f), mSize);
 	const auto rotation = toMat4(mRenderRotation);

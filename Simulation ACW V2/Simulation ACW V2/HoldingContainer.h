@@ -12,6 +12,8 @@ class HoldingContainer
 	int mSphereOverflow;
 	int mCubeOverflow;
 	std::vector<HoldingCell *> mHoldingCells;
+	std::mt19937 mEngine;
+	std::uniform_real_distribution<float> mNumber;
 
 public:
 	HoldingContainer(Octree * pOctree, glm::vec3 pLocation, glm::vec3 pSize);

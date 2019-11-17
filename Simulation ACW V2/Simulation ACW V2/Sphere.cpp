@@ -5,23 +5,22 @@
 #include "TextureLoader.h"
 #include "Model.h"
 
-Sphere::Sphere(const float pRadius, const float pMass, const glm::vec3 pPos, const glm::vec3 pAngularVelocity, const glm::vec3 pVelocity) :
+Sphere::Sphere(const float pRadius, const float pMass, const glm::vec3 pPos, const glm::vec3 pAngularVelocity, const glm::vec3 pVelocity, const glm::vec3 pColour) :
 	RigidBody(glm::vec3(pRadius, pRadius, pRadius), pMass, pPos,
 		pAngularVelocity, pVelocity, ObjectType::SPHERE,
 		glm::mat3(2.0f/5.0f * pMass * pRadius * pRadius, 0.0f, 0.0f,
 		0.0f, 2.0f/5.0f * pMass * pRadius * pRadius, 0.0f,
-		0.0f, 0.0f, 2.0f / 5.0f * pMass * pRadius * pRadius))
+		0.0f, 0.0f, 2.0f / 5.0f * pMass * pRadius * pRadius)), mColour(pColour)
 {
-	mTexture = TextureLoader::loadBmp("checker.bmp");
 }
 
 Sphere::~Sphere()
 {
-	glDeleteTextures(1, &mTexture);
 }
 
 void Sphere::render(Shader * pShader) const
 {
+	static auto mTexture = TextureLoader::loadBmp("checker.bmp");
 	const auto translation = translate(glm::mat4(1.0f), mRenderPos);
 	const auto scale = glm::scale(glm::mat4(1.0f), mSize);
 	const auto rotation = toMat4(mRenderRotation);
@@ -30,6 +29,9 @@ void Sphere::render(Shader * pShader) const
 
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
+
+	const auto colorLocation = glGetUniformLocation(pShader->getShaderId(), "color");
+	glUniform3f(colorLocation, mColour.x, mColour.y, mColour.z);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
