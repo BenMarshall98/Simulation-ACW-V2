@@ -205,6 +205,7 @@ void CollisionDetection::detectCollisionSphereBowl(RigidBody * pSphere, RigidBod
 	const auto bowlMat = pBowl->getMatrix();
 
 	const auto center = glm::vec3(bowlMat * glm::vec4(pBowl->getPos(), 1.0f));
+
 	const auto relCenter = spherePos - center;
 
 	const auto velSphere = pSphere->getNewPos() - spherePos;
@@ -213,26 +214,93 @@ void CollisionDetection::detectCollisionSphereBowl(RigidBody * pSphere, RigidBod
 	const auto sphereRadius = pSphere->getSize().x;
 	const auto radius = bowlRadius - sphereRadius;
 
+	if (length(spherePos - center) > bowlRadius)
+	{
+		return; //The sphere has penetrated too much let go
+	}
+
 	auto c = dot(relCenter, relCenter) - radius * radius;
 
 	if (c >= 0.0f)
 	{
-		const auto contactNormal = normalize(center - spherePos);
-		const auto contactPoint = spherePos - contactNormal * pSphere->getSize().x;
-		
-		ManifoldPoint manPoint = {
-			pSphere,
-			pBowl,
-			contactPoint,
-			contactPoint,
-			contactNormal,
-			pLastCollisionTime,
-			sphereRadius - length(spherePos - contactPoint),
-			CollisionType::PENETRATION,
-		};
-		
-		pManifold->add(manPoint);
-		return;
+		if (spherePos.y > -10)
+		{
+			//Test sphere against lines
+
+			const auto segments = 20;
+			const auto angle = static_cast<float>(M_PI * 2) / segments;
+			const auto tempCenter = glm::vec3(0, -10, 0);
+			const auto bowlTangent = glm::vec3(0, 0, 1);
+			const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+			for (int j = 0; j < segments; j++)
+			{
+				auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+				auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+				float time;
+				if (detectCollisionSphereLine(pSphere, tempVertex1, tempVertex2, glm::vec3(0, 0, 0), time, pLastCollisionTime))
+				{
+					const auto spherePoint = spherePos + time * velSphere;
+
+					auto lineVector = tempVertex2 - tempVertex1;
+
+					auto t = dot(spherePoint - tempVertex1, lineVector) / dot(lineVector, lineVector);
+
+					auto closestPoint = tempVertex1 + t * lineVector;
+
+					ManifoldPoint manPoint;
+					if (time == 0)
+					{
+						manPoint = {
+							pSphere,
+							pBowl,
+							closestPoint,
+							closestPoint,
+							normalize(spherePoint - closestPoint),
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							sphereRadius - length(spherePoint - closestPoint),
+							CollisionType::PENETRATION
+						};
+					}
+					else
+					{
+						manPoint = {
+							pSphere,
+							pBowl,
+							closestPoint,
+							closestPoint,
+							normalize(spherePoint - closestPoint),
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							0.0f,
+							CollisionType::COLLISION
+						};
+					}
+
+					pManifold->add(manPoint);
+					return;
+				}
+			}
+		}
+		else
+		{
+			const auto contactNormal = normalize(center - spherePos);
+			const auto contactPoint = spherePos - contactNormal * pSphere->getSize().x;
+
+			ManifoldPoint manPoint = {
+				pSphere,
+				pBowl,
+				contactPoint,
+				contactPoint,
+				contactNormal,
+				pLastCollisionTime,
+				sphereRadius - length(spherePos - contactPoint),
+				CollisionType::PENETRATION,
+			};
+
+			pManifold->add(manPoint);
+			return;
+		}
 	}
 
 	if (length(velSphere) == 0.0f)
@@ -257,6 +325,65 @@ void CollisionDetection::detectCollisionSphereBowl(RigidBody * pSphere, RigidBod
 
 	if (abs(time) >= length(velSphere))
 	{
+		return;
+	}
+
+	if (intersection.y > -10)
+	{
+		const auto segments = 20;
+		const auto angle = static_cast<float>(M_PI * 2) / segments;
+		const auto tempCenter = glm::vec3(0, -10, 0);
+		const auto bowlTangent = glm::vec3(0, 0, 1);
+		const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+		for (int j = 0; j < segments; j++)
+		{
+			auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+			auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+			float time;
+			if (detectCollisionSphereLine(pSphere, tempVertex1, tempVertex2, glm::vec3(0, 0, 0), time, pLastCollisionTime))
+			{
+				const auto spherePoint = spherePos + time * velSphere;
+
+				auto lineVector = tempVertex2 - tempVertex1;
+
+				auto t = dot(spherePoint - tempVertex1, lineVector) / dot(lineVector, lineVector);
+
+				auto closestPoint = tempVertex1 + t * lineVector;
+
+				ManifoldPoint manPoint;
+				if (time == 0)
+				{
+					manPoint = {
+						pSphere,
+						pBowl,
+						closestPoint,
+						closestPoint,
+						normalize(spherePoint - closestPoint),
+						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+						sphereRadius - length(spherePoint - closestPoint),
+						CollisionType::PENETRATION
+					};
+				}
+				else
+				{
+					manPoint = {
+						pSphere,
+						pBowl,
+						closestPoint,
+						closestPoint,
+						normalize(spherePoint - closestPoint),
+						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+						0.0f,
+						CollisionType::COLLISION
+					};
+				}
+
+				pManifold->add(manPoint);
+				return;
+			}
+		}
 		return;
 	}
 
@@ -978,6 +1105,19 @@ bool CollisionDetection::detectCollisionSphereLine(RigidBody * pSphere, const gl
 		{
 			return false;
 		}
+		if (md < 0.0f)
+		{
+			return false;
+		}
+		else if (md > dd)
+		{
+			return false;
+		}
+		else
+		{
+			pTime = 0.0f;
+		}
+		return 1;
 	}
 
 	const auto b = dd * mn - nd * md;
