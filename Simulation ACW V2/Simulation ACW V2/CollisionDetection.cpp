@@ -3608,6 +3608,473 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 void CollisionDetection::detectCollisionCuboidBowl(RigidBody* pCuboid, RigidBody* pBowl, ContactManifold* pManifold, float pLastCollisionTime)
 {
 	//TODO: Implement
+	glm::vec3 cuboidPos;
+
+	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
+	{
+		const auto interValue = (pLastCollisionTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+		cuboidPos = pCuboid->getPos() + interValue * (pCuboid->getNewPos() - pCuboid->getPos());
+	}
+	else
+	{
+		cuboidPos = pCuboid->getPos();
+	}
+
+
+	auto bowlMat = pBowl->getMatrix();
+
+	auto bowlCenter = glm::vec3(bowlMat * glm::vec4(pBowl->getPos(), 1.0f));
+	const auto bowlSize = pBowl->getSize().x;
+
+	const auto cuboidSize = pCuboid->getSize();
+
+	{
+		bool outsideBowl = true;
+
+		const auto cuboidOrr = pCuboid->getOrientation();
+		const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+		const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+		const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+		const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+		const auto cuboidPoints = std::vector<glm::vec3>{
+			cuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+			cuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+			cuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+			cuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+			cuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+			cuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+			cuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+			cuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+		};
+
+		for (auto point : cuboidPoints)
+		{
+			outsideBowl &= length(bowlCenter - point) > bowlSize;
+		}
+
+		if (outsideBowl)
+		{
+			return; //Cubiod is outside bowl, get it go
+		}
+	}
+
+	auto timeStart = pLastCollisionTime;
+	auto currentTime = timeStart;
+	auto timeEnd = 1.0f;
+	auto firstTime = true;
+	auto counter = 0;
+
+	while (true)
+	{
+		if (counter > 50)
+		{
+			return; //Collision Not found in time move on
+		}
+		if (firstTime)
+		{
+			//Time = 0
+			{
+				const auto interValue = (currentTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+				const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+				const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+				const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+				const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+				const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+				const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+
+				const auto cuboidPoints = std::vector<glm::vec3>{
+					tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+				};
+
+				for (auto point : cuboidPoints)
+				{
+					if (length(bowlCenter - point) > bowlSize)
+					{
+						if (point.y > -10)
+						{
+							//Might hit edge of bowl
+							const auto cuboidPairs = std::vector<glm::ivec2>{
+								glm::ivec2(0, 1),
+								glm::ivec2(0, 2),
+								glm::ivec2(0, 4),
+								glm::ivec2(3, 1),
+								glm::ivec2(3, 2),
+								glm::ivec2(3, 7),
+								glm::ivec2(5, 1),
+								glm::ivec2(5, 4),
+								glm::ivec2(5, 7),
+								glm::ivec2(6, 2),
+								glm::ivec2(6, 7),
+								glm::ivec2(6, 4)
+							};
+
+							for (auto pair : cuboidPairs)
+							{
+								if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+								{
+									if (cuboidPoints[pair.x].y <= -10 || cuboidPoints[pair.y].y <= -10)
+									{
+										const auto segments = 20;
+										const auto angle = static_cast<float>(M_PI * 2) / segments;
+										const auto tempCenter = glm::vec3(0, -10, 0);
+										const auto bowlTangent = glm::vec3(0, 0, 1);
+										const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+										for (int j = 0; j < segments; j++)
+										{
+											auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+											auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+											glm::vec3 closestPoint;
+											glm::vec3 temp;
+											float dist = calculateClosestPointBetweenLines(tempVertex1, tempVertex2, cuboidPoints[pair.x], cuboidPoints[pair.y], closestPoint, temp);
+
+											if (temp.y <= -10)
+											{
+												const auto normal = normalize(closestPoint - temp);
+
+												ManifoldPoint manPoint = {
+													pCuboid,
+													pBowl,
+													closestPoint,
+													closestPoint,
+													normal,
+													0.0f,
+													dist,
+													CollisionType::PENETRATION
+												};
+
+												pManifold->add(manPoint);
+												return;
+											}
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							const auto depth = length(bowlCenter - point) - bowlSize;
+							const auto normal = normalize(bowlCenter - point);
+							const auto collisionPoint = point + normal * depth;
+							
+							ManifoldPoint manPoint = {
+								pCuboid,
+								pBowl,
+								collisionPoint,
+								collisionPoint,
+								normal,
+								0.0f,
+								depth,
+								CollisionType::PENETRATION
+							};
+
+							pManifold->add(manPoint);
+							return;
+						}
+					}
+				}
+			}
+
+			//Time = 1
+			{
+				const auto interValue = (timeEnd - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+				const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+				const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+				const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+				const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+				const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+				const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+
+				const auto cuboidPoints = std::vector<glm::vec3>{
+					tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+					tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+				};
+
+				bool collision = false;
+
+				for (auto point : cuboidPoints)
+				{
+					if (length(bowlCenter - point) > bowlSize)
+					{
+						if (point.y > -10)
+						{
+							//Might hit edge of bowl
+							const auto cuboidPairs = std::vector<glm::ivec2>{
+								glm::ivec2(0, 1),
+								glm::ivec2(0, 2),
+								glm::ivec2(0, 4),
+								glm::ivec2(3, 1),
+								glm::ivec2(3, 2),
+								glm::ivec2(3, 7),
+								glm::ivec2(5, 1),
+								glm::ivec2(5, 4),
+								glm::ivec2(5, 7),
+								glm::ivec2(6, 2),
+								glm::ivec2(6, 7),
+								glm::ivec2(6, 4)
+							};
+
+							for (auto pair : cuboidPairs)
+							{
+								if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+								{
+									if (cuboidPoints[pair.x].y <= -10 || cuboidPoints[pair.y].y <= -10)
+									{
+										const auto segments = 20;
+										const auto angle = static_cast<float>(M_PI * 2) / segments;
+										const auto tempCenter = glm::vec3(0, -10, 0);
+										const auto bowlTangent = glm::vec3(0, 0, 1);
+										const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+										for (int j = 0; j < segments; j++)
+										{
+											auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+											auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+											glm::vec3 closestPoint;
+											glm::vec3 temp;
+											float dist = calculateClosestPointBetweenLines(tempVertex1, tempVertex2, cuboidPoints[pair.x], cuboidPoints[pair.y], closestPoint, temp);
+
+											if (temp.y <= -10)
+											{
+												collision = true;
+											}
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							const auto depth = length(bowlCenter - point) - bowlSize;
+							const auto normal = normalize(bowlCenter - point);
+							const auto collisionPoint = point + normal * depth;
+
+							collision = true;
+						}
+					}
+				}
+
+				if (!collision)
+				{
+					return;
+				}
+
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+				firstTime = false;
+			}
+		}
+		else //Not first time
+		{
+			const auto interValue = (currentTime - pCuboid->getCurrentUpdateTime()) / (1.0f - pCuboid->getCurrentUpdateTime());
+			const auto cuboidOrr = slerp(pCuboid->getOrientation(), pCuboid->getNewOrientation(), interValue);
+			const auto cuboidOrrMat = toMat4(cuboidOrr);
+
+			const auto cuboidNormal = glm::vec3(cuboidOrrMat * glm::vec4(0, 1, 0, 1.0f));
+			const auto cuboidTangent = glm::vec3(cuboidOrrMat * glm::vec4(1, 0, 0, 1.0f));
+			const auto cuboidBiTangent = glm::vec3(cuboidOrrMat * glm::vec4(0, 0, 1, 1.0f));
+
+			const auto tempCuboidPos = mix(cuboidPos, pCuboid->getNewPos(), interValue);
+
+			const auto cuboidPoints = std::vector<glm::vec3>{
+				tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos + cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos + cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos - cuboidNormal * cuboidSize.x + cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y + cuboidBiTangent * cuboidSize.z,
+				tempCuboidPos - cuboidNormal * cuboidSize.x - cuboidTangent * cuboidSize.y - cuboidBiTangent * cuboidSize.z,
+			};
+
+			bool collision = false;
+
+			for (auto point : cuboidPoints)
+			{
+				if (length(bowlCenter - point) > bowlSize)
+				{
+					if (point.y > -10)
+					{
+						//Might hit edge of bowl
+						const auto cuboidPairs = std::vector<glm::ivec2>{
+							glm::ivec2(0, 1),
+							glm::ivec2(0, 2),
+							glm::ivec2(0, 4),
+							glm::ivec2(3, 1),
+							glm::ivec2(3, 2),
+							glm::ivec2(3, 7),
+							glm::ivec2(5, 1),
+							glm::ivec2(5, 4),
+							glm::ivec2(5, 7),
+							glm::ivec2(6, 2),
+							glm::ivec2(6, 7),
+							glm::ivec2(6, 4)
+						};
+
+						for (auto pair : cuboidPairs)
+						{
+							if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+							{
+								if (cuboidPoints[pair.x].y <= -10 || cuboidPoints[pair.y].y <= -10)
+								{
+									const auto segments = 20;
+									const auto angle = static_cast<float>(M_PI * 2) / segments;
+									const auto tempCenter = glm::vec3(0, -10, 0);
+									const auto bowlTangent = glm::vec3(0, 0, 1);
+									const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+									for (int j = 0; j < segments; j++)
+									{
+										auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+										auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+										glm::vec3 closestPoint;
+										glm::vec3 temp;
+										float dist = calculateClosestPointBetweenLines(tempVertex1, tempVertex2, cuboidPoints[pair.x], cuboidPoints[pair.y], closestPoint, temp);
+
+										if (temp.y <= -10)
+										{
+											collision = true;
+										}
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						const auto depth = length(bowlCenter - point) - bowlSize;
+						const auto normal = normalize(bowlCenter - point);
+						const auto collisionPoint = point + normal * depth;
+
+						collision = true;
+					}
+				}
+			}
+
+			if (collision)
+			{
+				timeEnd = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+			else
+			{
+				for (auto point : cuboidPoints)
+				{
+					if (point.y > -10)
+					{
+						//Might hit edge of bowl
+						const auto cuboidPairs = std::vector<glm::ivec2>{
+							glm::ivec2(0, 1),
+							glm::ivec2(0, 2),
+							glm::ivec2(0, 4),
+							glm::ivec2(3, 1),
+							glm::ivec2(3, 2),
+							glm::ivec2(3, 7),
+							glm::ivec2(5, 1),
+							glm::ivec2(5, 4),
+							glm::ivec2(5, 7),
+							glm::ivec2(6, 2),
+							glm::ivec2(6, 7),
+							glm::ivec2(6, 4)
+						};
+
+						for (auto pair : cuboidPairs)
+						{
+							if (cuboidPoints[pair.x] == point || cuboidPoints[pair.y] == point)
+							{
+								if (cuboidPoints[pair.x].y <= -10 || cuboidPoints[pair.y].y <= -10)
+								{
+									const auto segments = 20;
+									const auto angle = static_cast<float>(M_PI * 2) / segments;
+									const auto tempCenter = glm::vec3(0, -10, 0);
+									const auto bowlTangent = glm::vec3(0, 0, 1);
+									const auto bowlBiTangent = glm::vec3(1, 0, 0);
+
+									for (int j = 0; j < segments; j++)
+									{
+										auto tempVertex1 = tempCenter + cos(j * angle) * bowlTangent + sin(j * angle) * bowlBiTangent;
+										auto tempVertex2 = tempCenter + cos((j + 1) * angle) * bowlTangent + sin((j + 1) * angle) * bowlBiTangent;
+
+										glm::vec3 closestPoint;
+										glm::vec3 temp;
+										float dist = calculateClosestPointBetweenLines(tempVertex1, tempVertex2, cuboidPoints[pair.x], cuboidPoints[pair.y], closestPoint, temp);
+										
+										if (dist < 0.0005f)
+										{
+											const auto normal = normalize(temp - closestPoint);
+											
+											ManifoldPoint manPoint = {
+												pCuboid,
+												pBowl,
+												closestPoint,
+												closestPoint,
+												normal,
+												currentTime,
+												0.0f,
+												CollisionType::COLLISION
+											};
+
+											pManifold->add(manPoint);
+											return;
+										}
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						const auto depth = length(bowlCenter - point) - bowlSize;
+
+						if (abs(depth) < 0.0005f)
+						{
+							const auto normal = normalize(bowlCenter - point);
+							const auto collisionPoint = point;
+
+							ManifoldPoint manPoint = {
+								pCuboid,
+								pBowl,
+								collisionPoint,
+								collisionPoint,
+								normal,
+								currentTime,
+								0.0f,
+								CollisionType::COLLISION
+							};
+
+							pManifold->add(manPoint);
+							return;
+						}
+					}
+				}
+
+				timeStart = currentTime;
+				currentTime = glm::mix(timeStart, timeEnd, 0.5f);
+			}
+			counter++;
+		}
+	}
 }
 
 void CollisionDetection::detectCollisionCuboidCylinder(RigidBody* pSphere, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
