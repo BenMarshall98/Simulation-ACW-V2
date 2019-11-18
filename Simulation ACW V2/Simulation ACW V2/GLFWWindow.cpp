@@ -131,12 +131,12 @@ bool GLFWWindow::windowEvents()
 
 	if (glfwGetKey(mWindow, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		Game::changeSphereElasticty(true);
+		Game::changeSphereElasticity(true);
 	}
 
 	if (glfwGetKey(mWindow, GLFW_KEY_L) == GLFW_PRESS)
 	{
-		Game::changeSphereElasticty(false);
+		Game::changeSphereElasticity(false);
 	}
 
 	if (glfwGetKey(mWindow, GLFW_KEY_Y) == GLFW_PRESS)

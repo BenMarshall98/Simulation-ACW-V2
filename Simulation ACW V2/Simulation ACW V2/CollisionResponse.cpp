@@ -650,7 +650,7 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, glm::vec
 	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 	const auto cuboidImpulseMag = dot(pPoint.mContactNormal, cross(cuboidWorldTensor * cross(cuboidCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 
-	const auto j = -(1.0f + 0.8f) * relVel / (sphereInverseMass + cuboidInverseMass + sphereImpulseMag + cuboidImpulseMag);
+	const auto j = -(1.0f + Game::getSphereElasticity()) * relVel / (sphereInverseMass + cuboidInverseMass + sphereImpulseMag + cuboidImpulseMag);
 
 	tempVel1 = tempVel1 + j * sphereInverseMass * pPoint.mContactNormal;
 	tempVel2 = tempVel2 - j * cuboidInverseMass * pPoint.mContactNormal;
@@ -667,7 +667,7 @@ void CollisionResponse::staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3
 
 	const auto impulseMag = dot(pPoint.mContactNormal, cross(worldTensor * cross(rigidBodyCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
 
-	const auto j = -(1.0f + 0.8f) * relVel / (inverseMass + impulseMag);
+	const auto j = -(1.0f + Game::getSphereElasticity()) * relVel / (inverseMass + impulseMag);
 
 	tempVel = tempVel + j * inverseMass * pPoint.mContactNormal;
 	tempAngVel = tempAngVel + worldTensor * cross(rigidBodyCenterToCollision, j * pPoint.mContactNormal);

@@ -109,7 +109,12 @@ public:
 		}
 	}
 
-	static void changeSphereElasticty(const bool pDirection)
+	static float getSphereElasticity()
+	{
+		return mSphereElasticity;
+	}
+
+	static void changeSphereElasticity(const bool pDirection)
 	{
 		if (pDirection && mSphereElasticity < 1.0f)
 		{
