@@ -288,10 +288,12 @@ void Game::run()
 	auto lastTime = static_cast<float>(glfwGetTime());
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		if (mAddSphere)
+		static bool onces = true;
+		if (mAddSphere && onces)
 		{
 			mHoldingContainer->addSphere();
 			mAddSphere = false;
+			onces = true;
 		}
 
 		static bool once = true;

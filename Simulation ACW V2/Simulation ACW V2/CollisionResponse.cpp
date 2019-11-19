@@ -177,8 +177,10 @@ void CollisionResponse::respondCollisionSphereSphere(ManifoldPoint& pPoint, Rigi
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos1 = tempPos1 + pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
-		tempPos2 = tempPos2 - pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		tempPos1 += pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		tempPos2 -= pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		pPoint.mContactPoint1 += pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
+		pPoint.mContactPoint2 -= pPoint.mContactNormal * 0.5f * pPoint.mCollisionDepth;
 	}
 
 	dynamicCollisionResponse(pPoint, tempPos1, tempVel1, tempAngVel1, tempOrrMat1,
@@ -214,7 +216,8 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos += pPoint.mContactNormal * pPoint.mCollisionDepth;
+		pPoint.mContactPoint1 += pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -247,7 +250,8 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos += pPoint.mContactNormal * pPoint.mCollisionDepth;
+		pPoint.mContactPoint1 += pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto planeMat = pPlane->getMatrix();
@@ -296,7 +300,8 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos += pPoint.mContactNormal * pPoint.mCollisionDepth;
+		pPoint.mContactPoint1 += pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto planeMat = pPlaneHoles->getMatrix();
