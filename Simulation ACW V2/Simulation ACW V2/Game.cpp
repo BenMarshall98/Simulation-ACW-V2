@@ -288,37 +288,24 @@ void Game::run()
 	auto lastTime = static_cast<float>(glfwGetTime());
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		static bool onces = true;
-		if (mAddSphere && onces)
+		if (mAddSphere)
 		{
 			mHoldingContainer->addSphere();
 			mAddSphere = false;
-			onces = true;
 		}
 
-		static bool once = true;
-		static int counter = 0;
-		if (mAddCube && once)
+		if (mAddCube)
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
-			once = false;
 		}
 
-		if(!once)
+		if (mReset)
 		{
-			counter++;
-		}
-
-		if (counter > 100)
-		{
-			once = true;
-			counter = 0;
+			reset();
 		}
 
 		swap();
-
-		std::cout << "HEllo World";
 		
 		if (!mPause)
 		{

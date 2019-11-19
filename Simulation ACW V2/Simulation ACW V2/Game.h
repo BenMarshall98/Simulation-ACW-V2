@@ -143,7 +143,6 @@ public:
 		return mDt * mTimeScale;
 	}
 
-
 	static float getSphereSize()
 	{
 		return mSphereSize;

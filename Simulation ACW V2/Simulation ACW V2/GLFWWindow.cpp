@@ -99,54 +99,250 @@ bool GLFWWindow::windowEvents()
 		Game::mCamera->rotateRight(false);
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_P) == GLFW_PRESS)
 	{
-		Game::setPause();
+		static auto pause = true;
+		static auto pauseCounter = 0;
+		if (pause && glfwGetKey(mWindow, GLFW_KEY_P) == GLFW_PRESS)
+		{
+			Game::setPause();
+			pause = false;
+			pauseCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_P) == GLFW_RELEASE)
+		{
+			pause = true;
+		}
+
+		if (!pause && pauseCounter > 30)
+		{
+			pause = true;
+		}
+		else if (!pause)
+		{
+			pauseCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_R) == GLFW_PRESS)
 	{
-		Game::setReset();
+		static auto reset = true;
+		static auto resetCounter = 0;
+		
+		if (reset && glfwGetKey(mWindow, GLFW_KEY_E) == GLFW_PRESS)
+		{
+			Game::setReset();
+			reset = false;
+			resetCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_E) == GLFW_RELEASE)
+		{
+			reset = true;
+		}
+
+		if (!reset && resetCounter > 30)
+		{
+			reset = true;
+		}
+		else if (!reset)
+		{
+			resetCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_U) == GLFW_PRESS)
 	{
-		Game::changeTimeScale(true);
+		static auto timeScale = true;
+		static auto timeScaleCounter = 0;
+		
+		if (timeScale && glfwGetKey(mWindow, GLFW_KEY_U) == GLFW_PRESS)
+		{
+			Game::changeTimeScale(true);
+			timeScale = false;
+			timeScaleCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_U) == GLFW_RELEASE)
+		{
+			timeScale = true;
+		}
+
+		if (!timeScale && timeScaleCounter > 30)
+		{
+			timeScale = true;
+		}
+		else if (!timeScale)
+		{
+			timeScaleCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_J) == GLFW_PRESS)
 	{
-		Game::changeTimeScale(false);
+		static auto timeScale = true;
+		static auto timeScaleCounter = 0;
+		if (timeScale && glfwGetKey(mWindow, GLFW_KEY_J) == GLFW_PRESS)
+		{
+			Game::changeTimeScale(false);
+			timeScale = false;
+			timeScaleCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_J) == GLFW_RELEASE)
+		{
+			timeScale = true;
+		}
+
+		if (!timeScale && timeScaleCounter > 30)
+		{
+			timeScale = true;
+		}
+		else if (!timeScale)
+		{
+			timeScaleCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_I) == GLFW_PRESS)
 	{
-		Game::changeFriction(true);
+		static auto friction = true;
+		static auto frictionCounter = 0;
+		if (friction && glfwGetKey(mWindow, GLFW_KEY_I) == GLFW_PRESS)
+		{
+			Game::changeFriction(true);
+			friction = false;
+			frictionCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_I) == GLFW_RELEASE)
+		{
+			friction = true;
+		}
+
+		if (!friction && frictionCounter > 30)
+		{
+			friction = true;
+		}
+		else if (!friction)
+		{
+			frictionCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_K) == GLFW_PRESS)
 	{
-		Game::changeFriction(false);
+		static auto friction = true;
+		static auto frictionCounter = 0;
+		if (friction && glfwGetKey(mWindow, GLFW_KEY_K) == GLFW_PRESS)
+		{
+			Game::changeFriction(false);
+			friction = false;
+			frictionCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_K) == GLFW_RELEASE)
+		{
+			friction = true;
+		}
+
+		if (!friction && frictionCounter > 30)
+		{
+			friction = true;
+		}
+		else if (!friction)
+		{
+			frictionCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_O) == GLFW_PRESS)
 	{
-		Game::changeSphereElasticity(true);
+		static auto elasticity = true;
+		static auto elasticityCounter = 0;
+		
+		if (elasticity && glfwGetKey(mWindow, GLFW_KEY_O) == GLFW_PRESS)
+		{
+			Game::changeSphereElasticity(true);
+			elasticity = false;
+			elasticityCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_O) == GLFW_RELEASE)
+		{
+			elasticity = true;
+		}
+
+		if (!elasticity && elasticityCounter > 30)
+		{
+			elasticity = true;
+		}
+		else if (!elasticity)
+		{
+			elasticityCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_L) == GLFW_PRESS)
 	{
-		Game::changeSphereElasticity(false);
+		static auto elasticity = true;
+		static auto elasticityCounter = 0;
+		
+		if (elasticity && glfwGetKey(mWindow, GLFW_KEY_L) == GLFW_PRESS)
+		{
+			Game::changeSphereElasticity(false);
+			elasticity = false;
+			elasticityCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_L) == GLFW_RELEASE)
+		{
+			elasticity = true;
+		}
+
+		if (!elasticity && elasticityCounter > 30)
+		{
+			elasticity = true;
+		}
+		else if (!elasticity)
+		{
+			elasticityCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_Y) == GLFW_PRESS)
 	{
-		Game::changeSphereSize(true);
+		static auto size = true;
+		static auto sizeCounter = 0;
+		
+		if (size && glfwGetKey(mWindow, GLFW_KEY_Y) == GLFW_PRESS)
+		{
+			Game::changeSphereSize(true);
+			size = false;
+			sizeCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_Y) == GLFW_RELEASE)
+		{
+			size = true;
+		}
+
+		if (!size && sizeCounter > 30)
+		{
+			size = true;
+		}
+		else if (!size)
+		{
+			sizeCounter++;
+		}
 	}
 
-	if (glfwGetKey(mWindow, GLFW_KEY_H) == GLFW_PRESS)
 	{
-		Game::changeSphereSize(false);
+		static auto size = true;
+		static auto sizeCounter = 0;
+		
+		if (size && glfwGetKey(mWindow, GLFW_KEY_H) == GLFW_PRESS)
+		{
+			Game::changeSphereSize(false);
+			size = false;
+			sizeCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_H) == GLFW_RELEASE)
+		{
+			size = true;
+		}
+
+		if (!size && sizeCounter > 30)
+		{
+			size = true;
+		}
+		else if (!size)
+		{
+			sizeCounter++;
+		}
 	}
 
 	if (glfwGetKey(mWindow, GLFW_KEY_1) == GLFW_PRESS)

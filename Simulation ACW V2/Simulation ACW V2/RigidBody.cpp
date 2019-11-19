@@ -77,7 +77,6 @@ glm::vec3 RigidBody::angularAcceleeration(const State& state, float time)
 	return drag;
 }
 
-
 Derivative RigidBody::evaluate(const State& initial, float time, float dt, const Derivative& derivative)
 {
 	State state;
