@@ -50,6 +50,7 @@ public:
 
 	Derivative evaluate(const State & initial, float time, float dt, const Derivative & derivative);
 	glm::vec3 acceleration(const State& state, float time);
+	glm::vec3 angularAcceleeration(const State& state, float time);
 	void integrate(State & state, float time, float dt);
 	void calculatePhysics(float pDt, float pCurrentUpdateTime);
 	void update();

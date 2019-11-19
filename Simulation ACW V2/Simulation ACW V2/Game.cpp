@@ -15,6 +15,7 @@
 #include "CollisionDetection.h"
 #include "CollisionResponse.h"
 #include <thread>
+#include <iostream>
 
 float Game::mDt = 0.0f;
 float Game::mTimeScale = 1.0f;
@@ -314,6 +315,8 @@ void Game::run()
 		}
 
 		swap();
+
+		std::cout << "HEllo World";
 		
 		if (!mPause)
 		{

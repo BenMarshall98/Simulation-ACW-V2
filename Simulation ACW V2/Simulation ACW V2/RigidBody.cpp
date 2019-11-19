@@ -64,8 +64,19 @@ void RigidBody::setSceneGraphNode(SceneGraphNode* pParent)
 
 glm::vec3 RigidBody::acceleration(const State& state, float time)
 {
-	return glm::vec3(0.0f, -9.81f, 0.0f);
+	const auto mag = length(mVelocity);
+	const auto drag = (-mVelocity * (0.0005f * mag + 0.0005f * mag * mag)) / mMass;
+	const auto gravity = glm::vec3(0.0f, -9.81f, 0.0f);
+	return gravity + drag;
 }
+
+glm::vec3 RigidBody::angularAcceleeration(const State& state, float time)
+{
+	const auto mag = length(mAngularVelocity);
+	const auto drag = (-mAngularVelocity * (0.0005f * mag + 0.0005f * mag * mag)) / mMass;
+	return drag;
+}
+
 
 Derivative RigidBody::evaluate(const State& initial, float time, float dt, const Derivative& derivative)
 {
@@ -82,7 +93,7 @@ Derivative RigidBody::evaluate(const State& initial, float time, float dt, const
 	output.dVel = state.vel;
 	output.dAcc = acceleration(state, time + dt);
 	output.dAngVel = state.angVel;
-	output.dAngAcc = glm::vec3(0, 0, 0);
+	output.dAngAcc = angularAcceleeration(state, time + dt);
 	return output;
 }
 
