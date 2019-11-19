@@ -20,6 +20,16 @@ Octree::Octree(const glm::vec3 pCenter, const glm::vec3 pSize, Octree * pParent)
 
 Octree::~Octree()
 {
+	for (auto rigidBody : rigidBodies)
+	{
+		delete rigidBody;
+	}
+
+	for (auto child : children)
+	{
+		delete child;
+	}
+	
 	for (auto& neighbour : neighbours)
 	{
 		neighbour->deleteNeighbour(this);
@@ -142,6 +152,14 @@ void Octree::updateTree()
 	for (auto i = 0u; i < rigidBodies.size(); i++)
 	{
 		const auto bodyPos = rigidBodies[i]->getPos();
+
+		if (isnan(bodyPos.x))
+		{
+			delete rigidBodies[i];
+			rigidBodies.erase(rigidBodies.begin() + i);
+			i--;
+			continue;;
+		}
 
 		if (bodyPos.x < center.x - size.x ||
 			bodyPos.x > center.x + size.x ||

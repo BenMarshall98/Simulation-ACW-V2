@@ -34,10 +34,27 @@ Game::Game()
 	mSphereShader = new Shader("sphereVertex.vert", "sphereFragment.frag");
 	mPlaneShader = new Shader("planeVertex.vert", "planeFragment.frag");
 
+	build();
+}
+
+void Game::reset()
+{
+	clear();
+	build();
+	delete mCamera;
+	mCamera = new Camera(glm::vec3(0, 25, 50), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
+	mTimeScale = 1.0f;
+	mFriction = 0.1f;
+	mSphereElasticity = 0.8f;
+	mSphereSize = 0.5f;
+}
+
+void Game::build()
+{
 	mOctree = new Octree(glm::vec3(0, 0, 0), glm::vec3(25, 25, 25));
 	mHoldingContainer = new HoldingContainer(mOctree, glm::vec3(0, 18, 0), glm::vec3(2, 2, 2));
 	mManifold = new ContactManifold();
-	
+
 	mSceneGraph = new IdentityNode();
 
 	auto planeHolesTranslation = new TranslationNode(glm::vec3(0, -2, 0));
@@ -117,7 +134,7 @@ Game::Game()
 
 	propellerBlade1Rotation->addChild(propellerBlade1Translation);
 
-	cylinder = new Cylinder(glm::vec3(0.5f, 3, 0.5f), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0),  glm::vec3(0, 0, 0));
+	cylinder = new Cylinder(glm::vec3(0.5f, 3, 0.5f), -1, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0));
 
 	const auto propellerBlade1Node = new RigidBodyNode(cylinder);
 
@@ -276,8 +293,84 @@ Game::Game()
 	mSceneBody.push_back(bowl);
 }
 
+void Game::clear()
+{
+	mSceneBody.clear();
+	mSceneBody.shrink_to_fit();
+
+	mOctreeBody.clear();
+	mOctreeBody.shrink_to_fit();
+
+	delete mManifold;
+	delete mHoldingContainer;
+	delete mOctree;
+	delete mSceneGraph;
+}
+
+void Game::display()
+{
+	static auto lastNumberOfBalls = 0;
+	static auto lastNumberOfCubes = 0;
+	static auto lastSphereSize = 0.0f;
+	static auto lastTimeScale = 0.0f;
+	static auto lastFriction = 0.0f;
+	static auto lastElasticity = 0.0f;
+	
+	auto numberOfBalls = 0;
+	auto numberOfCubes = 0;
+
+	for (const auto rigidBody : mOctreeBody)
+	{
+		if (rigidBody->getObjectType() == ObjectType::SPHERE)
+		{
+			numberOfBalls++;
+		}
+		else if (rigidBody->getObjectType() == ObjectType::CUBOID)
+		{
+			numberOfCubes++;
+		}
+	}
+
+	if (numberOfBalls != lastNumberOfBalls)
+	{
+		std::cout << "The Number of Spheres: " << numberOfBalls << "\n";
+		lastNumberOfBalls = numberOfBalls;
+	}
+
+	if (numberOfCubes != lastNumberOfCubes)
+	{
+		std::cout << "The Number Of Cubes: " << numberOfCubes << "\n";
+		lastNumberOfCubes = numberOfCubes;
+	}
+
+	if (mSphereSize != lastSphereSize)
+	{
+		std::cout << "The Size of the Spheres: " << mSphereSize << "\n";
+		lastSphereSize = mSphereSize;
+	}
+
+	if (mTimeScale != lastTimeScale)
+	{
+		std::cout << "The current time scale is: " << mTimeScale * 100 << "% of real time" << "\n";
+		lastTimeScale = mTimeScale;
+	}
+
+	if (mFriction != lastFriction)
+	{
+		std::cout << "The Friction Magnitude is: " << mFriction << "\n";
+		lastFriction = mFriction;
+	}
+
+	if (mSphereElasticity != lastElasticity)
+	{
+		std::cout << "The Elasticity Magnitude is: " << mSphereElasticity << "\n";
+		lastElasticity = mSphereElasticity;
+	}
+}
+
 Game::~Game()
 {
+	clear();
 }
 
 void Game::run()
@@ -303,9 +396,12 @@ void Game::run()
 		if (mReset)
 		{
 			reset();
+			mReset = false;
 		}
 
 		swap();
+
+		display();
 		
 		if (!mPause)
 		{

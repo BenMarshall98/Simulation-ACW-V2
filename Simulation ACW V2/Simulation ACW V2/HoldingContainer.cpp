@@ -34,6 +34,10 @@ HoldingContainer::HoldingContainer(Octree * pOctree, const glm::vec3 pLocation, 
 
 HoldingContainer::~HoldingContainer()
 {
+	for (auto cell : mHoldingCells)
+	{
+		delete cell;
+	}
 }
 
 void HoldingContainer::addSphere()

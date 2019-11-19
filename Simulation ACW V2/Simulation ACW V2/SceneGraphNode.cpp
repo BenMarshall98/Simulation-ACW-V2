@@ -7,7 +7,13 @@ SceneGraphNode::SceneGraphNode()
 
 SceneGraphNode::~SceneGraphNode()
 {
+	for(auto child : mChildren)
+	{
+		delete child;
+	}
 
+	mChildren.clear();
+	mChildren.shrink_to_fit();
 }
 
 void SceneGraphNode::addChild(SceneGraphNode* pChild)

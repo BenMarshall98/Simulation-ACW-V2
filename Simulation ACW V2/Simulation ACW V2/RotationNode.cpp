@@ -8,7 +8,7 @@ RotationNode::RotationNode(glm::vec3 pRotationAxis, float mRotationAngle, Rotati
 
 RotationNode::~RotationNode()
 {
-
+	delete mAnimation;
 }
 
 glm::mat4 RotationNode::updateNode(float pDt)

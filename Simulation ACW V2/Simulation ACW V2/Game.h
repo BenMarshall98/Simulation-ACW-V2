@@ -46,8 +46,11 @@ class Game
 	void updateObjectPhysics() const;
 	void updateObjectRender() const;
 	void render() const;
-	void reset() const;
+	void reset();
 	void swap();
+	void clear();
+	void build();
+	void display();
 
 public:
 	static Camera * mCamera;

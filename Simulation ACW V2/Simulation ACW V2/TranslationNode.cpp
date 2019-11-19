@@ -8,6 +8,7 @@ TranslationNode::TranslationNode(glm::vec3 pTranslation, TranslationAnimation * 
 
 TranslationNode::~TranslationNode()
 {
+	delete mAnimation;
 }
 
 glm::mat4 TranslationNode::updateNode(float pDt)

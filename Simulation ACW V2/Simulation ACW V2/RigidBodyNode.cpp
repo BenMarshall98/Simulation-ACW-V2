@@ -8,6 +8,7 @@ RigidBodyNode::RigidBodyNode(RigidBody * pRigidBody) :
 
 RigidBodyNode::~RigidBodyNode()
 {
+	delete mRigidBody;
 }
 
 glm::mat4 RigidBodyNode::updateNode(float pDt)
