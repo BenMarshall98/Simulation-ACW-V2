@@ -28,6 +28,9 @@ void Cuboid::render(Shader * pShader) const
 	
 	const auto modelLocation = glGetUniformLocation(pShader->getShaderId(), "model");
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMat[0][0]);
+
+	const auto colorLocation = glGetUniformLocation(pShader->getShaderId(), "color");
+	glUniform3f(colorLocation, 1, 1, 1);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
