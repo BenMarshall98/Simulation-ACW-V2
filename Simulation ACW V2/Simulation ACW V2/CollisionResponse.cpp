@@ -300,7 +300,8 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos += pPoint.mContactNormal * pPoint.mCollisionDepth;
+		pPoint.mContactPoint1 += pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto planeMat = pPlaneHoles->getMatrix();

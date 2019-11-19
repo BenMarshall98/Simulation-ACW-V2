@@ -469,16 +469,16 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 			dotY <= sizeY && dotY >= -sizeY)
 		{
 			const auto collisionPoint2 = center + dotX * tangent + dotY * biTangent;
-			const auto normal = normalize(spherePoint - collisionPoint2);
+			const auto collisionNormal = normalize(spherePoint - collisionPoint2);
 
-			const auto collisionPoint1 = spherePoint - normal * radius;
+			const auto collisionPoint1 = spherePoint - collisionNormal * radius;
 			
 			ManifoldPoint manPoint = {
 				pSphere,
 				pPlane,
 				collisionPoint1,
 				collisionPoint2,
-				normal,
+				collisionNormal,
 				pLastCollisionTime,
 				abs(radius) - abs(dist),
 				CollisionType::PENETRATION
@@ -520,7 +520,7 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 
 					auto closestPoint = startPoints[i] + t * lineVector;
 
-					const auto normal = normalize(spherePoint - closestPoint);
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
 
 					ManifoldPoint manPoint;
 
@@ -529,9 +529,9 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normal,
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 							radius - length(spherePoint - closestPoint),
 							CollisionType::PENETRATION
@@ -542,9 +542,9 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normal,
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 							0.0f,
 							CollisionType::COLLISION
@@ -564,7 +564,7 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 
 					auto closestPoint = startPoint;
 
-					const auto normal = normalize(spherePoint - closestPoint);
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
 					
 					ManifoldPoint manPoint;
 
@@ -573,11 +573,11 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normalize(normal),
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-							radius ,
+							radius - length(spherePoint - closestPoint),
 							CollisionType::PENETRATION
 						};
 					}
@@ -586,9 +586,9 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normal,
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 							0.0f,
 							CollisionType::COLLISION
@@ -678,7 +678,7 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 
 					auto closestPoint = startPoints[i] + t * lineVector;
 
-					const auto normal = normalize(spherePoint - closestPoint);
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
 
 					ManifoldPoint manPoint;
 
@@ -687,9 +687,9 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normal,
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 							radius - length(spherePoint - closestPoint),
 							CollisionType::PENETRATION
@@ -700,9 +700,9 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normal,
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 							0.0f,
 							CollisionType::COLLISION
@@ -722,6 +722,8 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 
 					auto closestPoint = startPoint;
 
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
+
 					ManifoldPoint manPoint;
 
 					if (time == 0.0f)
@@ -729,11 +731,11 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
-							normalize(normal),
+							collisionNormal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-							radius ,
+							radius - length(spherePoint - closestPoint),
 							CollisionType::PENETRATION
 						};
 					}
@@ -742,7 +744,7 @@ void CollisionDetection::detectCollisionSpherePlane(RigidBody * pSphere, RigidBo
 						manPoint = {
 							pSphere,
 							pPlane,
-							spherePoint - normal * radius,
+							spherePoint - collisionNormal * radius,
 							closestPoint,
 							normal,
 							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
@@ -804,13 +806,12 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 	if (abs(dist) <= abs(radius))
 	{
 		auto spherePoint = spherePos;
-		auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlaneHoles->getSize().x * 5;
 		auto sizeY = pPlaneHoles->getSize().z * 5;
 
-		auto dotX = dot(collisionPoint - center, tangent);
-		auto dotY = dot(collisionPoint - center, bitangent);
+		auto dotX = dot(spherePoint - center, tangent);
+		auto dotY = dot(spherePoint - center, bitangent);
 
 		radius = pSphere->getSize().x;
 		auto time = 0.0f;
@@ -858,16 +859,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 								auto closestPoint = tempVertex1 + t * lineVector;
 
-								ManifoldPoint manPoint = {
-									pSphere,
-									pPlaneHoles,
-									closestPoint,
-									closestPoint,
-									normalize(normal),
-									pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-									0.0f,
-									CollisionType::COLLISION
-								};
+								const auto collisionNormal = normalize(spherePoint - closestPoint);
+
+								ManifoldPoint manPoint;
+
+								if (time == 0.0f)
+								{
+									manPoint = {
+										pSphere,
+										pPlaneHoles,
+										spherePoint - collisionNormal * radius,
+										closestPoint,
+										collisionNormal,
+										pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+										radius - length(spherePoint - closestPoint),
+										CollisionType::PENETRATION
+									};
+								}
+								else
+								{
+									manPoint = {
+										pSphere,
+										pPlaneHoles,
+										spherePoint - collisionNormal * radius,
+										closestPoint,
+										collisionNormal,
+										pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+										0.0f,
+										CollisionType::COLLISION
+									};
+								}
 							
 								pManifold->add(manPoint);
 								return;
@@ -884,14 +905,16 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 				}
 			}
 
-			collisionPoint = center + dotX * tangent + dotY * bitangent;
+			const auto collisionPoint2 = center + dotX * tangent + dotY * bitangent;
+			const auto collisionNormal = normalize(spherePoint - collisionPoint2);
+			const auto collisionPoint1 = spherePoint - collisionNormal * radius;
 			
 			ManifoldPoint manPoint = {
 				pSphere,
 				pPlaneHoles,
-				collisionPoint,
-				collisionPoint,
-				normalize(normal),
+				collisionPoint1,
+				collisionPoint2,
+				collisionNormal,
 				pLastCollisionTime,
 				abs(radius) - abs(dist),
 				CollisionType::PENETRATION
@@ -931,16 +954,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 					auto closestPoint = startPoints[i] + t * lineVector;
 
-					ManifoldPoint manPoint = {
-						pSphere,
-						pPlaneHoles,
-						closestPoint,
-						closestPoint,
-						normalize(normal),
-						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-						0.0f,
-						CollisionType::COLLISION
-					};
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
+
+					ManifoldPoint manPoint;
+
+					if (time == 0.0f)
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							radius - length(spherePoint - closestPoint),
+							CollisionType::PENETRATION
+						};
+					}
+					else
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							0.0f,
+							CollisionType::COLLISION
+						};
+					}
 					
 					pManifold->add(manPoint);
 					return;
@@ -955,16 +998,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 					auto closestPoint = startPoints[i];
 
-					ManifoldPoint manPoint = {
-						pSphere,
-						pPlaneHoles,
-						closestPoint,
-						closestPoint,
-						normalize(normal),
-						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-						0.0f,
-						CollisionType::PENETRATION
-					};
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
+
+					ManifoldPoint manPoint;
+
+					if (time == 0.0f)
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							radius - length(spherePoint - closestPoint),
+							CollisionType::PENETRATION
+						};
+					}
+					else
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							0.0f,
+							CollisionType::COLLISION
+						};
+					}
 
 					pManifold->add(manPoint);
 					return;
@@ -985,13 +1048,15 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 	if (time >= 0 && time <= 1)
 	{
 		auto spherePoint = spherePos + time * velocity;
-		auto collisionPoint = spherePoint - radius * normal;
+		//auto collisionPoint = spherePoint - radius * normal;
 
 		auto sizeX = pPlaneHoles->getSize().x * 5;
 		auto sizeY = pPlaneHoles->getSize().z * 5;
 
-		auto dotX = dot(collisionPoint - center + planeVelocity * time, tangent);
-		auto dotY = dot(collisionPoint - center + planeVelocity * time, bitangent);
+		auto currentCenter = center + planeVelocity * time;
+
+		auto dotX = dot(spherePoint - currentCenter, tangent);
+		auto dotY = dot(spherePoint - currentCenter, bitangent);
 
 		radius = pSphere->getSize().x;
 
@@ -1021,7 +1086,7 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 					
 					for (auto j = 0; j < segments; j++)
 					{
-						auto tempCenter = i + center;
+						auto tempCenter = i + currentCenter;
 						auto tempVertex1 = tempCenter + cos(j * angle) * tangent + sin(j * angle) * bitangent;
 						auto tempVertex2 = tempCenter + cos(static_cast<float>(j + 1) * angle) * tangent + sin(static_cast<float>(j + 1) * angle) * bitangent;
 
@@ -1039,16 +1104,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 								auto closestPoint = tempVertex1 + t * lineVector;
 
-								ManifoldPoint manPoint = {
-									pSphere,
-									pPlaneHoles,
-									closestPoint,
-									closestPoint,
-									normalize(normal),
-									pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-									0.0f,
-									CollisionType::COLLISION
-								};
+								const auto collisionNormal = normalize(spherePoint - closestPoint);
+
+								ManifoldPoint manPoint;
+
+								if (time == 0.0f)
+								{
+									manPoint = {
+										pSphere,
+										pPlaneHoles,
+										spherePoint - collisionNormal * radius,
+										closestPoint,
+										collisionNormal,
+										pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+										radius - length(spherePoint - closestPoint),
+										CollisionType::PENETRATION
+									};
+								}
+								else
+								{
+									manPoint = {
+										pSphere,
+										pPlaneHoles,
+										spherePoint - collisionNormal * radius,
+										closestPoint,
+										collisionNormal,
+										pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+										0.0f,
+										CollisionType::COLLISION
+									};
+								}
 								
 								pManifold->add(manPoint);
 								return;
@@ -1065,20 +1150,24 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 				}
 			}
 
-			collisionPoint = center + dotX * tangent + dotY * bitangent;
+			const auto collisionPoint2 = center + dotX * tangent + dotY * bitangent;
+			const auto collisionNormal = normalize(spherePoint - collisionPoint2);
+
+			const auto collisionPoint1 = spherePoint - collisionNormal * radius;
 			
 			ManifoldPoint manPoint = {
 				pSphere,
 				pPlaneHoles,
-				collisionPoint,
-				collisionPoint,
-				normalize(normal),
+				collisionPoint1,
+				collisionPoint2,
+				collisionNormal,
 				pLastCollisionTime + time * (1.0f - pLastCollisionTime),
 				0.0f,
 				CollisionType::COLLISION
 			};
 
 			pManifold->add(manPoint);
+			return;
 		}
 		else if (dotX <= sizeX + 2 * radius && dotX >= -sizeX - 2 * radius &&
 			dotY <= sizeY + 2 * radius && dotY >= -sizeY - 2 * radius)
@@ -1111,17 +1200,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 					auto closestPoint = startPoints[i] + t * lineVector;
 
-					ManifoldPoint manPoint =
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
+
+					ManifoldPoint manPoint;
+
+					if (time == 0.0f)
 					{
-						pSphere,
-						pPlaneHoles,
-						closestPoint,
-						closestPoint,
-						normalize(normal),
-						pLastCollisionTime + time * (1.0f - pLastCollisionTime),
-						0.0f,
-						CollisionType::COLLISION
-					};
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							radius - length(spherePoint - closestPoint),
+							CollisionType::PENETRATION
+						};
+					}
+					else
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							0.0f,
+							CollisionType::COLLISION
+						};
+					}
 
 					pManifold->add(manPoint);
 					return;
@@ -1136,12 +1244,36 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 
 					auto closestPoint = startPoint;
 
+					const auto collisionNormal = normalize(spherePoint - closestPoint);
+
 					ManifoldPoint manPoint;
-					manPoint.mContactId1 = pSphere;
-					manPoint.mContactId2 = pPlaneHoles;
-					manPoint.mContactNormal = normalize(closestPoint - spherePoint);
-					manPoint.mTime = pLastCollisionTime + time * (1.0f - pLastCollisionTime);
-					manPoint.mCollisionType = CollisionType::PENETRATION;
+
+					if (time == 0.0f)
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							radius - length(spherePoint - closestPoint),
+							CollisionType::PENETRATION
+						};
+					}
+					else
+					{
+						manPoint = {
+							pSphere,
+							pPlaneHoles,
+							spherePoint - collisionNormal * radius,
+							closestPoint,
+							collisionNormal,
+							pLastCollisionTime + time * (1.0f - pLastCollisionTime),
+							0.0f,
+							CollisionType::COLLISION
+						};
+					}
 
 					pManifold->add(manPoint);
 					return;
