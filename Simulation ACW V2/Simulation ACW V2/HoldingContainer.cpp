@@ -71,7 +71,7 @@ void HoldingContainer::addCube()
 		if (mHoldingCells[i]->getNumberRigidBody() == 0)
 		{
 			const auto velocity = glm::vec3(0, 0, 0);
-			const auto size = 0.25f;
+			const auto size = 0.625f;
 			const auto cube = new Cuboid(glm::vec3(size, size, size), 0.02, mHoldingCells[i]->getLocation(),
 				glm::vec3(0, 0.01, 0.01), velocity);
 
@@ -150,7 +150,7 @@ void HoldingContainer::update()
 			{
 				//TODO: Look at random velocity
 				const auto velocity = glm::vec3(0, 0, 0);
-				const auto size = Game::getSphereSize();
+				const auto size = 0.625;
 				const auto sphere = new Cuboid(glm::vec3(size, size, size), 0.02, holdingCell->getLocation(),
 					glm::vec3(0, 0.01, 0.01), velocity);
 
