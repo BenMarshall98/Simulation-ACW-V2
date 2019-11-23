@@ -7,7 +7,6 @@
 #include "HoldingContainer.h"
 #include "ContactManifold.h"
 #include <condition_variable>
-#include <map>
 
 class Game
 {
@@ -17,7 +16,6 @@ class Game
 	bool mProcessed = false;
 	bool mEnd = false;
 
-	std::multimap<RigidBody *, RigidBody *> mPossibleRigidBodyCollisions;
 	Shader * mPlaneShader;
 	Shader * mSphereShader;
 	IdentityNode * mSceneGraph;
@@ -32,6 +30,8 @@ class Game
 	static bool mPause;
 	static bool mAddSphere;
 	static bool mAddCube;
+	static bool mAngularDisable;
+	static bool mOctreeDisable;
 	static float mTimeScale;
 	static float mFriction;
 	static float mSphereElasticity;
@@ -80,6 +80,16 @@ public:
 		mReset = true;
 	}
 
+	static void setAngularDisable()
+	{
+		mAngularDisable = !mAngularDisable;
+	}
+
+	static void setOctreeDisable()
+	{
+		mOctreeDisable = !mOctreeDisable;
+	}
+
 	static void changeTimeScale(const bool pDirection)
 	{
 		if (pDirection)
@@ -102,7 +112,7 @@ public:
 		{
 			mFriction += 0.1f;
 		}
-		else if (mFriction > 0.0f)
+		else if (mFriction > 0.01f)
 		{
 			mFriction -= 0.1f;
 		}
@@ -115,6 +125,11 @@ public:
 	static float getSphereElasticity()
 	{
 		return mSphereElasticity;
+	}
+
+	static float getSphereFriction()
+	{
+		return mFriction;
 	}
 
 	static void changeSphereElasticity(const bool pDirection)
@@ -149,6 +164,16 @@ public:
 	static float getSphereSize()
 	{
 		return mSphereSize;
+	}
+
+	static bool getAngularDisable()
+	{
+		return mAngularDisable;
+	}
+
+	static bool getOctreeDisable()
+	{
+		return mOctreeDisable;
 	}
 
 	static void addSphere()

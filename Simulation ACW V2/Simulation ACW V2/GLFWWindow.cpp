@@ -198,6 +198,57 @@ bool GLFWWindow::windowEvents()
 	}
 
 	{
+		static auto angularDisable = true;
+		static auto angularDisableCounter = 0;
+
+		if (angularDisable && glfwGetKey(mWindow, GLFW_KEY_7) == GLFW_PRESS)
+		{
+			Game::setAngularDisable();
+			angularDisable = false;
+			angularDisableCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_7) == GLFW_RELEASE)
+		{
+			angularDisable = true;
+		}
+
+		if (!angularDisable && angularDisableCounter > 30)
+		{
+			angularDisable = true;
+		}
+		else if (!angularDisable)
+		{
+			angularDisableCounter++;
+		}
+	}
+
+	{
+		static auto octreeDisable = true;
+		static auto octreeDisableCounter = 0;
+
+		if (octreeDisable && glfwGetKey(mWindow, GLFW_KEY_Q) == GLFW_PRESS)
+		{
+			Game::setOctreeDisable();
+			octreeDisable = false;
+			octreeDisableCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_Q) == GLFW_RELEASE)
+		{
+			octreeDisable = true;
+		}
+
+		if (!octreeDisable && octreeDisableCounter > 30)
+		{
+			octreeDisable = true;
+		}
+		else if (!octreeDisable)
+		{
+			octreeDisableCounter++;
+		}
+
+	}
+	
+	{
 		static auto friction = true;
 		static auto frictionCounter = 0;
 		if (friction && glfwGetKey(mWindow, GLFW_KEY_I) == GLFW_PRESS)

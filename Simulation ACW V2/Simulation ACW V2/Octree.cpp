@@ -105,6 +105,10 @@ bool Octree::addRigidBody(RigidBody * pRigidBody)
 
 bool Octree::render()
 {
+	if (Game::getOctreeDisable())
+	{
+		return false;
+	}
 	auto render = false;
 
 	if (!rigidBodies.empty())

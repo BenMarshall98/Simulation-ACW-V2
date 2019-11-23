@@ -223,7 +223,17 @@ void CollisionResponse::respondCollisionSphereBowl(ManifoldPoint& pPoint, RigidB
 	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	}
 	
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat, 
 		tempBowlVel, sphereCenterToCollision, tempSphereVel,
@@ -272,7 +282,17 @@ void CollisionResponse::respondCollisionSpherePlane(ManifoldPoint& pPoint, Rigid
 	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		tempPlaneVel, sphereCenterToCollision, tempSphereVel,
@@ -322,7 +342,17 @@ auto CollisionResponse::respondCollisionSpherePlaneHoles(ManifoldPoint& pPoint, 
 	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		tempPlaneVel, sphereCenterToCollision, tempSphereVel,
@@ -441,7 +471,17 @@ void CollisionResponse::respondCollisionCuboidBowl(ManifoldPoint & pPoint, Rigid
 	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	const auto cuboidCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		tempBowlVel, cuboidCenterToCollision, tempSphereVel,
@@ -489,7 +529,17 @@ void CollisionResponse::respondCollisionCuboidPlane(ManifoldPoint & pPoint, Rigi
 	}
 
 	const auto cuboidCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		tempPlaneVel, cuboidCenterToCollision, tempSphereVel,
@@ -537,7 +587,17 @@ void CollisionResponse::respondCollisionCuboidPlaneHoles(ManifoldPoint & pPoint,
 	}
 
 	const auto cuboidCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, cuboidCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		tempPlaneVel, cuboidCenterToCollision, tempSphereVel,
@@ -619,7 +679,16 @@ void CollisionResponse::respondCollisionSphereCylinder(ManifoldPoint& pPoint, Ri
 	}
 
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos;
-	const auto tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel;
+	}
+	else
+	{
+		tempSphereVel = tempVel + cross(tempAngVel, sphereCenterToCollision);
+	}
 
 	staticCollisionResponse(pPoint, tempVel, tempAngVel, tempOrrMat,
 		cylinderVel, sphereCenterToCollision, tempSphereVel,
@@ -641,8 +710,27 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, glm::vec
 	const auto sphereCenterToCollision = pPoint.mContactPoint1 - tempPos1;
 	const auto cuboidCenterToCollision = pPoint.mContactPoint2 - tempPos2;
 
-	const auto tempSphereVel = tempVel1 + cross(tempAngVel1, sphereCenterToCollision);
-	const auto tempCuboidVel = tempVel2 + cross(tempAngVel2, cuboidCenterToCollision);
+	glm::vec3 tempSphereVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempSphereVel = tempVel1;
+	}
+	else
+	{
+		tempSphereVel = tempVel1 + cross(tempAngVel1, sphereCenterToCollision);
+	}
+
+	glm::vec3 tempCuboidVel;
+
+	if (Game::getAngularDisable())
+	{
+		tempCuboidVel = tempVel2;
+	}
+	else
+	{
+		tempCuboidVel = tempVel2 + cross(tempAngVel2, sphereCenterToCollision);
+	}
 
 	const auto relVel = dot(pPoint.mContactNormal, tempSphereVel - tempCuboidVel);
 
@@ -652,15 +740,19 @@ void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, glm::vec
 	const auto sphereInverseMass = inverseMass1;
 	const auto cuboidInverseMass = inverseMass2;
 
-	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
-	const auto cuboidImpulseMag = dot(pPoint.mContactNormal, cross(cuboidWorldTensor * cross(cuboidCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
+	const auto sphereImpulseMag = dot(pPoint.mContactNormal, cross(sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal), sphereCenterToCollision));
+	const auto cuboidImpulseMag = dot(pPoint.mContactNormal, cross(cuboidWorldTensor * cross(cuboidCenterToCollision, pPoint.mContactNormal), cuboidCenterToCollision));
 
 	const auto j = -(1.0f + Game::getSphereElasticity()) * relVel / (sphereInverseMass + cuboidInverseMass + sphereImpulseMag + cuboidImpulseMag);
 
 	tempVel1 = tempVel1 + j * sphereInverseMass * pPoint.mContactNormal;
 	tempVel2 = tempVel2 - j * cuboidInverseMass * pPoint.mContactNormal;
-	tempAngVel1 = tempAngVel1 + cross(sphereCenterToCollision, j * pPoint.mContactNormal) * sphereWorldTensor;
-	tempAngVel2 = tempAngVel2 - cross(cuboidCenterToCollision, j * pPoint.mContactNormal) * cuboidWorldTensor;
+
+	if (!Game::getAngularDisable())
+	{
+		tempAngVel1 = tempAngVel1 + j * sphereWorldTensor * cross(sphereCenterToCollision, pPoint.mContactNormal);
+		tempAngVel2 = tempAngVel2 - j * cuboidWorldTensor * cross(cuboidCenterToCollision, pPoint.mContactNormal);
+	}
 }
 
 void CollisionResponse::staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3 & tempVel, glm::vec3& tempAngVel, const glm::mat3 tempOrrMat, const glm::vec3 tempStaticVel,
@@ -670,10 +762,30 @@ void CollisionResponse::staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3
 
 	const auto worldTensor = tempOrrMat * inverseImpulseTensor * transpose(tempOrrMat);
 
-	const auto impulseMag = dot(pPoint.mContactNormal, cross(worldTensor * cross(rigidBodyCenterToCollision, pPoint.mContactNormal), pPoint.mContactNormal));
+	const auto impulseMag = dot(pPoint.mContactNormal, cross(worldTensor * cross(rigidBodyCenterToCollision, pPoint.mContactNormal), rigidBodyCenterToCollision));
 
 	const auto j = -(1.0f + Game::getSphereElasticity()) * relVel / (inverseMass + impulseMag);
 
+	glm::vec3 tangent;
+
+	if (dot(tempRigidBodyVel, pPoint.mContactNormal))
+	{
+		const auto temp = tempRigidBodyVel - dot(tempRigidBodyVel, pPoint.mContactNormal) * pPoint.mContactNormal;
+		tangent = temp / length(temp);
+	}
+	else
+	{
+		const auto force = glm::vec3(0, -9.81, 0) / inverseMass; //Only counting gravity and not drag
+		const auto temp = force - dot(force, pPoint.mContactNormal) * pPoint.mContactNormal;
+		tangent = temp / length(temp);
+	}
+	
 	tempVel = tempVel + j * inverseMass * pPoint.mContactNormal;
-	tempAngVel = tempAngVel + worldTensor * cross(rigidBodyCenterToCollision, j * pPoint.mContactNormal);
+
+	if (!Game::getAngularDisable())
+	{
+		tempAngVel = tempAngVel + j * worldTensor * cross(rigidBodyCenterToCollision, pPoint.mContactNormal);
+	}
+
+	tempVel = tempVel - j * Game::getSphereFriction() * tangent;
 }

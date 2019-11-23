@@ -26,6 +26,8 @@ bool Game::mReset = false;
 bool Game::mPause = false;
 bool Game::mAddSphere = false;
 bool Game::mAddCube = false;
+bool Game::mAngularDisable = false;
+bool Game::mOctreeDisable = false;
 
 Camera * Game::mCamera = new Camera(glm::vec3(0, 25, 50), glm::vec3(0, 1, 0), glm::vec3(0, 0, 0));
 
@@ -489,18 +491,6 @@ void Game::simulationLoop()
 	mPossibleCollisions.clear();
 	mPossibleCollisions.shrink_to_fit();
 	mOctree->getPossibleCollisions(mPossibleCollisions);
-	mPossibleRigidBodyCollisions.clear();
-
-	for (auto& possibleCollision : mPossibleCollisions)
-	{
-		mPossibleRigidBodyCollisions.emplace(
-			std::pair < RigidBody *, RigidBody *>(possibleCollision.rigidBody1, possibleCollision.rigidBody2)
-		);
-
-		mPossibleRigidBodyCollisions.emplace(
-			std::pair < RigidBody *, RigidBody *>(possibleCollision.rigidBody2, possibleCollision.rigidBody1)
-		);
-	}
 
 	// Find dynamic collisions for all objects and add to contact manifold
 	dynamicCollisionDetection();
@@ -580,112 +570,6 @@ void Game::dynamicCollisionResponse() const
 		}
 
 		mManifold->remove(0);
-		//continue;
-
-		//float timeLeft = getUpdateDt() - (getUpdateDt() * lastCollisionTime);
-
-		//RigidBody * rigidBody1 = point.mContactId1;
-		
-		//if (moved1)
-		//{
-		//	rigidBody1->update();
-		//	rigidBody1->calculatePhysics(timeLeft, lastCollisionTime);
-
-		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
-		//	{
-		//		auto checkPoint = mManifold->getPoint(i);
-
-		//		if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1)
-		//		{
-		//			mManifold->remove(i);
-		//			i--;
-		//		}
-		//	}
-		//}
-
-		////RigidBody * rigidBody2 = point.mContactId2;
-
-		//if (moved2)
-		//{
-		//	rigidBody2->update();
-		//	rigidBody2->calculatePhysics(timeLeft, lastCollisionTime);
-
-		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
-		//	{
-		//		auto checkPoint = mManifold->getPoint(i);
-
-		//		if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2)
-		//		{
-		//			mManifold->remove(i);
-		//			i--;
-		//		}
-		//	}
-		//}
-
-		//if (moved1)
-		//{
-		//	for (int i = 0; i < sceneBody.size(); i++)
-		//	{
-		//		CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody1, mManifold, lastCollisionTime);
-		//	}
-
-		//	auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody1);
-
-		//	for (auto it = result.first; it != result.second; ++it)
-		//	{
-		//		CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
-		//	}
-		//}
-
-		//if (moved2)
-		//{
-		//	for (int i = 0; i < sceneBody.size(); i++)
-		//	{
-		//		CollisionDetection::dynamicCollisionDetection(sceneBody[i], rigidBody2, mManifold, lastCollisionTime);
-		//	}
-
-		//	auto result = mPossibleRigidBodyCollisions.equal_range(rigidBody2);
-
-		//	for (auto it = result.first; it != result.second; ++it)
-		//	{
-		//		if (moved1 && it->second == rigidBody1)
-		//		{
-		//			continue;
-		//		}
-		//		
-		//		CollisionDetection::dynamicCollisionDetection(it->first, it->second, mManifold, lastCollisionTime);
-		//	}
-		//}
-
-		//mManifold->sort();
-
-		//if (moved1)
-		//{
-		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
-		//	{
-		//		auto checkPoint = mManifold->getPoint(i);
-
-		//		if (checkPoint.mContactId1 == rigidBody1 || checkPoint.mContactId2 == rigidBody1 && checkPoint.mTime == lastCollisionTime)
-		//		{
-		//			mManifold->remove(i);
-		//			i--;
-		//		}
-		//	}
-		//}
-
-		//if (moved2)
-		//{
-		//	for (int i = 0; i < mManifold->getNumPoints(); i++)
-		//	{
-		//		auto checkPoint = mManifold->getPoint(i);
-
-		//		if (checkPoint.mContactId1 == rigidBody2 || checkPoint.mContactId2 == rigidBody2 && checkPoint.mTime == lastCollisionTime)
-		//		{
-		//			mManifold->remove(i);
-		//			i--;
-		//		}
-		//	}
-		//}
 	}
 }
 
