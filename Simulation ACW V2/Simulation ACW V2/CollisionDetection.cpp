@@ -4484,7 +4484,7 @@ void CollisionDetection::detectCollisionCuboidBowl(RigidBody* pCuboid, RigidBody
 	}
 }
 
-void CollisionDetection::detectCollisionCuboidCylinder(RigidBody* pSphere, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
+void CollisionDetection::detectCollisionCuboidCylinder(RigidBody* pCuboid, RigidBody* pCylinder, ContactManifold* pManifold, float pLastCollisionTime)
 {
 	//TODO: Implement
 }

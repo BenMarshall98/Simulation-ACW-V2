@@ -465,7 +465,7 @@ void CollisionResponse::respondCollisionCuboidBowl(ManifoldPoint & pPoint, Rigid
 	
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto tempBowlVel = glm::vec3(0.0f, 0.0f, 0.0f);
