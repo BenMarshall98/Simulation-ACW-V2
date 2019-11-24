@@ -566,7 +566,7 @@ void CollisionResponse::respondCollisionCuboidPlaneHoles(ManifoldPoint & pPoint,
 
 	if (pPoint.mCollisionType == CollisionType::PENETRATION)
 	{
-		tempPos = tempPos - pPoint.mContactNormal * pPoint.mCollisionDepth;
+		tempPos = tempPos + pPoint.mContactNormal * pPoint.mCollisionDepth;
 	}
 
 	const auto planeMat = pPlaneHoles->getMatrix();

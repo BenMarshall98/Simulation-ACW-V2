@@ -2622,11 +2622,11 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 	const auto cuboidSize = pCuboid->getSize();
 	const auto cuboidVelocity = pCuboid->getNewPos() - cuboidPos;
 
-	if (dot(planeNormal, cuboidVelocity) > 0.0f)
+	/*if (dot(planeNormal, cuboidVelocity) > 0.0f)
 	{
 		//Moving away so dont collide
 		return;
-	}
+	}*/
 
 	while (true)
 	{
@@ -2673,12 +2673,16 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 						auto collisionPoint = glm::vec3(0.0);
 						const auto depth = calculateCuboidCuboidCollisionDepth(point, tempPlanePos, planeAxis, planeSize, inside, collisionPoint);
 
+						const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+						const auto normal = normalize(tempCuboidPos - planePoint);
+						
 						ManifoldPoint manPoint = {
 							pCuboid,
 							pPlane,
 							collisionPoint,
 							collisionPoint,
-							planeNormal,
+							normal,
 							currentTime,
 							depth,
 							CollisionType::PENETRATION
@@ -2714,14 +2718,18 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 							if (dist < 0)
 							{
+								const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+								const auto normal = normalize(tempCuboidPos - collisionPoint);
+								
 								ManifoldPoint manPoint = {
 									pCuboid,
 									pPlane,
 									collisionPoint,
 									collisionPoint,
-									planeNormal,
+									normal,
 									currentTime,
-									dist,
+									abs(dist),
 									CollisionType::PENETRATION
 								};
 
@@ -2735,14 +2743,18 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 							if (dist < 0)
 							{
+								const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+								const auto normal = normalize(tempCuboidPos - collisionPoint);
+								
 								ManifoldPoint manPoint = {
 									pCuboid,
 									pPlane,
 									collisionPoint,
 									collisionPoint,
-									planeNormal,
+									normal,
 									currentTime,
-									dist,
+									abs(dist),
 									CollisionType::PENETRATION
 								};
 
@@ -2994,12 +3006,16 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 					if (depth < 0.0005f)
 					{
+						const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+						const auto normal = normalize(tempCuboidPos - planePoint);
+						
 						ManifoldPoint manPoint = {
 							pCuboid,
 							pPlane,
 							collisionPoint,
 							collisionPoint,
-							planeNormal,
+							normal,
 							currentTime,
 							0.0f,
 							CollisionType::COLLISION
@@ -3036,12 +3052,16 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 					if (depth < 0.0005f)
 					{
+						const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+						const auto normal = normalize(tempCuboidPos - planePoint);
+						
 						ManifoldPoint manPoint = {
 						pCuboid,
 						pPlane,
 						collisionPoint,
 						collisionPoint,
-						planeNormal,
+						normal,
 						currentTime,
 						0.0f,
 						CollisionType::COLLISION
@@ -3279,7 +3299,7 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 														pPlaneHoles,
 														collisionPoint1,
 														collisionPoint1,
-														normalize(collisionPoint2 - collisionPoint1),
+														normalize(tempCuboidPos - collisionPoint1),
 														0.0f,
 														depth,
 														CollisionType::PENETRATION
@@ -3301,12 +3321,16 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 							auto collisionPoint = glm::vec3(0.0);
 							const auto depth = calculateCuboidCuboidCollisionDepth(point, tempPlanePos, planeAxis, planeSize, inside, collisionPoint);
 
+							const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+							const auto normal = normalize(tempCuboidPos - planePoint);
+							
 							ManifoldPoint manPoint = {
 								pCuboid,
 								pPlaneHoles,
 								collisionPoint,
 								collisionPoint,
-								planeNormal,
+								normal,
 								currentTime,
 								depth,
 								CollisionType::PENETRATION
@@ -3343,14 +3367,18 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 
 							if (dist < 0)
 							{
+								const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+								const auto normal = normalize(tempCuboidPos - planePoint);
+								
 								ManifoldPoint manPoint = {
 									pCuboid,
 									pPlaneHoles,
 									collisionPoint,
 									collisionPoint,
-									planeNormal,
+									normal,
 									currentTime,
-									dist,
+									abs(dist),
 									CollisionType::PENETRATION
 								};
 
@@ -3364,14 +3392,18 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 
 							if (dist < 0)
 							{
+								const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+								const auto normal = normalize(tempCuboidPos - planePoint);
+								
 								ManifoldPoint manPoint = {
 									pCuboid,
 									pPlaneHoles,
 									collisionPoint,
 									collisionPoint,
-									planeNormal,
+									normal,
 									currentTime,
-									dist,
+									abs(dist),
 									CollisionType::PENETRATION
 								};
 
@@ -3852,7 +3884,7 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 														pPlaneHoles,
 														collisionPoint1,
 														collisionPoint1,
-														normalize(collisionPoint2 - collisionPoint1),
+														normalize(tempCuboidPos - collisionPoint1),
 														0.0f,
 														depth,
 														CollisionType::PENETRATION
@@ -3876,12 +3908,16 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 
 							if (depth < 0.0005f)
 							{
+								const auto planePoint = tempPlanePos + planeTangent * dot(tempCuboidPos - tempPlanePos, planeTangent) + planeBiTangent * dot(tempCuboidPos - tempPlanePos, planeBiTangent);
+
+								const auto normal = glm::normalize(tempCuboidPos - planePoint);
+								
 								ManifoldPoint manPoint = {
 									pCuboid,
 									pPlaneHoles,
 									collisionPoint,
 									collisionPoint,
-									planeNormal,
+									normal,
 									currentTime,
 									0.0f,
 									CollisionType::COLLISION
@@ -3925,7 +3961,7 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 						pPlaneHoles,
 						collisionPoint,
 						collisionPoint,
-						planeNormal,
+						glm::normalize(tempCuboidPos - collisionPoint),
 						currentTime,
 						0.0f,
 						CollisionType::COLLISION
@@ -4729,7 +4765,7 @@ float CollisionDetection::calculateClosestPointBetweenLines(glm::vec3 pLine1Star
 	
 	const auto d1 = pLine1End - pLine1Start;
 	const auto d2 = pLine2End - pLine2Start;
-	const auto r = pLine1Start - pLine1End;
+	const auto r = pLine1Start - pLine2Start;
 
 	const auto a = dot(d1, d1);
 	const auto e = dot(d2, d2);
