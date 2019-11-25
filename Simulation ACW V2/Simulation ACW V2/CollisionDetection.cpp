@@ -53,7 +53,7 @@ void CollisionDetection::dynamicCollisionDetection(RigidBody* pRigidBody1, Rigid
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		detectCollisionCuboidCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+		//detectCollisionCuboidCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::PLANE)
 	{
@@ -1537,12 +1537,6 @@ void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidB
 	const auto cuboidVelocity = pCuboid->getNewPos() - cuboidPos;
 	const auto sphereVelocity = pSphere->getNewPos() - spherePos;
 
-	if (dot(cuboidVelocity, sphereVelocity) > 0.0f)
-	{
-		//Moving away so don't collide
-		return;
-	}
-
 	auto timeStart = pLastCollisionTime;
 	auto currentTime = timeStart;
 	auto timeEnd = 1.0f;
@@ -1587,6 +1581,9 @@ void CollisionDetection::detectCollisionSphereCuboid(RigidBody * pSphere, RigidB
 						dist,
 						CollisionType::PENETRATION
 					};
+
+					pManifold->add(manPoint);
+					return;
 				}
 			}
 
@@ -1732,138 +1729,139 @@ glm::vec3 CollisionDetection::calculateCuboidCollisionNormal(const glm::vec3 pCu
 	const auto xDist = dot(d,pCuboidXAxis);
 	const auto yDist = dot(d,pCuboidYAxis);
 	const auto zDist = dot(d,pCuboidZAxis);
+	const auto EPSILON = 0.0005f;
 
-	if (xDist == pCuboidSize.x &&
-		yDist == pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis + pCuboidYAxis + pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		yDist == pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis + pCuboidYAxis - pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		yDist == -pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis - pCuboidYAxis + pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		yDist == -pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis - pCuboidYAxis - pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis + pCuboidYAxis + pCuboidZAxis;
+		return -pCuboidXAxis + pCuboidYAxis + pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis + pCuboidYAxis - pCuboidZAxis;
+		return -pCuboidXAxis + pCuboidYAxis - pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == -pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis - pCuboidYAxis + pCuboidZAxis;
+		return -pCuboidXAxis - pCuboidYAxis + pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == -pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis - pCuboidYAxis - pCuboidZAxis;
+		return -pCuboidXAxis - pCuboidYAxis - pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		yDist == pCuboidSize.y)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON)
 	{
 		return pCuboidXAxis + pCuboidYAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		yDist == -pCuboidSize.y)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON)
 	{
 		return pCuboidXAxis - pCuboidYAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		zDist == pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis + pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x &&
-		zDist == -pCuboidSize.z)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
 		return pCuboidXAxis - pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == pCuboidSize.y)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis + pCuboidYAxis;
+		return -pCuboidXAxis + pCuboidYAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		yDist == -pCuboidSize.y)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis - pCuboidYAxis;
+		return -pCuboidXAxis - pCuboidYAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		zDist == pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis + pCuboidZAxis;
+		return -pCuboidXAxis + pCuboidZAxis;
 	}
-	if (xDist == -pCuboidSize.x &&
-		zDist == -pCuboidSize.z)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis - pCuboidZAxis;
+		return -pCuboidXAxis - pCuboidZAxis;
 	}
-	if (yDist == pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
 		return pCuboidYAxis + pCuboidZAxis;
 	}
-	if (yDist == pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
 		return pCuboidYAxis - pCuboidZAxis;
 	}
-	if (yDist == -pCuboidSize.y &&
-		zDist == pCuboidSize.z)
+	if (yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidYAxis + pCuboidZAxis;
+		return -pCuboidYAxis + pCuboidZAxis;
 	}
-	if (yDist == -pCuboidSize.y &&
-		zDist == -pCuboidSize.z)
+	if (yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON &&
+		zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidYAxis - pCuboidZAxis;
+		return -pCuboidYAxis - pCuboidZAxis;
 	}
-	if (xDist == pCuboidSize.x)
+	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON)
 	{
 		return pCuboidXAxis;
 	}
-	if (xDist == -pCuboidSize.x)
+	if (xDist < -pCuboidSize.x + EPSILON && xDist > -pCuboidSize.x - EPSILON)
 	{
-		return -1.0f * pCuboidXAxis;
+		return -pCuboidXAxis;
 	}
-	if (yDist == pCuboidSize.y)
+	if (yDist < pCuboidSize.y + EPSILON && yDist > pCuboidSize.y - EPSILON)
 	{
 		return pCuboidYAxis;
 	}
-	if (yDist == -pCuboidSize.y)
+	if (yDist < -pCuboidSize.y + EPSILON && yDist > -pCuboidSize.y - EPSILON)
 	{
-		return -1.0f * pCuboidYAxis;
+		return -pCuboidYAxis;
 	}
-	if (zDist == pCuboidSize.z)
+	if (zDist < pCuboidSize.z + EPSILON && zDist > pCuboidSize.z - EPSILON)
 	{
 		return pCuboidZAxis;
 	}
-	if (zDist == -pCuboidSize.z)
+	if (zDist < -pCuboidSize.z + EPSILON && zDist > -pCuboidSize.z - EPSILON)
 	{
-		return -1.0f * pCuboidZAxis;
+		return -pCuboidZAxis;
 	}
 
 	//TODO: Check that this is almost never reached
@@ -4429,7 +4427,7 @@ void CollisionDetection::detectCollisionCuboidBowl(RigidBody* pCuboid, RigidBody
 										
 										if (dist < 0.0005f)
 										{
-											const auto normal = normalize(temp - closestPoint);
+											const auto normal = normalize(tempCuboidPos - closestPoint);
 											
 											ManifoldPoint manPoint = {
 												pCuboid,

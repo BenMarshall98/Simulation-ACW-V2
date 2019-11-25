@@ -383,20 +383,26 @@ void Game::run()
 	auto lastTime = static_cast<float>(glfwGetTime());
 	while (GLFWWindow::instance()->windowEvents())
 	{
-		if (mAddSphere)
+		static auto once = true;
+		if (mAddSphere && once)
 		{
 			mHoldingContainer->addSphere();
 			mAddSphere = false;
+			once = false;
 		}
 
-		if (mAddCube)
+		static auto oncec = true;
+		if (mAddCube && oncec)
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
+			oncec = false;
 		}
 
 		if (mReset)
 		{
+			once = true;
+			oncec = true;
 			reset();
 			mReset = false;
 		}
