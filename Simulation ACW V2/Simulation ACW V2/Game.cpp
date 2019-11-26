@@ -386,7 +386,7 @@ void Game::run()
 		static auto once = true;
 		if (mAddSphere && once)
 		{
-			mHoldingContainer->addSphere();
+			mHoldingContainer->addCube();
 			mAddSphere = false;
 			once = false;
 		}
@@ -396,7 +396,7 @@ void Game::run()
 		{
 			mHoldingContainer->addCube();
 			mAddCube = false;
-			oncec = false;
+			oncec = true;
 		}
 
 		if (mReset)

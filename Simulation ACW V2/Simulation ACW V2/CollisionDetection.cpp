@@ -1,6 +1,7 @@
 #include "CollisionDetection.h"
 #include "Game.h"
 #include <corecrt_math_defines.h>
+#include "glm/glm.hpp"
 
 //Most of the collision detection algorthims used throughout this code is based on the book Real Time Collision Detection by Christer Ericson
 //The algorthims have then been either adapted or used with others to get the required collision detection
@@ -53,7 +54,7 @@ void CollisionDetection::dynamicCollisionDetection(RigidBody* pRigidBody1, Rigid
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::CUBOID)
 	{
-		//detectCollisionCuboidCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
+		detectCollisionCuboidCuboid(pRigidBody1, pRigidBody2, pManifold, pLastCollisionTime);
 	}
 	else if (pRigidBody1->getObjectType() == ObjectType::CUBOID && pRigidBody2->getObjectType() == ObjectType::PLANE)
 	{
@@ -2173,16 +2174,8 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 
 				if (detectCollisionCuboidCuboidStep(tempCuboid1Pos, tempCuboid1Axis, cuboid1Size, tempCuboid2Pos, tempCuboid2Axis, cuboid2Size))
 				{
-					//Check if vertex or center of cuboid1 is inside cuboid2
-					const auto cuboid1Points = std::vector<glm::vec3>{
-						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
-						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+
+					const auto cuboid1Centers = std::vector<glm::vec3> {
 						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x,
 						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x,
 						tempCuboid1Pos + cuboid1Tangent * cuboid1Size.y,
@@ -2191,40 +2184,18 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 						tempCuboid1Pos - cuboid1BiTangent * cuboid1Size.z
 					};
 					
-					for (auto point : cuboid1Points)
-					{
-						auto inside = false;
-						auto collisionPoint = glm::vec3(0.0f);
-						const auto depth = calculateCuboidCuboidCollisionDepth(point, tempCuboid2Pos, tempCuboid2Axis, cuboid2Size, inside, collisionPoint);
+					const auto cuboid1Points = std::vector<glm::vec3>{
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos + cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x + cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y + cuboid1BiTangent * cuboid1Size.z,
+						tempCuboid1Pos - cuboid1Normal * cuboid1Size.x - cuboid1Tangent * cuboid1Size.y - cuboid1BiTangent * cuboid1Size.z
+					};
 
-						if (inside)
-						{
-							ManifoldPoint manPoint = {
-								pCuboid2,
-								pCuboid1,
-								collisionPoint,
-								collisionPoint,
-								normalize(calculateCuboidCollisionNormal(tempCuboid1Pos, tempCuboid1Axis[0], tempCuboid1Axis[1], tempCuboid1Axis[2], cuboid1Size, collisionPoint)),
-								0.0f,
-								depth,
-								CollisionType::PENETRATION
-							};
-
-							pManifold->add(manPoint);
-							return;
-						}
-					}
-
-					//Check if vertex or center of cuboid2 is inside cuboid1
-					const auto cuboid2Points = std::vector<glm::vec3>{
-						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
-						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
+					const auto cuboid2Centers = std::vector<glm::vec3> {
 						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x,
 						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x,
 						tempCuboid2Pos + cuboid2Tangent * cuboid2Size.y,
@@ -2233,31 +2204,17 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 						tempCuboid2Pos - cuboid2BiTangent * cuboid2Size.z
 					};
 
-					for (auto point : cuboid2Points)
-					{
-						auto inside = false;
-						auto collisionPoint = glm::vec3(0.0f);
-						const auto depth = calculateCuboidCuboidCollisionDepth(point, tempCuboid1Pos, tempCuboid1Axis, cuboid1Size, inside, collisionPoint);
+					const auto cuboid2Points = std::vector<glm::vec3>{
+						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos + cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x + cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y + cuboid2BiTangent * cuboid2Size.z,
+						tempCuboid2Pos - cuboid2Normal * cuboid2Size.x - cuboid2Tangent * cuboid2Size.y - cuboid2BiTangent * cuboid2Size.z
+					};
 
-						if (inside)
-						{
-							ManifoldPoint manPoint = {
-								pCuboid1,
-								pCuboid2,
-								collisionPoint,
-								collisionPoint,
-								normalize(calculateCuboidCollisionNormal(tempCuboid2Pos, tempCuboid2Axis[0], tempCuboid2Axis[1], tempCuboid2Axis[2], cuboid2Size, collisionPoint)),
-								0.0f,
-								depth,
-								CollisionType::PENETRATION
-							};
-
-							pManifold->add(manPoint);
-							return;
-						}
-					}
-
-					//Check if edge of cuboid1 is inside cuboid2 and vice versa
 					const auto cuboidPairs = std::vector<glm::ivec2>{
 						glm::ivec2(0, 1),
 						glm::ivec2(0, 2),
@@ -2273,58 +2230,235 @@ void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidB
 						glm::ivec2(6, 4)
 					};
 
+					//Check if vertex of cuboid1 is inside cuboid2
+
+					for (auto point : cuboid1Points)
+					{
+						for (auto i = 0u; i < cuboid2Centers.size(); i++)
+						{
+							std::vector<glm::vec3> axis;
+							glm::vec3 size;
+
+							if (i == 0 || i == 1)
+							{
+								axis = { cuboid2Normal, cuboid2Tangent, cuboid2BiTangent };
+								size = glm::vec3(0.0, cuboid2Size.y, cuboid2Size.z);
+							}
+							else if (i == 2 || i == 3)
+							{
+								axis = {  cuboid2Tangent, cuboid2BiTangent, cuboid2Normal };
+								size = glm::vec3(0.0, cuboid2Size.z, cuboid2Size.x);
+							}
+							else if (i == 4 || i == 5)
+							{
+								axis = {  cuboid2BiTangent, cuboid2Normal, cuboid2Tangent };
+								size = glm::vec3(0.0, cuboid2Size.x, cuboid2Size.y);
+							}
+							
+							glm::vec3 collisionPoint;
+							if (calculateCuboidPointPlaneCollision(tempCuboid1Pos, point, cuboid2Centers[i], axis, size, collisionPoint))
+							{
+								ManifoldPoint manPoint = {
+									pCuboid1,
+									pCuboid2,
+									collisionPoint,
+									collisionPoint,
+									normalize(dot(collisionPoint - tempCuboid2Pos, axis[0]) * axis[0]),
+									0.0f,
+									length(collisionPoint - point),
+									CollisionType::PENETRATION
+								};
+
+								pManifold->add(manPoint);
+								return;
+							}
+						}
+					}
+
+					//Check if edge of cuboid1 is inside cuboid2
+
 					for (auto pair1 : cuboidPairs)
 					{
-						for (auto pair2 : cuboidPairs)
+						for (auto i = 0u; i < cuboid2Centers.size(); i++)
 						{
-							glm::vec3 collisionPoint1;
-							glm::vec3 collisionPoint2;
+							std::vector<glm::vec3> axis;
+							glm::vec3 size;
 
-							calculateClosestPointBetweenLines(cuboid1Points[pair1.x], cuboid1Points[pair1.y], cuboid2Points[pair2.x], cuboid2Points[pair2.y], collisionPoint1, collisionPoint2);
-
+							if (i == 0 || i == 1)
 							{
-								auto inside = false;
-								auto collisionPoint = glm::vec3(0.0f);
-								const auto depth = calculateCuboidCuboidCollisionDepth(collisionPoint1, tempCuboid2Pos, tempCuboid2Axis, cuboid2Size, inside, collisionPoint);
-
-								if (inside)
-								{
-									ManifoldPoint manPoint = {
-										pCuboid2,
-										pCuboid1,
-										collisionPoint,
-										collisionPoint,
-										normalize(calculateCuboidCollisionNormal(tempCuboid1Pos, tempCuboid1Axis[0], tempCuboid1Axis[1], tempCuboid1Axis[2], cuboid1Size, collisionPoint1)),
-										0.0f,
-										depth,
-										CollisionType::PENETRATION
-									};
-
-									pManifold->add(manPoint);
-									return;
-								}
+								axis = { cuboid2Normal, cuboid2Tangent, cuboid2BiTangent };
+								size = glm::vec3(0.0, cuboid2Size.y, cuboid2Size.z);
+							}
+							else if (i == 2 || i == 3)
+							{
+								axis = { cuboid2Tangent, cuboid2BiTangent, cuboid2Normal };
+								size = glm::vec3(0.0, cuboid2Size.z, cuboid2Size.x);
+							}
+							else if (i == 4 || i == 5)
+							{
+								axis = { cuboid2BiTangent, cuboid2Normal, cuboid2Tangent };
+								size = glm::vec3(0.0, cuboid2Size.x, cuboid2Size.y);
 							}
 
+							glm::vec3 collisionPoint;
+							if (calculateCuboidPointPlaneCollision(cuboid1Points[pair1.x], cuboid1Points[pair1.y], cuboid2Centers[i], axis, size, collisionPoint))
 							{
-								auto inside = false;
-								auto collisionPoint = glm::vec3(0.0f);
-								const auto depth = calculateCuboidCuboidCollisionDepth(collisionPoint2, tempCuboid1Pos, tempCuboid1Axis, cuboid1Size, inside, collisionPoint);
-
-								if (inside)
+								//Calculate where the edge exits so that depth can be calculated
+								for (auto j = i + 1; j < cuboid2Centers.size(); j++)
 								{
-									ManifoldPoint manPoint = {
-										pCuboid1,
-										pCuboid2,
-										collisionPoint,
-										collisionPoint,
-										normalize(calculateCuboidCollisionNormal(tempCuboid2Pos, tempCuboid2Axis[0], tempCuboid2Axis[1], tempCuboid2Axis[2], cuboid2Size, collisionPoint2)),
-										0.0f,
-										depth,
-										CollisionType::PENETRATION
-									};
+									std::vector<glm::vec3> axis2;
+									glm::vec3 size2;
 
-									pManifold->add(manPoint);
-									return;
+									if (j == 0 || j == 1)
+									{
+										axis2 = { cuboid2Normal, cuboid2Tangent, cuboid2BiTangent };
+										size2 = glm::vec3(0.0, cuboid2Size.y, cuboid2Size.z);
+									}
+									else if (j == 2 || j == 3)
+									{
+										axis2 = { cuboid2Tangent, cuboid2BiTangent, cuboid2Normal };
+										size2 = glm::vec3(0.0, cuboid2Size.z, cuboid2Size.x);
+									}
+									else if (j == 4 || j == 5)
+									{
+										axis2 = { cuboid2BiTangent, cuboid2Normal, cuboid2Tangent };
+										size2 = glm::vec3(0.0, cuboid2Size.x, cuboid2Size.y);
+									}
+
+									glm::vec3 collisionPoint2;
+									if (calculateCuboidPointPlaneCollision(cuboid1Points[pair1.x], cuboid1Points[pair1.y], cuboid2Centers[j], axis2, size2, collisionPoint2))
+									{
+										ManifoldPoint manPoint = {
+											pCuboid1,
+											pCuboid2,
+											collisionPoint,
+											collisionPoint,
+											glm::normalize(dot(collisionPoint - tempCuboid2Pos, axis[0]) * axis[0]),
+											0.0f,
+											glm::abs(dot(collisionPoint - tempCuboid2Pos, axis[0]) - dot(collisionPoint2 - tempCuboid2Pos, axis[0])),
+											CollisionType::PENETRATION
+										};
+
+										pManifold->add(manPoint);
+										return;
+									}
+								}
+							}
+						}
+					}
+
+					//Check if vertex of cuboid2 is inside cuboid1
+
+					for (auto point : cuboid2Points)
+					{
+						for (auto i = 0u; i < cuboid1Centers.size(); i++)
+						{
+							std::vector<glm::vec3> axis;
+							glm::vec3 size;
+
+							if (i == 0 || i == 1)
+							{
+								axis = { cuboid1Normal, cuboid1Tangent, cuboid1BiTangent };
+								size = glm::vec3(0.0, cuboid1Size.y, cuboid1Size.z);
+							}
+							else if (i == 2 || i == 3)
+							{
+								axis = { cuboid1Tangent, cuboid1BiTangent, cuboid1Normal };
+								size = glm::vec3(0.0, cuboid1Size.z, cuboid1Size.x);
+							}
+							else if (i == 4 || i == 5)
+							{
+								axis = { cuboid1BiTangent, cuboid1Normal, cuboid1Tangent };
+								size = glm::vec3(0.0, cuboid1Size.x, cuboid1Size.y);
+							}
+
+							glm::vec3 collisionPoint;
+							if (calculateCuboidPointPlaneCollision(tempCuboid2Pos, point, cuboid1Centers[i], axis, size, collisionPoint))
+							{
+								ManifoldPoint manPoint = {
+									pCuboid2,
+									pCuboid1,
+									collisionPoint,
+									collisionPoint,
+									normalize(dot(collisionPoint - tempCuboid1Pos, axis[0]) * axis[0]),
+									0.0f,
+									length(collisionPoint - point),
+									CollisionType::PENETRATION
+								};
+
+								pManifold->add(manPoint);
+								return;
+							}
+						}
+					}
+
+					//Check if edge of cuboid2 is inside cuboid1
+
+					for (auto pair1 : cuboidPairs)
+					{
+						for (auto i = 0u; i < cuboid1Centers.size(); i++)
+						{
+							std::vector<glm::vec3> axis;
+							glm::vec3 size;
+
+							if (i == 0 || i == 1)
+							{
+								axis = { cuboid1Normal, cuboid1Tangent, cuboid1BiTangent };
+								size = glm::vec3(0.0, cuboid1Size.y, cuboid1Size.z);
+							}
+							else if (i == 2 || i == 3)
+							{
+								axis = { cuboid1Tangent, cuboid1BiTangent, cuboid1Normal };
+								size = glm::vec3(0.0, cuboid1Size.z, cuboid1Size.x);
+							}
+							else if (i == 4 || i == 5)
+							{
+								axis = { cuboid1BiTangent, cuboid1Normal, cuboid1Tangent };
+								size = glm::vec3(0.0, cuboid1Size.x, cuboid1Size.y);
+							}
+
+							glm::vec3 collisionPoint;
+							if (calculateCuboidPointPlaneCollision(cuboid2Points[pair1.x], cuboid2Points[pair1.y], cuboid1Centers[i], axis, size, collisionPoint))
+							{
+								//Calculate where the edge exits so that depth can be calculated
+								for (auto j = i + 1; j < cuboid1Centers.size(); j++)
+								{
+									std::vector<glm::vec3> axis2;
+									glm::vec3 size2;
+
+									if (j == 0 || j == 1)
+									{
+										axis2 = { cuboid1Normal, cuboid1Tangent, cuboid1BiTangent };
+										size2 = glm::vec3(0.0, cuboid1Size.y, cuboid1Size.z);
+									}
+									else if (j == 2 || j == 3)
+									{
+										axis2 = { cuboid1Tangent, cuboid1BiTangent, cuboid1Normal };
+										size2 = glm::vec3(0.0, cuboid1Size.z, cuboid1Size.x);
+									}
+									else if (j == 4 || j == 5)
+									{
+										axis2 = { cuboid1BiTangent, cuboid1Normal, cuboid1Tangent };
+										size2 = glm::vec3(0.0, cuboid1Size.x, cuboid1Size.y);
+									}
+
+									glm::vec3 collisionPoint2;
+									if (calculateCuboidPointPlaneCollision(cuboid2Points[pair1.x], cuboid2Points[pair1.y], cuboid1Centers[j], axis2, size2, collisionPoint2))
+									{
+										ManifoldPoint manPoint = {
+											pCuboid2,
+											pCuboid1,
+											collisionPoint,
+											collisionPoint,
+											glm::normalize(dot(collisionPoint - tempCuboid1Pos, axis[0]) * axis[0]),
+											0.0f,
+											glm::abs(dot(collisionPoint - tempCuboid1Pos, axis[0]) - dot(collisionPoint2 - tempCuboid1Pos, axis[0])),
+											CollisionType::PENETRATION
+										};
+
+										pManifold->add(manPoint);
+										return;
+									}
 								}
 							}
 						}
