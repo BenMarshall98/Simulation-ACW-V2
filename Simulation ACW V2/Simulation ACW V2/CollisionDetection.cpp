@@ -1727,9 +1727,9 @@ glm::vec3 CollisionDetection::calculateCuboidCollisionNormal(const glm::vec3 pCu
 {
 	const auto d = pPoint - pCuboidCenter;
 
-	const auto xDist = dot(d,pCuboidXAxis);
-	const auto yDist = dot(d,pCuboidYAxis);
-	const auto zDist = dot(d,pCuboidZAxis);
+	const auto xDist = glm::max(-pCuboidSize.x, glm::min(dot(d,pCuboidXAxis), pCuboidSize.x));
+	const auto yDist = glm::max(-pCuboidSize.y, glm::min(dot(d,pCuboidYAxis), pCuboidSize.y));
+	const auto zDist = glm::max(-pCuboidSize.z, glm::min(dot(d,pCuboidZAxis), pCuboidSize.z));
 	const auto EPSILON = 0.0005f;
 
 	if (xDist < pCuboidSize.x + EPSILON && xDist > pCuboidSize.x - EPSILON &&
