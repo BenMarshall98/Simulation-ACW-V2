@@ -36,6 +36,7 @@ class Game
 	static float mFriction;
 	static float mSphereElasticity;
 	static float mSphereSize;
+	static float mCuboidSize;
 	static float mDt;
 	
 	void update();
@@ -156,6 +157,18 @@ public:
 		}
 	}
 
+	static void changeCuboidSize(const bool pDirection)
+	{
+		if (pDirection)
+		{
+			mCuboidSize += 0.1f;
+		}
+		else if (mCuboidSize > 0.1f)
+		{
+			mCuboidSize -= 0.1f;
+		}
+	}
+
 	static float getUpdateDt()
 	{
 		return mDt * mTimeScale;
@@ -164,6 +177,11 @@ public:
 	static float getSphereSize()
 	{
 		return mSphereSize;
+	}
+
+	static float getCuboidSize()
+	{
+		return mCuboidSize;
 	}
 
 	static bool getAngularDisable()

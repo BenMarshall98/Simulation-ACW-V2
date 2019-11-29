@@ -396,6 +396,56 @@ bool GLFWWindow::windowEvents()
 		}
 	}
 
+	{
+		static auto size = true;
+		static auto sizeCounter = 0;
+
+		if (size && glfwGetKey(mWindow, GLFW_KEY_T) == GLFW_PRESS)
+		{
+			Game::changeCuboidSize(true);
+			size = false;
+			sizeCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_T) == GLFW_RELEASE)
+		{
+			size = true;
+		}
+
+		if (!size && sizeCounter > 30)
+		{
+			size = true;
+		}
+		else if (!size)
+		{
+			sizeCounter++;
+		}
+	}
+
+	{
+		static auto size = true;
+		static auto sizeCounter = 0;
+
+		if (size && glfwGetKey(mWindow, GLFW_KEY_G) == GLFW_PRESS)
+		{
+			Game::changeCuboidSize(false);
+			size = false;
+			sizeCounter = 0;
+		}
+		else if (glfwGetKey(mWindow, GLFW_KEY_G) == GLFW_RELEASE)
+		{
+			size = true;
+		}
+
+		if (!size && sizeCounter > 30)
+		{
+			size = true;
+		}
+		else if (!size)
+		{
+			sizeCounter++;
+		}
+	}
+
 	if (glfwGetKey(mWindow, GLFW_KEY_1) == GLFW_PRESS)
 	{
 		Game::addSphere();

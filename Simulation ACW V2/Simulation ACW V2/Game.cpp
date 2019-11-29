@@ -22,6 +22,7 @@ float Game::mTimeScale = 1.0f;
 float Game::mFriction = 0.1f;
 float Game::mSphereElasticity = 0.8f;
 float Game::mSphereSize = 0.5f;
+float Game::mCuboidSize = 0.625f;
 bool Game::mReset = false;
 bool Game::mPause = false;
 bool Game::mAddSphere = false;
@@ -49,6 +50,8 @@ void Game::reset()
 	mFriction = 0.1f;
 	mSphereElasticity = 0.8f;
 	mSphereSize = 0.5f;
+	mCuboidSize = 0.625f;
+	mAngularDisable = false;
 }
 
 void Game::build()
@@ -314,9 +317,11 @@ void Game::display()
 	static auto lastNumberOfBalls = 0;
 	static auto lastNumberOfCubes = 0;
 	static auto lastSphereSize = 0.0f;
+	static auto lastCuboidSize = 0.0f;
 	static auto lastTimeScale = 0.0f;
 	static auto lastFriction = 0.0f;
 	static auto lastElasticity = 0.0f;
+	static auto lastNovelty = false;
 	
 	auto numberOfBalls = 0;
 	auto numberOfCubes = 0;
@@ -351,6 +356,12 @@ void Game::display()
 		lastSphereSize = mSphereSize;
 	}
 
+	if (mCuboidSize != lastCuboidSize)
+	{
+		std::cout << "The size of the Cuboids: " << mCuboidSize << "\n";
+		lastCuboidSize = mCuboidSize;
+	}
+
 	if (mTimeScale != lastTimeScale)
 	{
 		std::cout << "The current time scale is: " << mTimeScale * 100 << "% of real time" << "\n";
@@ -367,6 +378,19 @@ void Game::display()
 	{
 		std::cout << "The Elasticity Magnitude is: " << mSphereElasticity << "\n";
 		lastElasticity = mSphereElasticity;
+	}
+
+	if (mAngularDisable != lastNovelty)
+	{
+		if (mAngularDisable)
+		{
+			std::cout << "Novelty Enabled \n";
+		}
+		else
+		{
+			std::cout << "Novelty Disabled \n";
+		}
+		lastNovelty = mAngularDisable;
 	}
 }
 
