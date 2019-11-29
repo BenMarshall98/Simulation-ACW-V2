@@ -2,9 +2,6 @@
 #include "Game.h"
 #include <corecrt_math_defines.h>
 
-//https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
-//http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.6905&rep=rep1&type=pdf
-
 void CollisionResponse::dynamicCollisionResponse(ManifoldPoint& pPoint, bool & pMoved1, bool & pMoved2)
 {
 	auto * rigidBody1 = pPoint.mContactId1;
@@ -781,11 +778,13 @@ void CollisionResponse::staticCollisionResponse(ManifoldPoint& pPoint, glm::vec3
 	}
 	
 	tempVel = tempVel + j * inverseMass * pPoint.mContactNormal;
+	tempVel = tempVel - j * Game::getSphereFriction() * tangent;
 
 	if (!Game::getAngularDisable())
 	{
 		tempAngVel = tempAngVel + j * worldTensor * cross(rigidBodyCenterToCollision, pPoint.mContactNormal);
+		tempAngVel = tempAngVel - j * worldTensor * cross(rigidBodyCenterToCollision, tangent);
 	}
 
-	tempVel = tempVel - j * Game::getSphereFriction() * tangent;
+	
 }

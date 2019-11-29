@@ -4,7 +4,6 @@
 #include <iostream>
 #include "GLFWWindow.h"
 
-//TODO: Change the size to reflect the actual size of the balls
 
 OctreeModel * Octree::mModel = nullptr;// new OctreeModel();
 Shader * Octree::mShader = nullptr;// new Shader("octreeVertex.vert", "octreeFragment.frag");

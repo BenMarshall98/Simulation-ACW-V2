@@ -1284,8 +1284,6 @@ void CollisionDetection::detectCollisionSpherePlaneHoles(RigidBody * pSphere, Ri
 	}
 }
 
-//http://www.peroxide.dk/papers/collision/collision.pdf
-
 bool CollisionDetection::detectCollisionSphereLine(RigidBody * pSphere, const glm::vec3 pLineEnd1, const glm::vec3 pLineEnd2, const glm::vec3 pLineVelocity, float& pTime, const float pLastCollisionTime)
 {
 	glm::vec3 spherePos;
@@ -1865,7 +1863,6 @@ glm::vec3 CollisionDetection::calculateCuboidCollisionNormal(const glm::vec3 pCu
 		return -pCuboidZAxis;
 	}
 
-	//TODO: Check that this is almost never reached
 	return glm::vec3(0, 1, 0);
 }
 
@@ -2096,7 +2093,6 @@ float CollisionDetection::calculateCuboidCuboidCollisionDepth(glm::vec3 pPoint, 
 
 void CollisionDetection::detectCollisionCuboidCuboid(RigidBody* pCuboid1, RigidBody* pCuboid2, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	//TODO: Implement
 	glm::vec3 cuboid1Pos;
 
 	if (pCuboid1->getCurrentUpdateTime() < pLastCollisionTime)
@@ -3246,7 +3242,6 @@ void CollisionDetection::detectCollisionCuboidPlane(RigidBody* pCuboid, RigidBod
 
 void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, RigidBody* pPlaneHoles, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	//TODO: Implement
 	glm::vec3 cuboidPos;
 
 	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
@@ -3341,7 +3336,6 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 						auto dotX = dot(point - tempPlanePos, planeTangent);
 						auto dotY = dot(point - tempPlanePos, planeBiTangent);
 						
-						//TODO: Deal with case that point is within hole
 						std::vector<glm::vec3> centers =
 						{
 							-3.0f * planeTangent,
@@ -3614,7 +3608,6 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 					glm::vec3 temp;
 					if (calculateCuboidPointPlaneCollision(tempCuboidPos, point, tempPlanePos, planeAxis, planeSize, temp))
 					{
-						//TODO: Deal with case that point is within holes
 						ret = false;
 
 						auto dotX = dot(point - tempPlanePos, planeTangent);
@@ -3789,7 +3782,6 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 				glm::vec3 temp;
 				if (calculateCuboidPointPlaneCollision(tempCuboidPos, point, tempPlanePos, planeAxis, planeSize, temp))
 				{
-					//TODO: Deal with case that point is with holes
 					collision = true;
 
 					auto dotX = dot(point - tempPlanePos, planeTangent);
@@ -3936,7 +3928,6 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 						auto dotX = dot(point - tempPlanePos, planeTangent);
 						auto dotY = dot(point - tempPlanePos, planeBiTangent);
 
-						//TODO: Deal with case that point is within hole
 						std::vector<glm::vec3> centers =
 						{
 							-3.0f * planeTangent,
@@ -4146,7 +4137,6 @@ void CollisionDetection::detectCollisionCuboidPlaneHoles(RigidBody* pCuboid, Rig
 
 void CollisionDetection::detectCollisionCuboidBowl(RigidBody* pCuboid, RigidBody* pBowl, ContactManifold* pManifold, float pLastCollisionTime)
 {
-	//TODO: Implement
 	glm::vec3 cuboidPos;
 
 	if (pCuboid->getCurrentUpdateTime() < pLastCollisionTime)
@@ -4963,6 +4953,7 @@ float CollisionDetection::calculateClosestPointBetweenLines(glm::vec3 pLine1Star
 	return length(pLine1Point - pLine2Point);
 }
 
+//The following collision detection is based on the theory given in this paper
 //https://www10.cs.fau.de/publications/theses/2010/Suenkel_BT_2010.pdf
 
 bool CollisionDetection::detectCollisionSphereCylinderStep(glm::vec3 pCylinderCenter, glm::vec3 pCylinderEndPoint1, glm::vec3 pCylinderEndPoint2, float pCylinderRadius, float pCylinderHeight, glm::vec3 pSpherePos, float pSphereRadius, float & distance, glm::vec3 & pCollisionPoint)

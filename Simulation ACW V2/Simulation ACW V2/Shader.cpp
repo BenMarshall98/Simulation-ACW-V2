@@ -19,7 +19,6 @@ Shader::Shader(const std::string& pVertexProgram, const std::string& pFragmentPr
 
 	if (!success)
 	{
-		//TODO: Error
 	}
 
 	glDetachShader(mShaderId, vertexShader);
@@ -61,7 +60,6 @@ int Shader::compileShader(const std::string& pFileName, const GLenum pShaderType
 
 	if (!success)
 	{
-		//TODO: Error
 	}
 
 	return shader;
@@ -73,7 +71,6 @@ auto Shader::readShader(const std::string& pFileName, std::string& pShaderProgra
 
 	if (reader.fail())
 	{
-		//TODO: Error
 		return;
 	}
 

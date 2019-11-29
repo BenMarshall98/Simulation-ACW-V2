@@ -128,7 +128,6 @@ void HoldingContainer::update()
 
 				angularVelocity /= 100.f;
 				
-				//TODO: Look at random velocity
 				const auto sphere = new Sphere(Game::getSphereSize(), 0.02, holdingCell->getLocation(),
 					angularVelocity, velocity, color);
 
@@ -148,7 +147,6 @@ void HoldingContainer::update()
 		{
 			if (holdingCell->getNumberRigidBody() == 0)
 			{
-				//TODO: Look at random velocity
 				const auto velocity = glm::vec3(0, 0, 0);
 				const auto size = 0.625;
 				const auto sphere = new Cuboid(glm::vec3(size, size, size), 0.02, holdingCell->getLocation(),
